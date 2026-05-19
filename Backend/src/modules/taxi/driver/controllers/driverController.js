@@ -5822,6 +5822,14 @@ export const createDriverWalletTopupOrder = async (req, res) => {
     keySecret,
   });
 
+  // Build the callback URL that Razorpay will POST to after payment redirect.
+  // In production (behind a reverse proxy), the backend is at the same origin
+  // as the frontend. In development, we use the request's own protocol/host.
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
+  const host = req.get('x-forwarded-host') || req.get('host') || 'localhost:5000';
+  const backendOrigin = `${proto}://${host}`;
+  const callbackUrl = `${backendOrigin}/api/v1/drivers/wallet/top-up/razorpay/callback`;
+
   res.status(201).json({
     success: true,
     data: {
@@ -5829,6 +5837,7 @@ export const createDriverWalletTopupOrder = async (req, res) => {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency || "INR",
+      callbackUrl,
     },
   });
 };

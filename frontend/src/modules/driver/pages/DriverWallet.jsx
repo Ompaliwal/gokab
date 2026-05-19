@@ -15,9 +15,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 import api from '../../../shared/api/axiosInstance';
+import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
 import { socketService } from '../../../shared/api/socket';
 import { useSettings } from '../../../shared/context/SettingsContext';
-import { openExternalCheckout } from '../../../shared/utils/externalNavigation';
+import { isEmbeddedCheckoutWebView, openExternalCheckout } from '../../../shared/utils/externalNavigation';
 import { rememberPendingPhonePeRedirect } from '../../../shared/utils/phonePeResume';
 import { getLocalDriverToken } from '../services/registrationService';
 
@@ -427,6 +428,59 @@ const DriverWallet = () => {
             }
 
             // 2. Open Razorpay checkout
+            const driverPhone = driverInfo?.phone || driverInfo?.mobile || '';
+            const prefillContact = driverPhone
+                ? `+91${String(driverPhone).replace(/^\+?91/, '')}`
+                : '';
+
+            // In Flutter WebView, UPI app intents (Google Pay, PhonePe, Paytm)
+            // cannot be launched from Razorpay's inline modal because WebViews
+            // block intent:// and upi:// deep-link URLs. This causes UPI payment
+            // options to be hidden entirely from the checkout UI.
+            //
+            // The fix: detect WebView and switch to redirect mode (callback_url +
+            // redirect: true). Razorpay then does a full-page redirect flow where
+            // UPI intents work properly. After payment, Razorpay POSTs to our
+            // backend callback endpoint which verifies the payment and redirects
+            // the user back to the /razorpay/status frontend page.
+            if (isEmbeddedCheckoutWebView()) {
+                const callbackUrl = orderData.callbackUrl
+                    || `${API_BASE_URL}/drivers/wallet/top-up/razorpay/callback`;
+
+                const rzp = new window.Razorpay({
+                    key: orderData.keyId,
+                    amount: orderData.amount,
+                    currency: orderData.currency || 'INR',
+                    name: appName,
+                    description: 'Wallet Topup',
+                    order_id: orderData.orderId,
+                    callback_url: callbackUrl,
+                    redirect: true,
+                    prefill: {
+                        name: driverInfo?.name || driverInfo?.full_name || '',
+                        email: driverInfo?.email || '',
+                        contact: prefillContact,
+                    },
+                    modal: {
+                        ondismiss: () => {
+                            setProcessingTopUp(false);
+                        },
+                    },
+                    theme: {
+                        color: '#E85D04',
+                    },
+                });
+
+                rzp.on('payment.failed', (event) => {
+                    const message = event?.error?.description || event?.error?.reason || 'Payment failed';
+                    setError(message);
+                    setProcessingTopUp(false);
+                });
+                rzp.open();
+                return;
+            }
+
+            // Regular browser flow — use handler function for inline verification
             const options = {
                 key: orderData.keyId,
                 amount: orderData.amount,
@@ -437,9 +491,7 @@ const DriverWallet = () => {
                 prefill: {
                     name: driverInfo?.name || driverInfo?.full_name || '',
                     email: driverInfo?.email || '',
-                    contact: driverInfo?.phone || driverInfo?.mobile
-                        ? `+91${String(driverInfo?.phone || driverInfo?.mobile).replace(/^\+?91/, '')}`
-                        : '',
+                    contact: prefillContact,
                 },
                 modal: {
                     ondismiss: () => {
