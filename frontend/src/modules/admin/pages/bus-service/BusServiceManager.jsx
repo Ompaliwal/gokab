@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Autocomplete,
+  GoogleMap,
+  MarkerF,
+  Polyline,
+} from '@react-google-maps/api';
 import {
   Armchair,
   Bus,
@@ -20,6 +26,7 @@ import {
 import toast from 'react-hot-toast';
 import {
   BUS_BLUEPRINT_TEMPLATES,
+  createBusBlueprint,
   countTotalSeats,
   createBlueprintFromTemplate,
   createBusDraft,
@@ -28,6 +35,7 @@ import {
   upsertAdminBus as defaultUpsertBus,
 } from '../../services/busService';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../utils/googleMaps';
 
 const DAY_OPTIONS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const AMENITY_OPTIONS = [
@@ -87,6 +95,43 @@ const blankCancellationRule = () => ({
   notes: '',
 });
 
+const CITY_AUTOCOMPLETE_FIELDS = ['address_components', 'formatted_address', 'geometry', 'name', 'place_id'];
+const ROUTE_MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
+
+const toCoords = (value) => {
+  const lat = Number(value?.lat);
+  const lng = Number(value?.lng);
+
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return { lat, lng };
+  }
+
+  return null;
+};
+
+const getCityLabelFromPlace = (place) => {
+  const components = Array.isArray(place?.address_components) ? place.address_components : [];
+  const locality =
+    components.find((component) => component.types?.includes('locality'))?.long_name ||
+    components.find((component) => component.types?.includes('administrative_area_level_3'))?.long_name ||
+    components.find((component) => component.types?.includes('administrative_area_level_2'))?.long_name;
+
+  return String(locality || place?.name || place?.formatted_address || '').trim();
+};
+
+const getCoordsFromPlace = (place) => {
+  const location = place?.geometry?.location;
+
+  if (!location || typeof location.lat !== 'function' || typeof location.lng !== 'function') {
+    return null;
+  }
+
+  return {
+    lat: Number(location.lat()),
+    lng: Number(location.lng()),
+  };
+};
+
 const swapStopType = (stopType = 'pickup') => {
   if (stopType === 'pickup') return 'drop';
   if (stopType === 'drop') return 'pickup';
@@ -100,6 +145,8 @@ const buildMirroredReturnRoute = (route = {}) => ({
       : '',
   originCity: route.destinationCity || '',
   destinationCity: route.originCity || '',
+  originCoords: toCoords(route.destinationCoords),
+  destinationCoords: toCoords(route.originCoords),
   distanceKm: route.distanceKm || '',
   durationHours: route.durationHours || '',
   stops: Array.isArray(route.stops)
@@ -127,7 +174,7 @@ const fileToDataUrl = (file) =>
 
 const SeatCell = ({ cell, onToggle }) => {
   if (!cell || cell.kind !== 'seat') {
-    return <div className="h-10 rounded-xl bg-slate-100/80" />;
+    return <div className="h-11 rounded-2xl bg-transparent" />;
   }
 
   const isBlocked = cell.status === 'blocked';
@@ -136,27 +183,29 @@ const SeatCell = ({ cell, onToggle }) => {
     <button
       type="button"
       onClick={onToggle}
-      className={`relative flex items-center justify-center border text-[10px] font-black tracking-wider transition ${
+      className={`relative flex items-center justify-center overflow-hidden border text-[10px] font-black tracking-wider transition ${
         isBlocked
           ? 'border-rose-200 bg-rose-50 text-rose-500'
           : isSleeper
-            ? 'border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300 hover:text-sky-800'
+            ? 'border-sky-200 bg-gradient-to-br from-sky-50 to-cyan-50 text-sky-700 hover:border-sky-300 hover:text-sky-800'
             : 'border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:text-indigo-600'
       }`}
       title={isBlocked ? 'Seat blocked for sale' : 'Seat available for sale'}
       style={{
-        minHeight: isSleeper ? '56px' : '40px',
-        borderRadius: isSleeper ? '18px' : '12px',
+        minHeight: isSleeper ? '58px' : '44px',
+        borderRadius: isSleeper ? '18px' : '14px',
       }}
     >
       {isSleeper ? (
         <>
-          <span className="absolute bottom-1 left-1 top-1 w-2 rounded-full bg-sky-200" />
-          <span className="pl-3">{cell.label}</span>
+          <span className="absolute inset-y-1 left-1.5 w-2 rounded-full bg-sky-200" />
+          <span className="absolute right-1.5 top-1.5 h-2 w-8 rounded-full bg-white/60" />
+          <span className="pl-4">{cell.label}</span>
         </>
       ) : (
         <>
-          <span className="absolute inset-x-2 top-1 h-1 rounded-full bg-slate-200" />
+          <span className="absolute inset-x-2 top-1.5 h-1.5 rounded-full bg-slate-200" />
+          <span className="absolute bottom-1 right-1.5 h-2.5 w-2.5 rounded-full bg-slate-100" />
           <span>{cell.label}</span>
         </>
       )}
@@ -167,21 +216,37 @@ const SeatCell = ({ cell, onToggle }) => {
 const SeatDeckPreview = ({ title, deckRows, onToggleSeat }) => {
   if (!deckRows?.length) return null;
 
+  const maxColumns = Math.max(...deckRows.map((row) => row.length), 1);
+
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-4 shadow-inner">
+    <div className="rounded-[32px] border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-4 shadow-inner">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-bold text-slate-900">{title}</h4>
-          <p className="text-[10px] font-medium text-slate-500">Click any seat to block or reopen it.</p>
+          <h4 className="text-sm font-black text-slate-900">{title}</h4>
+          <p className="text-[10px] font-medium text-slate-500">Tap any seat or berth to block or reopen it.</p>
         </div>
         <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-          Coach View
+          RedBus Style
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="rounded-[26px] border border-slate-200 bg-white p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+            Entry
+          </div>
+          <div className="flex h-12 w-12 rotate-45 items-center justify-center rounded-2xl border-4 border-slate-200 border-b-transparent border-r-transparent">
+            <div className="-rotate-45 text-[9px] font-black uppercase tracking-wider text-slate-400">Front</div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
         {deckRows.map((row, rowIndex) => (
-          <div key={`${title}-${rowIndex}`} className="grid grid-cols-5 gap-2">
+          <div
+            key={`${title}-${rowIndex}`}
+            className="grid gap-2"
+            style={{ gridTemplateColumns: `repeat(${Math.max(maxColumns, row.length)}, minmax(0, 1fr))` }}
+          >
             {row.map((cell, cellIndex) => (
               <SeatCell
                 key={`${title}-${rowIndex}-${cellIndex}-${cell?.id || 'aisle'}`}
@@ -191,10 +256,82 @@ const SeatDeckPreview = ({ title, deckRows, onToggleSeat }) => {
             ))}
           </div>
         ))}
+        </div>
       </div>
     </div>
   );
 };
+
+const BlueprintDeckConfigurator = ({ title, config, onChange }) => (
+  <div className="rounded-[24px] border border-slate-200 bg-slate-50/80 p-4">
+    <div className="mb-4 flex items-center justify-between">
+      <div>
+        <h4 className="text-sm font-black text-slate-900">{title}</h4>
+        <p className="text-[10px] font-medium text-slate-500">Tune rows, berth type, and seats on each side.</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange('enabled', !config.enabled)}
+        className={`rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] ${
+          config.enabled ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-500'
+        }`}
+      >
+        {config.enabled ? 'Enabled' : 'Disabled'}
+      </button>
+    </div>
+
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div>
+        <label className={labelClassName}>Seat Type</label>
+        <select
+          className={fieldClassName}
+          value={config.seatType}
+          onChange={(event) => onChange('seatType', event.target.value)}
+          disabled={!config.enabled}
+        >
+          <option value="seat">Seater</option>
+          <option value="sleeper">Sleeper</option>
+        </select>
+      </div>
+      <div>
+        <label className={labelClassName}>Rows</label>
+        <input
+          className={fieldClassName}
+          type="number"
+          min="0"
+          max="20"
+          value={config.rows}
+          onChange={(event) => onChange('rows', event.target.value)}
+          disabled={!config.enabled}
+        />
+      </div>
+      <div>
+        <label className={labelClassName}>Left Side Seats</label>
+        <input
+          className={fieldClassName}
+          type="number"
+          min="0"
+          max="3"
+          value={config.leftSeats}
+          onChange={(event) => onChange('leftSeats', event.target.value)}
+          disabled={!config.enabled}
+        />
+      </div>
+      <div>
+        <label className={labelClassName}>Right Side Seats</label>
+        <input
+          className={fieldClassName}
+          type="number"
+          min="0"
+          max="3"
+          value={config.rightSeats}
+          onChange={(event) => onChange('rightSeats', event.target.value)}
+          disabled={!config.enabled}
+        />
+      </div>
+    </div>
+  </div>
+);
 
 const BusServiceManager = ({
   mode: modeProp = null,
@@ -247,6 +384,15 @@ const BusServiceManager = ({
   const [isSaving, setIsSaving] = useState(false);
   const [ownerDrivers, setOwnerDrivers] = useState([]);
   const [driverSearch, setDriverSearch] = useState('');
+  const [routePath, setRoutePath] = useState([]);
+  const autocompleteRefs = useRef({});
+  const routeMapRef = useRef(null);
+  const { isLoaded: isGoogleMapsLoaded } = useAppGoogleMapsLoader();
+  const canUsePlacesAutocomplete =
+    isGoogleMapsLoaded &&
+    HAS_VALID_GOOGLE_MAPS_KEY &&
+    typeof window !== 'undefined' &&
+    Boolean(window.google?.maps?.places);
   const coachTypeOptions = useMemo(() => {
     const discovered = Array.from(
       new Set(
@@ -360,6 +506,47 @@ const BusServiceManager = ({
     () => ownerDrivers.find((driver) => String(driver.id) === String(draft.ownerDriverId || '')) || null,
     [draft.ownerDriverId, ownerDrivers],
   );
+  const routePreviewPoints = useMemo(() => {
+    const points = [
+      toCoords(draft.route?.originCoords),
+      toCoords(draft.route?.destinationCoords),
+    ].filter(Boolean);
+
+    if (points.length >= 2) {
+      return points;
+    }
+
+    return points;
+  }, [draft.route?.destinationCoords, draft.route?.originCoords]);
+  const routeMapCenter = useMemo(() => {
+    if (routePreviewPoints.length === 0) {
+      return { lat: 22.7196, lng: 75.8577 };
+    }
+
+    if (routePreviewPoints.length === 1) {
+      return routePreviewPoints[0];
+    }
+
+    const totals = routePreviewPoints.reduce(
+      (acc, point) => ({
+        lat: acc.lat + point.lat,
+        lng: acc.lng + point.lng,
+      }),
+      { lat: 0, lng: 0 },
+    );
+
+    return {
+      lat: totals.lat / routePreviewPoints.length,
+      lng: totals.lng / routePreviewPoints.length,
+    };
+  }, [routePreviewPoints]);
+  const routePolylinePath = useMemo(() => {
+    if (routePath.length >= 2) {
+      return routePath;
+    }
+
+    return routePreviewPoints;
+  }, [routePath, routePreviewPoints]);
   const filteredOwnerDrivers = useMemo(() => {
     const query = String(driverSearch || '').trim().toLowerCase();
     if (!query) return ownerDrivers.slice(0, 8);
@@ -380,6 +567,67 @@ const BusServiceManager = ({
       setDraft(JSON.parse(JSON.stringify(selectedBus)));
     }
   }, [catalog, currentBusId, currentMode]);
+
+  useEffect(() => {
+    if (
+      !isGoogleMapsLoaded ||
+      routePreviewPoints.length < 2 ||
+      !window.google?.maps?.DirectionsService
+    ) {
+      setRoutePath([]);
+      return;
+    }
+
+    let cancelled = false;
+    const directionsService = new window.google.maps.DirectionsService();
+
+    directionsService.route(
+      {
+        origin: routePreviewPoints[0],
+        destination: routePreviewPoints[1],
+        travelMode: window.google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: false,
+        region: 'IN',
+      },
+      (result, status) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
+          setRoutePath(
+            result.routes[0].overview_path.map((point) => ({
+              lat: point.lat(),
+              lng: point.lng(),
+            })),
+          );
+          return;
+        }
+
+        setRoutePath(routePreviewPoints);
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isGoogleMapsLoaded, routePreviewPoints]);
+
+  useEffect(() => {
+    if (!routeMapRef.current || routePreviewPoints.length === 0 || !window.google?.maps) {
+      return;
+    }
+
+    if (routePolylinePath.length === 1) {
+      routeMapRef.current.panTo(routePolylinePath[0]);
+      routeMapRef.current.setZoom(8);
+      return;
+    }
+
+    const bounds = new window.google.maps.LatLngBounds();
+    routePolylinePath.forEach((point) => bounds.extend(point));
+    routeMapRef.current.fitBounds(bounds, 60);
+  }, [routePolylinePath, routePreviewPoints.length]);
 
   const openListView = () => {
     setDetailBusId(null);
@@ -406,14 +654,155 @@ const BusServiceManager = ({
       route: {
         ...current.route,
         [field]: value,
+        ...(field === 'originCity' ? { originCoords: null } : {}),
+        ...(field === 'destinationCity' ? { destinationCoords: null } : {}),
       },
       returnRoute: current.returnRouteEnabled
         ? buildMirroredReturnRoute({
             ...current.route,
             [field]: value,
+            ...(field === 'originCity' ? { originCoords: null } : {}),
+            ...(field === 'destinationCity' ? { destinationCoords: null } : {}),
           })
         : current.returnRoute,
     }));
+  };
+
+  const applyRoutePlace = (field, place) => {
+    const cityLabel = getCityLabelFromPlace(place);
+    const coords = getCoordsFromPlace(place);
+
+    if (!cityLabel || !coords) {
+      toast.error('Pick a valid Indian city from the suggestions.');
+      return;
+    }
+
+    setDraft((current) => {
+      const nextRoute = {
+        ...current.route,
+        [field]: cityLabel,
+        ...(field === 'originCity' ? { originCoords: coords } : { destinationCoords: coords }),
+      };
+
+      return {
+        ...current,
+        route: nextRoute,
+        returnRoute: current.returnRouteEnabled ? buildMirroredReturnRoute(nextRoute) : current.returnRoute,
+      };
+    });
+  };
+
+  const registerAutocomplete = (field, autocomplete) => {
+    autocompleteRefs.current[field] = autocomplete;
+    if (autocomplete && typeof autocomplete.setFields === 'function') {
+      autocomplete.setFields(CITY_AUTOCOMPLETE_FIELDS);
+    }
+  };
+
+  const handleRoutePlaceChanged = (field) => {
+    const autocomplete = autocompleteRefs.current[field];
+    if (!autocomplete || typeof autocomplete.getPlace !== 'function') {
+      return;
+    }
+
+    applyRoutePlace(field, autocomplete.getPlace());
+  };
+
+  const geocodeCity = async (cityName) => {
+    const trimmedCityName = String(cityName || '').trim();
+    if (!trimmedCityName || !window.google?.maps?.Geocoder) {
+      return null;
+    }
+
+    const geocoder = new window.google.maps.Geocoder();
+
+    return new Promise((resolve) => {
+      geocoder.geocode(
+        {
+          address: trimmedCityName,
+          componentRestrictions: { country: 'IN' },
+        },
+        (results, status) => {
+          if (status !== 'OK' || !Array.isArray(results) || !results[0]) {
+            resolve(null);
+            return;
+          }
+
+          const bestMatch = results.find((item) =>
+            Array.isArray(item?.types) &&
+            item.types.some((type) =>
+              ['locality', 'administrative_area_level_3', 'administrative_area_level_2'].includes(type),
+            ),
+          ) || results[0];
+
+          resolve({
+            city: getCityLabelFromPlace(bestMatch),
+            coords: getCoordsFromPlace(bestMatch),
+          });
+        },
+      );
+    });
+  };
+
+  const ensureRouteCoordinates = async () => {
+    const fieldsToResolve = [
+      {
+        field: 'originCity',
+        coordsField: 'originCoords',
+        label: 'origin',
+      },
+      {
+        field: 'destinationCity',
+        coordsField: 'destinationCoords',
+        label: 'destination',
+      },
+    ];
+
+    let nextDraft = draft;
+
+    for (const item of fieldsToResolve) {
+      const cityValue = String(nextDraft.route?.[item.field] || '').trim();
+      const coordsValue = toCoords(nextDraft.route?.[item.coordsField]);
+
+      if (!cityValue) {
+        continue;
+      }
+
+      if (coordsValue) {
+        continue;
+      }
+
+      if (!canUsePlacesAutocomplete) {
+        toast.error(`Google city suggestions are not ready. Select a valid Indian ${item.label} city.`);
+        return null;
+      }
+
+      const resolved = await geocodeCity(cityValue);
+      if (!resolved?.coords) {
+        toast.error(`Select a valid Indian ${item.label} city from suggestions.`);
+        return null;
+      }
+
+      const routeWithCoords = {
+        ...nextDraft.route,
+        [item.field]: resolved.city || cityValue,
+        [item.coordsField]: resolved.coords,
+      };
+
+      nextDraft = {
+        ...nextDraft,
+        route: routeWithCoords,
+        returnRoute: nextDraft.returnRouteEnabled
+          ? buildMirroredReturnRoute(routeWithCoords)
+          : nextDraft.returnRoute,
+      };
+    }
+
+    if (nextDraft !== draft) {
+      setDraft(nextDraft);
+    }
+
+    return nextDraft;
   };
 
   const toggleReturnRoute = () => {
@@ -489,6 +878,44 @@ const BusServiceManager = ({
       ...current,
       blueprint: createBlueprintFromTemplate(templateKey),
     }));
+  };
+
+  const updateBlueprintLayoutConfig = (deckKey, field, value) => {
+    setDraft((current) => {
+      const currentLayoutConfig = current.blueprint?.layoutConfig || {};
+      const currentDeckConfig = currentLayoutConfig?.[deckKey] || {};
+      const nextDeckConfig = {
+        ...currentDeckConfig,
+        [field]:
+          field === 'enabled'
+            ? Boolean(value)
+            : field === 'seatType'
+              ? value
+              : Math.max(0, Number(value || 0)),
+      };
+
+      if (field === 'enabled' && !value) {
+        nextDeckConfig.rows = 0;
+        nextDeckConfig.leftSeats = 0;
+        nextDeckConfig.rightSeats = 0;
+      }
+
+      if (field === 'enabled' && value && Number(currentDeckConfig.rows || 0) <= 0) {
+        nextDeckConfig.rows = deckKey === 'upper' ? 4 : 8;
+        nextDeckConfig.leftSeats = Number(currentDeckConfig.leftSeats || 0) || 2;
+        nextDeckConfig.rightSeats = Number(currentDeckConfig.rightSeats || 0) || 1;
+      }
+
+      const nextLayoutConfig = {
+        ...currentLayoutConfig,
+        [deckKey]: nextDeckConfig,
+      };
+
+      return {
+        ...current,
+        blueprint: createBusBlueprint(current.blueprint?.templateKey || 'seater_2_2', nextLayoutConfig),
+      };
+    });
   };
 
   const toggleSeatStatus = (seatId) => {
@@ -660,10 +1087,14 @@ const BusServiceManager = ({
 
     setIsSaving(true);
     try {
-      const isNewBus = draft.id?.startsWith('bus-');
+      const draftWithCoords = await ensureRouteCoordinates();
+      if (!draftWithCoords) {
+        return;
+      }
+
       const nextBus = await upsertBus({
-        ...draft,
-        status: draft.status || 'draft',
+        ...draftWithCoords,
+        status: draftWithCoords.status || 'draft',
         capacity: totalSeats,
       });
 
@@ -1757,7 +2188,7 @@ const BusServiceManager = ({
             <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Seat Blueprint</h2>
-                <p className="mt-1 text-xs font-medium text-slate-500">Pick a layout and block seats for inventory control.</p>
+                <p className="mt-1 text-xs font-medium text-slate-500">Build a RedBus-style coach map, customize seat counts, and block inventory visually.</p>
               </div>
               <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900">
                 {totalSeats} Seats
@@ -1782,9 +2213,25 @@ const BusServiceManager = ({
                   <p className={`text-[9px] font-bold uppercase tracking-wider ${active ? 'text-slate-400' : 'text-slate-400'}`}>
                     {template.category}
                   </p>
+                  <p className={`mt-1 text-[10px] font-medium ${active ? 'text-slate-300' : 'text-slate-400'}`}>
+                    {template.description}
+                  </p>
                 </button>
               );
             })}
+            </div>
+
+            <div className="mb-6 grid gap-4 xl:grid-cols-2">
+              <BlueprintDeckConfigurator
+                title="Lower Deck Setup"
+                config={draft.blueprint?.layoutConfig?.lower || { enabled: true, rows: 0, leftSeats: 0, rightSeats: 0, seatType: 'seat' }}
+                onChange={(field, value) => updateBlueprintLayoutConfig('lower', field, value)}
+              />
+              <BlueprintDeckConfigurator
+                title="Upper Deck Setup"
+                config={draft.blueprint?.layoutConfig?.upper || { enabled: false, rows: 0, leftSeats: 0, rightSeats: 0, seatType: 'seat' }}
+                onChange={(field, value) => updateBlueprintLayoutConfig('upper', field, value)}
+              />
             </div>
 
             <div className="grid gap-6 xl:grid-cols-2">
@@ -1794,12 +2241,16 @@ const BusServiceManager = ({
 
             <div className="mt-5 flex flex-wrap gap-4 text-xs font-semibold text-slate-500">
               <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded border border-slate-200 bg-white" />
+                <div className="h-4 w-4 rounded-xl border border-slate-200 bg-white" />
                 Available seat
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-4 w-4 rounded border border-rose-200 bg-rose-50" />
+                <div className="h-4 w-4 rounded-xl border border-rose-200 bg-rose-50" />
                 Blocked seat
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-8 rounded-xl border border-sky-200 bg-sky-50" />
+                Sleeper berth
               </div>
             </div>
           </section>
@@ -1849,25 +2300,157 @@ const BusServiceManager = ({
               </div>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_420px]">
               <div>
-                <label className={labelClassName}>Route Name</label>
-                <input className={fieldClassName} value={draft.route.routeName} onChange={(event) => updateRouteField('routeName', event.target.value)} placeholder="Indore to Bhopal Night Corridor" />
-              </div>
-              <div>
-                <label className={labelClassName}>Distance / Duration</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <input className={fieldClassName} value={draft.route.distanceKm} onChange={(event) => updateRouteField('distanceKm', event.target.value)} placeholder="195 km" />
-                  <input className={fieldClassName} value={draft.route.durationHours} onChange={(event) => updateRouteField('durationHours', event.target.value)} placeholder="4h 45m" />
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label className={labelClassName}>Route Name</label>
+                    <input className={fieldClassName} value={draft.route.routeName} onChange={(event) => updateRouteField('routeName', event.target.value)} placeholder="Indore to Bhopal Night Corridor" />
+                  </div>
+                  <div>
+                    <label className={labelClassName}>Distance / Duration</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input className={fieldClassName} value={draft.route.distanceKm} onChange={(event) => updateRouteField('distanceKm', event.target.value)} placeholder="195 km" />
+                      <input className={fieldClassName} value={draft.route.durationHours} onChange={(event) => updateRouteField('durationHours', event.target.value)} placeholder="4h 45m" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClassName}>Origin City</label>
+                    {canUsePlacesAutocomplete ? (
+                      <Autocomplete
+                        onLoad={(autocomplete) => registerAutocomplete('originCity', autocomplete)}
+                        onPlaceChanged={() => handleRoutePlaceChanged('originCity')}
+                        options={{
+                          componentRestrictions: { country: 'in' },
+                          fields: CITY_AUTOCOMPLETE_FIELDS,
+                          types: ['(cities)'],
+                        }}
+                      >
+                        <input
+                          className={fieldClassName}
+                          value={draft.route.originCity}
+                          onChange={(event) => updateRouteField('originCity', event.target.value)}
+                          placeholder="Search origin city in India"
+                        />
+                      </Autocomplete>
+                    ) : (
+                      <input
+                        className={fieldClassName}
+                        value={draft.route.originCity}
+                        onChange={(event) => updateRouteField('originCity', event.target.value)}
+                        placeholder="Indore"
+                      />
+                    )}
+                    <p className="mt-2 text-[11px] font-semibold text-slate-500">
+                      {draft.route.originCoords
+                        ? `Coords: ${draft.route.originCoords.lat.toFixed(5)}, ${draft.route.originCoords.lng.toFixed(5)}`
+                        : 'Indian city suggestions only. Select one to store live-tracking coordinates.'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClassName}>Destination City</label>
+                    {canUsePlacesAutocomplete ? (
+                      <Autocomplete
+                        onLoad={(autocomplete) => registerAutocomplete('destinationCity', autocomplete)}
+                        onPlaceChanged={() => handleRoutePlaceChanged('destinationCity')}
+                        options={{
+                          componentRestrictions: { country: 'in' },
+                          fields: CITY_AUTOCOMPLETE_FIELDS,
+                          types: ['(cities)'],
+                        }}
+                      >
+                        <input
+                          className={fieldClassName}
+                          value={draft.route.destinationCity}
+                          onChange={(event) => updateRouteField('destinationCity', event.target.value)}
+                          placeholder="Search destination city in India"
+                        />
+                      </Autocomplete>
+                    ) : (
+                      <input
+                        className={fieldClassName}
+                        value={draft.route.destinationCity}
+                        onChange={(event) => updateRouteField('destinationCity', event.target.value)}
+                        placeholder="Bhopal"
+                      />
+                    )}
+                    <p className="mt-2 text-[11px] font-semibold text-slate-500">
+                      {draft.route.destinationCoords
+                        ? `Coords: ${draft.route.destinationCoords.lat.toFixed(5)}, ${draft.route.destinationCoords.lng.toFixed(5)}`
+                        : 'Indian city suggestions only. Select one to store live-tracking coordinates.'}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div>
-                <label className={labelClassName}>Origin City</label>
-                <input className={fieldClassName} value={draft.route.originCity} onChange={(event) => updateRouteField('originCity', event.target.value)} placeholder="Indore" />
-              </div>
-              <div>
-                <label className={labelClassName}>Destination City</label>
-                <input className={fieldClassName} value={draft.route.destinationCity} onChange={(event) => updateRouteField('destinationCity', event.target.value)} placeholder="Bhopal" />
+
+              <div className="rounded-[28px] border border-slate-200 bg-slate-50/80 p-3 shadow-inner">
+                <div className="mb-3 flex items-center justify-between px-2 pt-2">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Route Preview</p>
+                    <h3 className="mt-1 text-sm font-black text-slate-900">
+                      {draft.route.originCity || 'Origin'} to {draft.route.destinationCity || 'Destination'}
+                    </h3>
+                  </div>
+                  <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Polyline
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-white">
+                  <div className="h-[320px] w-full">
+                    {canUsePlacesAutocomplete ? (
+                      <GoogleMap
+                        mapContainerStyle={ROUTE_MAP_CONTAINER_STYLE}
+                        center={routeMapCenter}
+                        zoom={routePreviewPoints.length > 1 ? 6 : 5}
+                        onLoad={(map) => {
+                          routeMapRef.current = map;
+                        }}
+                        options={{
+                          disableDefaultUI: true,
+                          clickableIcons: false,
+                          gestureHandling: 'greedy',
+                          streetViewControl: false,
+                          mapTypeControl: false,
+                          fullscreenControl: false,
+                        }}
+                      >
+                        {toCoords(draft.route.originCoords) ? (
+                          <MarkerF position={draft.route.originCoords} label={{ text: 'A', color: '#ffffff', fontWeight: '700' }} />
+                        ) : null}
+                        {toCoords(draft.route.destinationCoords) ? (
+                          <MarkerF position={draft.route.destinationCoords} label={{ text: 'B', color: '#ffffff', fontWeight: '700' }} />
+                        ) : null}
+                        {routePolylinePath.length >= 2 ? (
+                          <Polyline
+                            path={routePolylinePath}
+                            options={{
+                              strokeColor: '#0f172a',
+                              strokeOpacity: 0.9,
+                              strokeWeight: 4,
+                              geodesic: true,
+                            }}
+                          />
+                        ) : null}
+                      </GoogleMap>
+                    ) : (
+                      <div className="flex h-full items-center justify-center px-6 text-center text-sm font-semibold text-slate-500">
+                        Add valid Indian origin and destination cities to preview the route on map.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Start</p>
+                    <p className="mt-1 text-sm font-bold text-slate-900">{draft.route.originCity || 'Not set'}</p>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">End</p>
+                    <p className="mt-1 text-sm font-bold text-slate-900">{draft.route.destinationCity || 'Not set'}</p>
+                  </div>
+                </div>
               </div>
             </div>
 

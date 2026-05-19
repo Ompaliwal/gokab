@@ -105,6 +105,8 @@ const IST_OFFSET_MS = 330 * 60 * 1000;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const BUS_DAY_OPTIONS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const BUS_DRIVER_SCHEDULE_DAY_OPTIONS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const BUS_LIVE_TRAIL_MAX_DISTANCE_KM = 2.5;
+const BUS_LIVE_TRAIL_MAX_POINTS = 80;
 const BIOMETRIC_FINGER_CODES = [
   "LEFT_THUMB",
   "LEFT_INDEX",
@@ -304,6 +306,161 @@ const normalizeBusTravelDate = (value) => {
   }
 
   return parsed.toISOString().slice(0, 10);
+};
+
+const normalizeFiniteNumber = (value) => {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const normalizeBusTrackingPoint = (value, fieldName = "location") => {
+  const lat = normalizeFiniteNumber(value?.lat ?? value?.latitude);
+  const lng = normalizeFiniteNumber(value?.lng ?? value?.longitude ?? value?.lon);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    throw new ApiError(400, `${fieldName} must include valid lat and lng values`);
+  }
+
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    throw new ApiError(400, `${fieldName} coordinates are out of range`);
+  }
+
+  const heading = normalizeFiniteNumber(value?.heading);
+  const accuracyMeters = normalizeFiniteNumber(value?.accuracyMeters ?? value?.accuracy);
+  const rawSpeedKmph = normalizeFiniteNumber(value?.speedKmph);
+  const rawSpeedMs = normalizeFiniteNumber(value?.speed);
+  const speedKmph =
+    rawSpeedKmph !== null
+      ? rawSpeedKmph
+      : rawSpeedMs !== null
+        ? Number(rawSpeedMs * 3.6)
+        : null;
+
+  return {
+    lat,
+    lng,
+    recordedAt: value?.recordedAt ? new Date(value.recordedAt) : new Date(),
+    accuracyMeters,
+    heading,
+    speedKmph,
+  };
+};
+
+const toRadians = (value) => (Number(value) * Math.PI) / 180;
+
+const calculateDistanceKm = (pointA, pointB) => {
+  if (!pointA || !pointB) {
+    return 0;
+  }
+
+  const lat1 = normalizeFiniteNumber(pointA.lat);
+  const lng1 = normalizeFiniteNumber(pointA.lng);
+  const lat2 = normalizeFiniteNumber(pointB.lat);
+  const lng2 = normalizeFiniteNumber(pointB.lng);
+
+  if (![lat1, lng1, lat2, lng2].every(Number.isFinite)) {
+    return 0;
+  }
+
+  const earthRadiusKm = 6371;
+  const latDelta = toRadians(lat2 - lat1);
+  const lngDelta = toRadians(lng2 - lng1);
+  const a =
+    Math.sin(latDelta / 2) ** 2 +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(lngDelta / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadiusKm * c;
+};
+
+const trimBusLiveTrail = (points = []) => {
+  const normalized = (Array.isArray(points) ? points : [])
+    .filter((point) => Number.isFinite(Number(point?.lat)) && Number.isFinite(Number(point?.lng)))
+    .slice(-BUS_LIVE_TRAIL_MAX_POINTS);
+
+  if (normalized.length <= 2) {
+    return normalized;
+  }
+
+  const kept = [normalized[normalized.length - 1]];
+  let distanceKm = 0;
+
+  for (let index = normalized.length - 2; index >= 0; index -= 1) {
+    const candidate = normalized[index];
+    const nextPoint = kept[kept.length - 1];
+    distanceKm += calculateDistanceKm(candidate, nextPoint);
+
+    if (distanceKm > BUS_LIVE_TRAIL_MAX_DISTANCE_KM) {
+      break;
+    }
+
+    kept.push(candidate);
+  }
+
+  return kept.reverse();
+};
+
+const serializeBusLiveTracking = (liveTracking = {}) => {
+  const serializePoint = (point) =>
+    point && Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lng))
+      ? {
+          lat: Number(point.lat),
+          lng: Number(point.lng),
+          recordedAt: point.recordedAt || null,
+          accuracyMeters:
+            point.accuracyMeters === null || point.accuracyMeters === undefined
+              ? null
+              : Number(point.accuracyMeters),
+          heading:
+            point.heading === null || point.heading === undefined ? null : Number(point.heading),
+          speedKmph:
+            point.speedKmph === null || point.speedKmph === undefined
+              ? null
+              : Number(point.speedKmph),
+        }
+      : null;
+
+  return {
+    status: String(liveTracking?.status || "idle"),
+    scheduleId: String(liveTracking?.scheduleId || "").trim(),
+    travelDate: String(liveTracking?.travelDate || "").trim(),
+    startedAt: liveTracking?.startedAt || null,
+    endedAt: liveTracking?.endedAt || null,
+    lastUpdatedAt: liveTracking?.lastUpdatedAt || null,
+    currentLocation: serializePoint(liveTracking?.currentLocation),
+    recentPath: (Array.isArray(liveTracking?.recentPath) ? liveTracking.recentPath : [])
+      .map(serializePoint)
+      .filter(Boolean),
+    totalDistanceKm: Number(liveTracking?.totalDistanceKm || 0),
+  };
+};
+
+const ensureBusDriverAssignment = async (driverId) => {
+  const busDriver = await BusDriver.findById(driverId);
+
+  if (!busDriver) {
+    throw new ApiError(404, "Bus driver not found");
+  }
+
+  if (!busDriver.assignedBusServiceId) {
+    throw new ApiError(404, "No bus is assigned to this driver");
+  }
+
+  return busDriver;
+};
+
+const getBusTrackingContext = async (driverId) => {
+  const busDriver = await ensureBusDriverAssignment(driverId);
+  const busService = await BusService.findById(busDriver.assignedBusServiceId);
+
+  if (!busService) {
+    throw new ApiError(404, "Assigned bus service not found");
+  }
+
+  return { busDriver, busService };
 };
 
 const getBusTravelDayLabel = (travelDate) => BUS_DAY_OPTIONS[new Date(travelDate).getUTCDay()] || "Mon";
@@ -789,6 +946,7 @@ const serializeBusDriverProfile = async (busDriver) => {
           route: busService.route || {},
           schedules: Array.isArray(busService.schedules) ? busService.schedules : [],
           amenities: Array.isArray(busService.amenities) ? busService.amenities : [],
+          liveTracking: serializeBusLiveTracking(busService.liveTracking || {}),
           capacity: Number(busService.capacity || 0),
           status: busService.status || "draft",
         }
@@ -4921,6 +5079,208 @@ export const updateBusDriverSchedules = async (req, res) => {
       busServiceId: String(busService._id),
       schedules: Array.isArray(busService.schedules) ? busService.schedules : [],
       updatedAt: busService.updatedAt,
+    },
+  });
+};
+
+export const getBusDriverLiveTrip = async (req, res) => {
+  const { busService } = await getBusTrackingContext(req.auth.sub);
+  const liveTracking = serializeBusLiveTracking(busService.liveTracking || {});
+
+  res.json({
+    success: true,
+    data: {
+      busServiceId: String(busService._id),
+      busName: busService.busName || "",
+      route: busService.route || {},
+      schedules: Array.isArray(busService.schedules) ? busService.schedules : [],
+      liveTracking,
+    },
+  });
+};
+
+export const startBusDriverLiveTrip = async (req, res) => {
+  const { busService } = await getBusTrackingContext(req.auth.sub);
+  const scheduleId = toCleanString(req.body?.scheduleId);
+  const travelDate = normalizeBusTravelDate(req.body?.travelDate || req.body?.date || new Date());
+  const schedule = findBusSchedule(busService, scheduleId);
+
+  if (!isScheduleAvailableOnDate(schedule, travelDate)) {
+    throw new ApiError(404, "Bus schedule not found for the selected date");
+  }
+
+  const initialLocation = req.body?.location
+    ? normalizeBusTrackingPoint(req.body.location, "location")
+    : null;
+  const existingLiveTracking = serializeBusLiveTracking(busService.liveTracking || {});
+  const status = String(existingLiveTracking.status || "idle");
+  const now = new Date();
+
+  const nextCurrentLocation =
+    initialLocation ||
+    existingLiveTracking.currentLocation ||
+    (busService.route?.originCoords?.lat !== null && busService.route?.originCoords?.lng !== null
+      ? {
+          lat: Number(busService.route.originCoords.lat),
+          lng: Number(busService.route.originCoords.lng),
+          recordedAt: now,
+          accuracyMeters: null,
+          heading: null,
+          speedKmph: null,
+        }
+      : null);
+
+  busService.liveTracking = {
+    status:
+      status === "paused" &&
+      existingLiveTracking.scheduleId === scheduleId &&
+      existingLiveTracking.travelDate === travelDate
+        ? "in_progress"
+        : "in_progress",
+    scheduleId,
+    travelDate,
+    startedAt:
+      existingLiveTracking.scheduleId === scheduleId &&
+      existingLiveTracking.travelDate === travelDate &&
+      existingLiveTracking.startedAt
+        ? existingLiveTracking.startedAt
+        : now,
+    endedAt: null,
+    lastUpdatedAt: now,
+    currentLocation: nextCurrentLocation,
+    recentPath: nextCurrentLocation
+      ? trimBusLiveTrail([
+          ...(existingLiveTracking.scheduleId === scheduleId &&
+          existingLiveTracking.travelDate === travelDate &&
+          status === "paused"
+            ? existingLiveTracking.recentPath
+            : []),
+          nextCurrentLocation,
+        ])
+      : [],
+    totalDistanceKm:
+      existingLiveTracking.scheduleId === scheduleId &&
+      existingLiveTracking.travelDate === travelDate
+        ? Number(existingLiveTracking.totalDistanceKm || 0)
+        : 0,
+  };
+
+  await busService.save();
+
+  res.json({
+    success: true,
+    data: {
+      busServiceId: String(busService._id),
+      liveTracking: serializeBusLiveTracking(busService.liveTracking || {}),
+    },
+  });
+};
+
+export const updateBusDriverLiveLocation = async (req, res) => {
+  const { busService } = await getBusTrackingContext(req.auth.sub);
+  const liveTracking = serializeBusLiveTracking(busService.liveTracking || {});
+
+  if (!liveTracking.scheduleId || !liveTracking.travelDate) {
+    throw new ApiError(409, "Start the journey before sending live location updates");
+  }
+
+  if (!["in_progress", "paused"].includes(String(liveTracking.status || ""))) {
+    throw new ApiError(409, "Live tracking is not active for this bus");
+  }
+
+  const scheduleId = toCleanString(req.body?.scheduleId || liveTracking.scheduleId);
+  const travelDate = normalizeBusTravelDate(req.body?.travelDate || req.body?.date || liveTracking.travelDate);
+  if (scheduleId !== liveTracking.scheduleId || travelDate !== liveTracking.travelDate) {
+    throw new ApiError(409, "This live trip belongs to a different schedule or travel date");
+  }
+
+  const nextPoint = normalizeBusTrackingPoint(req.body?.location, "location");
+  const previousPoint = liveTracking.currentLocation;
+  const additionalDistanceKm = calculateDistanceKm(previousPoint, nextPoint);
+  const nextPath = trimBusLiveTrail([...liveTracking.recentPath, nextPoint]);
+
+  busService.liveTracking = {
+    ...busService.liveTracking?.toObject?.(),
+    status: "in_progress",
+    scheduleId,
+    travelDate,
+    currentLocation: nextPoint,
+    recentPath: nextPath,
+    lastUpdatedAt: new Date(),
+    totalDistanceKm: Math.round((Number(liveTracking.totalDistanceKm || 0) + additionalDistanceKm) * 1000) / 1000,
+  };
+
+  await busService.save();
+
+  res.json({
+    success: true,
+    data: {
+      busServiceId: String(busService._id),
+      liveTracking: serializeBusLiveTracking(busService.liveTracking || {}),
+    },
+  });
+};
+
+export const updateBusDriverLiveTripStatus = async (req, res) => {
+  const { busService } = await getBusTrackingContext(req.auth.sub);
+  const action = toCleanString(req.body?.action).toLowerCase();
+  const liveTracking = serializeBusLiveTracking(busService.liveTracking || {});
+
+  if (!["pause", "resume", "complete", "reset"].includes(action)) {
+    throw new ApiError(400, "A valid live trip action is required");
+  }
+
+  if (action === "reset") {
+    busService.liveTracking = {
+      status: "idle",
+      scheduleId: "",
+      travelDate: "",
+      startedAt: null,
+      endedAt: null,
+      lastUpdatedAt: new Date(),
+      currentLocation: null,
+      recentPath: [],
+      totalDistanceKm: 0,
+    };
+
+    await busService.save();
+
+    res.json({
+      success: true,
+      data: {
+        busServiceId: String(busService._id),
+        liveTracking: serializeBusLiveTracking(busService.liveTracking || {}),
+      },
+    });
+    return;
+  }
+
+  if (!liveTracking.scheduleId || !liveTracking.travelDate) {
+    throw new ApiError(409, "No active bus journey exists yet");
+  }
+
+  if (action === "pause") {
+    busService.liveTracking.status = "paused";
+    busService.liveTracking.lastUpdatedAt = new Date();
+  } else if (action === "resume") {
+    busService.liveTracking.status = "in_progress";
+    busService.liveTracking.lastUpdatedAt = new Date();
+    if (!busService.liveTracking.startedAt) {
+      busService.liveTracking.startedAt = new Date();
+    }
+  } else if (action === "complete") {
+    busService.liveTracking.status = "completed";
+    busService.liveTracking.endedAt = new Date();
+    busService.liveTracking.lastUpdatedAt = new Date();
+  }
+
+  await busService.save();
+
+  res.json({
+    success: true,
+    data: {
+      busServiceId: String(busService._id),
+      liveTracking: serializeBusLiveTracking(busService.liveTracking || {}),
     },
   });
 };

@@ -168,6 +168,8 @@ const countBlueprintSeats = (blueprint = {}) =>
 const SeatDeck = ({ title, rows, selectedSeatIds, onToggle }) => {
   if (!rows?.length) return null;
 
+  const maxColumns = Math.max(...rows.map((row) => row.length), 1);
+
   return (
     <section className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -179,7 +181,11 @@ const SeatDeck = ({ title, rows, selectedSeatIds, onToggle }) => {
 
       <div className="space-y-3">
         {rows.map((row, rowIndex) => (
-          <div key={`${title}-${rowIndex}`} className="grid grid-cols-5 gap-2">
+          <div
+            key={`${title}-${rowIndex}`}
+            className="grid gap-2"
+            style={{ gridTemplateColumns: `repeat(${Math.max(maxColumns, row.length)}, minmax(0, 1fr))` }}
+          >
             {row.map((seat, cellIndex) => {
               if (!seat || seat.kind !== 'seat') {
                 return <div key={`${title}-${rowIndex}-${cellIndex}`} className="h-10 rounded-xl bg-slate-100/70" />;
@@ -739,6 +745,16 @@ const BusDriverHome = () => {
     }
   };
 
+  const openLiveRoutePage = useCallback(() => {
+    navigate('/taxi/driver/bus-home/live-route', {
+      state: {
+        profile,
+        travelDate,
+        selectedScheduleId,
+      },
+    });
+  }, [navigate, profile, selectedScheduleId, travelDate]);
+
   const renderOverviewTab = () => (
     <div className="space-y-5">
       <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -756,7 +772,7 @@ const BusDriverHome = () => {
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <button
             type="button"
-            onClick={() => setIsRunDetailsOpen(true)}
+            onClick={openLiveRoutePage}
             className="rounded-2xl bg-slate-50 p-4 text-left transition hover:bg-slate-100 active:scale-[0.99]"
           >
             <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400"><MapPin size={14} /> Route</p>
@@ -780,7 +796,7 @@ const BusDriverHome = () => {
 
       <button
         type="button"
-        onClick={() => setIsRunDetailsOpen(true)}
+        onClick={openLiveRoutePage}
         className="w-full rounded-[28px] border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-slate-300"
       >
         <div className="flex items-start justify-between gap-3">

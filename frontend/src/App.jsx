@@ -145,6 +145,7 @@ const ServiceCenterVehicleDetails = lazy(() => import('./modules/driver/pages/Se
 const RideRequests = lazy(() => import('./modules/driver/pages/RideRequests'));
 const DriverIncentives = lazy(() => import('./modules/driver/pages/DriverIncentives'));
 const BusDriverHome = lazy(() => import('./modules/driver/pages/BusDriverHome'));
+const BusDriverLiveRoute = lazy(() => import('./modules/driver/pages/BusDriverLiveRoute'));
 const PortalSupportPage = lazy(() => import('./modules/driver/pages/PortalSupportPage'));
 
 // Driver Module - Settings
@@ -989,6 +990,7 @@ function App() {
 
                 <Route path="home" element={<DriverHome />} />
                 <Route path="bus-home" element={<BusDriverHome />} />
+                <Route path="bus-home/live-route" element={<BusDriverLiveRoute />} />
                 <Route path="dashboard" element={<DriverHome />} />
                 <Route path="active-trip" element={<ActiveTrip />} />
                 <Route path="chat" element={<Chat />} />
@@ -1034,12 +1036,12 @@ function App() {
 
               <Route path="/taxi/owner" element={<DriverLayout />}>
                   <Route index element={<DriverEntryRedirect />} />
-                  <Route path="login" element={<PhoneRegistration />} />
+                  <Route path="login" element={<Navigate to="/taxi/driver/login" replace />} />
                   <Route path="terms" element={<LegalPage />} />
                   <Route path="privacy" element={<LegalPage />} />
-                  <Route path="reg-phone" element={<Navigate to="/taxi/owner/login" replace />} />
+                  <Route path="reg-phone" element={<Navigate to="/taxi/driver/login" replace />} />
                 <Route path="otp-verify" element={<OTPVerification />} />
-                <Route path="lang-select" element={<Navigate to="/taxi/owner/login" replace />} />
+                <Route path="lang-select" element={<Navigate to="/taxi/driver/login" replace />} />
                 <Route path="step-personal" element={<StepPersonal />} />
                 <Route path="step-referral" element={<StepReferral />} />
                 <Route path="step-vehicle" element={<StepVehicle />} />

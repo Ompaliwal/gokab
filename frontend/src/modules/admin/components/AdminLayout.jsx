@@ -383,10 +383,10 @@ const SidebarGroup = ({
           {React.createElement(icon, {
             size: 18,
             strokeWidth: (isActive || isExpanded) ? 2.5 : 2,
-            className: `shrink-0 transition-all duration-300 ${(isActive || isExpanded) ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'}`,
+            className: `shrink-0 transition-all duration-300 ${(isActive || isExpanded) ? 'opacity-100' : 'opacity-90 group-hover:opacity-100'}`,
           })}
           {!isCollapsed && (
-            <span className={`truncate text-[13px] tracking-tight transition-all duration-200 ${(isActive || isExpanded) ? 'font-bold' : 'font-medium opacity-60 group-hover:opacity-100'}`}>
+            <span className={`truncate text-[13px] tracking-tight transition-all duration-200 ${(isActive || isExpanded) ? 'font-bold' : 'font-medium opacity-95 group-hover:opacity-100'}`}>
               {label}
             </span>
           )}
@@ -396,7 +396,7 @@ const SidebarGroup = ({
             <SidebarBadge count={unreadCount} isActive={isActive || isExpanded} />
             <ChevronRight 
               size={12} 
-              className={`transition-transform duration-300 ease-out ${(isActive || isExpanded) ? 'opacity-100' : 'opacity-20'} ${isExpanded ? 'rotate-90' : ''}`} 
+              className={`text-white transition-transform duration-300 ease-out ${(isActive || isExpanded) ? 'opacity-100' : 'opacity-95'} ${isExpanded ? 'rotate-90' : ''}`} 
             />
           </div>
         )}
@@ -503,7 +503,7 @@ const NestedGroup = ({
           backgroundColor: (isActive || isExpanded) ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
         }}
       >
-        <span className={`flex min-w-0 items-center gap-3 text-[12.5px] transition-all duration-200 ${(isActive || isExpanded) ? 'font-bold' : 'font-medium opacity-70 group-hover:opacity-100'}`}>
+        <span className={`flex min-w-0 items-center gap-3 text-[12.5px] transition-all duration-200 ${(isActive || isExpanded) ? 'font-bold' : 'font-medium opacity-95 group-hover:opacity-100'}`}>
           <div className={`h-1 w-1 shrink-0 rounded-full transition-all duration-300 ${isActive || isExpanded ? 'bg-indigo-400 scale-125' : 'bg-slate-600'}`} />
           <span className="truncate">{label}</span>
         </span>
@@ -511,7 +511,7 @@ const NestedGroup = ({
           <SidebarBadge count={unreadCount} isActive={isActive || isExpanded} />
           <ChevronRight 
             size={12} 
-            className={`transition-transform duration-300 ease-out ${(isActive || isExpanded) ? 'opacity-100' : 'opacity-40'} ${isExpanded ? 'rotate-90' : ''}`} 
+            className={`text-white transition-transform duration-300 ease-out ${(isActive || isExpanded) ? 'opacity-100' : 'opacity-95'} ${isExpanded ? 'rotate-90' : ''}`} 
           />
         </span>
       </button>
@@ -1452,7 +1452,7 @@ const AdminLayout = () => {
         style={{ backgroundColor: adminThemeColor }}
       >
         <div className="flex h-full flex-col">
-          <div className="group/sidebar-head relative mb-6 flex h-24 items-center border-b border-white/5 px-6">
+          <div className="group/sidebar-head relative mb-3 flex h-20 items-center border-b border-white/5 px-6">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 p-1.5 transition-all duration-300 group-hover/sidebar-head:scale-110 group-hover/sidebar-head:rotate-3 shadow-xl backdrop-blur-md">
@@ -1495,11 +1495,11 @@ const AdminLayout = () => {
             </button>
           </div>
 
-          <nav className="no-scrollbar mt-0 flex-1 space-y-8 overflow-y-auto px-4 pb-12 scroll-smooth">
+          <nav className="no-scrollbar mt-0 flex-1 space-y-5 overflow-y-auto px-4 pb-10 scroll-smooth">
             {sidebarSections.map((section) => (
               <div key={section.title} className="space-y-1">
                 {!isCollapsed && (
-                  <div className="px-4 mb-4 mt-6 flex items-center gap-3 opacity-60">
+                  <div className="mb-3 mt-2 flex items-center gap-3 px-4 opacity-60">
                     <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                     <span className="text-[10.5px] font-black uppercase tracking-[0.2em] text-white/90 whitespace-nowrap">
                       {section.title}

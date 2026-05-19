@@ -4,6 +4,7 @@ import ExcelJS from 'exceljs';
 import { BusBooking } from '../../user/models/BusBooking.js';
 import { BusService } from '../models/BusService.js';
 import { BusSeatHold } from '../../user/models/BusSeatHold.js';
+import { getPublicActivePaymentGateway } from '../../services/paymentGatewayService.js';
 
 const ok = (res, data, extra = {}) =>
   res.json({ success: true, data, ...extra });
@@ -1579,11 +1580,12 @@ export const getTransportTypes = asyncHandler(async (_req, res) =>
 );
 
 export const getAppBootstrap = asyncHandler(async (_req, res) => {
-  const [modules, general, transportRide, customize] = await Promise.all([
+  const [modules, general, transportRide, customize, paymentGateway] = await Promise.all([
     adminService.listAppModules(),
     adminService.getGeneralSettings('general'),
     adminService.getGeneralSettings('transport-ride'),
-    adminService.getGeneralSettings('customize')
+    adminService.getGeneralSettings('customize'),
+    getPublicActivePaymentGateway(),
   ]);
 
   ok(res, {
@@ -1591,7 +1593,8 @@ export const getAppBootstrap = asyncHandler(async (_req, res) => {
     settings: {
       general: general.settings || {},
       transportRide: transportRide.settings || {},
-      customization: customize.settings || {}
+      customization: customize.settings || {},
+      paymentGateway: paymentGateway?.activeGateway || null,
     }
   });
 });

@@ -495,6 +495,35 @@ const sanitizeBusPhone = (value = '') =>
     .trim()
     .slice(-10);
 
+const sanitizeBusCoords = (value = null) => {
+  const lat = Number(value?.lat);
+  const lng = Number(value?.lng);
+
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return { lat, lng };
+  }
+
+  return null;
+};
+
+const normalizeBusDeckLayoutConfig = (value = {}, fallback = {}) => {
+  const source = value && typeof value === 'object' ? value : {};
+  const base = fallback && typeof fallback === 'object' ? fallback : {};
+
+  return {
+    enabled: Boolean(source.enabled ?? base.enabled ?? false),
+    rows: Math.max(0, sanitizeBusSeatPrice(source.rows, base.rows ?? 0)),
+    leftSeats: Math.max(0, Math.min(3, sanitizeBusSeatPrice(source.leftSeats, base.leftSeats ?? 0))),
+    rightSeats: Math.max(0, Math.min(3, sanitizeBusSeatPrice(source.rightSeats, base.rightSeats ?? 0))),
+    seatType: source.seatType === 'sleeper' || base.seatType === 'sleeper' ? 'sleeper' : 'seat',
+  };
+};
+
+const normalizeBusLayoutConfig = (value = {}, fallback = {}) => ({
+  lower: normalizeBusDeckLayoutConfig(value?.lower, fallback?.lower),
+  upper: normalizeBusDeckLayoutConfig(value?.upper, fallback?.upper),
+});
+
 const normalizeBusSeatCell = (cell = {}) => {
   if (cell?.kind !== 'seat') {
     return {
@@ -565,6 +594,10 @@ const normalizeBusServicePayload = (payload = {}, existing = {}) => {
       payload.blueprint?.templateKey,
       existing.blueprint?.templateKey || 'seater_2_2',
     ),
+    layoutConfig: normalizeBusLayoutConfig(
+      payload.blueprint?.layoutConfig,
+      existing.blueprint?.layoutConfig,
+    ),
     lowerDeck: normalizeBusDeck(payload.blueprint?.lowerDeck ?? existing.blueprint?.lowerDeck ?? []),
     upperDeck: normalizeBusDeck(payload.blueprint?.upperDeck ?? existing.blueprint?.upperDeck ?? []),
   };
@@ -573,6 +606,8 @@ const normalizeBusServicePayload = (payload = {}, existing = {}) => {
     routeName: sanitizeBusText(payload.route?.routeName, existing.route?.routeName || ''),
     originCity: sanitizeBusText(payload.route?.originCity, existing.route?.originCity || ''),
     destinationCity: sanitizeBusText(payload.route?.destinationCity, existing.route?.destinationCity || ''),
+    originCoords: sanitizeBusCoords(payload.route?.originCoords ?? existing.route?.originCoords),
+    destinationCoords: sanitizeBusCoords(payload.route?.destinationCoords ?? existing.route?.destinationCoords),
     distanceKm: sanitizeBusText(payload.route?.distanceKm, existing.route?.distanceKm || ''),
     durationHours: sanitizeBusText(payload.route?.durationHours, existing.route?.durationHours || ''),
     stops: Array.isArray(payload.route?.stops)
@@ -586,6 +621,8 @@ const normalizeBusServicePayload = (payload = {}, existing = {}) => {
     routeName: sanitizeBusText(payload.returnRoute?.routeName, existing.returnRoute?.routeName || ''),
     originCity: sanitizeBusText(payload.returnRoute?.originCity, existing.returnRoute?.originCity || ''),
     destinationCity: sanitizeBusText(payload.returnRoute?.destinationCity, existing.returnRoute?.destinationCity || ''),
+    originCoords: sanitizeBusCoords(payload.returnRoute?.originCoords ?? existing.returnRoute?.originCoords),
+    destinationCoords: sanitizeBusCoords(payload.returnRoute?.destinationCoords ?? existing.returnRoute?.destinationCoords),
     distanceKm: sanitizeBusText(payload.returnRoute?.distanceKm, existing.returnRoute?.distanceKm || ''),
     durationHours: sanitizeBusText(payload.returnRoute?.durationHours, existing.returnRoute?.durationHours || ''),
     stops: Array.isArray(payload.returnRoute?.stops)
@@ -712,6 +749,7 @@ const serializeBusService = (item = {}) => ({
   galleryImages: Array.isArray(item.galleryImages) ? item.galleryImages.filter(Boolean) : [],
   blueprint: {
     templateKey: item.blueprint?.templateKey || 'seater_2_2',
+    layoutConfig: normalizeBusLayoutConfig(item.blueprint?.layoutConfig || {}),
     lowerDeck: normalizeBusDeck(item.blueprint?.lowerDeck || []),
     upperDeck: normalizeBusDeck(item.blueprint?.upperDeck || []),
   },
@@ -719,6 +757,8 @@ const serializeBusService = (item = {}) => ({
     routeName: item.route?.routeName || '',
     originCity: item.route?.originCity || '',
     destinationCity: item.route?.destinationCity || '',
+    originCoords: sanitizeBusCoords(item.route?.originCoords),
+    destinationCoords: sanitizeBusCoords(item.route?.destinationCoords),
     distanceKm: item.route?.distanceKm || '',
     durationHours: item.route?.durationHours || '',
     stops: Array.isArray(item.route?.stops)
@@ -730,6 +770,8 @@ const serializeBusService = (item = {}) => ({
     routeName: item.returnRoute?.routeName || '',
     originCity: item.returnRoute?.originCity || '',
     destinationCity: item.returnRoute?.destinationCity || '',
+    originCoords: sanitizeBusCoords(item.returnRoute?.originCoords),
+    destinationCoords: sanitizeBusCoords(item.returnRoute?.destinationCoords),
     distanceKm: item.returnRoute?.distanceKm || '',
     durationHours: item.returnRoute?.durationHours || '',
     stops: Array.isArray(item.returnRoute?.stops)

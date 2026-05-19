@@ -239,7 +239,7 @@ export const SettingsProvider = ({ children }) => {
   const fetchSettings = async () => {
     try {
       const response = await api.get('/users/bootstrap');
-      const data = response?.data || {};
+      const data = response?.data?.data || response?.data || {};
       
       const nextSettings = buildSettingsState({
         general: data.settings?.general || {},

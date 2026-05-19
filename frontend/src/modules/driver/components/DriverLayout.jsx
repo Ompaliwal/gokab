@@ -76,8 +76,8 @@ const softEntryRoutes = new Set([
     '/taxi/owner/reg-phone',
 ]);
 
-const redirectToDriverLogin = (navigate, pathname = '', role = '') => {
-    navigate(`${getPortalPrefix(pathname, role)}/login`, { replace: true });
+const redirectToDriverLogin = (navigate) => {
+    navigate('/taxi/driver/login', { replace: true });
 };
 
 const getStoredRole = () => String(getStoredDriverRole() || 'driver').toLowerCase();

@@ -17,12 +17,15 @@ const PaymentGateways = () => {
   const [submitting, setSubmitting] = useState({});
   const [activeGateway, setActiveGateway] = useState(null);
 
+  const unwrapPayload = (response) => response?.data?.data || response?.data || {};
+
   const fetchData = async () => {
     try {
       setLoading(true);
       const res = await adminService.getPaymentSettings();
-      setSettings(res.data?.settings || {});
-      setActiveGateway(res.data?.active_gateway || null);
+      const payload = unwrapPayload(res);
+      setSettings(payload.settings || {});
+      setActiveGateway(payload.active_gateway || null);
     } catch (err) {
       console.error('Fetch error:', err);
       toast.error('Failed to load data');
@@ -39,8 +42,9 @@ const PaymentGateways = () => {
     try {
       setSubmitting(prev => ({ ...prev, [slug]: true }));
       const response = await adminService.updatePaymentSettings(data);
-      setSettings(response?.data?.settings || {});
-      setActiveGateway(response?.data?.active_gateway || null);
+      const payload = unwrapPayload(response);
+      setSettings(payload.settings || {});
+      setActiveGateway(payload.active_gateway || null);
       toast.success(`Configuration for ${slug} updated`);
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to save configuration');
@@ -60,8 +64,9 @@ const PaymentGateways = () => {
         },
       });
 
-      setSettings(response?.data?.settings || {});
-      setActiveGateway(response?.data?.active_gateway || null);
+      const payload = unwrapPayload(response);
+      setSettings(payload.settings || {});
+      setActiveGateway(payload.active_gateway || null);
       toast.success(`${gateway.name} ${newValue === "1" ? 'enabled' : 'disabled'}`);
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to toggle status');

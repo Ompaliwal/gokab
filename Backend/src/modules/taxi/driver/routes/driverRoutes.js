@@ -26,7 +26,11 @@ import {
   goOffline,
   goOnline,
   createBusDriverReservation,
+  getBusDriverLiveTrip,
   updateBusDriverSchedules,
+  startBusDriverLiveTrip,
+  updateBusDriverLiveLocation,
+  updateBusDriverLiveTripStatus,
   getCurrentDriver,
   getBusDriverSeatLayout,
   listBusDriverBookings,
@@ -117,6 +121,26 @@ driverRouter.post(
   "/bus/reservations",
   authenticate(["bus_driver"]),
   asyncHandler(createBusDriverReservation),
+);
+driverRouter.get(
+  "/bus/live-trip",
+  authenticate(["bus_driver"]),
+  asyncHandler(getBusDriverLiveTrip),
+);
+driverRouter.post(
+  "/bus/live-trip/start",
+  authenticate(["bus_driver"]),
+  asyncHandler(startBusDriverLiveTrip),
+);
+driverRouter.patch(
+  "/bus/live-trip/location",
+  authenticate(["bus_driver"]),
+  asyncHandler(updateBusDriverLiveLocation),
+);
+driverRouter.patch(
+  "/bus/live-trip/status",
+  authenticate(["bus_driver"]),
+  asyncHandler(updateBusDriverLiveTripStatus),
 );
 driverRouter.patch(
   "/bus/schedules",
