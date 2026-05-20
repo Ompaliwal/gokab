@@ -65,6 +65,8 @@ const UserDetails = () => {
             email: u.email || u.user_id?.email || 'N/A',
             joined: (u.createdAt || u.user_id?.createdAt) ? new Date(u.createdAt || u.user_id?.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A',
             avatar: (u.name || u.user_id?.name || 'A').split(' ').map(n => n[0]).join(''),
+            profileImage: u.profileImage || u.user_id?.profileImage || '',
+            governmentIdProof: u.governmentIdProof || u.user_id?.governmentIdProof || null,
             stats: {
                completed: 0, 
                cancelled: 0,
@@ -258,7 +260,11 @@ const UserDetails = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-black shadow-xl ring-4 ring-white uppercase">
-              {user.avatar}
+              {user.profileImage ? (
+                <img src={user.profileImage} alt={user.name} className="h-full w-full rounded-full object-cover" />
+              ) : (
+                user.avatar
+              )}
             </div>
             <div>
               <h2 className="text-2xl font-black text-gray-900 tracking-tight">{user.name}</h2>
@@ -272,6 +278,32 @@ const UserDetails = () => {
                 <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
                   <Clock size={14} className="text-indigo-500" /> Joined {user.joined}
                 </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {user.profileImage ? (
+                  <a
+                    href={user.profileImage}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-gray-600 hover:bg-white"
+                  >
+                    View Profile Photo
+                  </a>
+                ) : null}
+                {user.governmentIdProof?.imageUrl ? (
+                  <a
+                    href={user.governmentIdProof.imageUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-emerald-700 hover:bg-white"
+                  >
+                    View {String(user.governmentIdProof.type || 'ID').replace(/_/g, ' ')}
+                  </a>
+                ) : (
+                  <span className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-rose-600">
+                    ID Proof Missing
+                  </span>
+                )}
               </div>
             </div>
           </div>

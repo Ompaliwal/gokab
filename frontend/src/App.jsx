@@ -438,10 +438,10 @@ const UserAccountInvalidationListener = () => {
       return undefined;
     }
 
-    const handleLogout = () => {
+    const handleLogout = (loginState = null) => {
       clearUserSession();
       socketService.disconnect();
-      navigate('/taxi/user/login', { replace: true });
+      navigate('/taxi/user/login', { replace: true, state: loginState });
     };
 
     const handleAdminChatMessage = (payload = {}) => {
@@ -489,7 +489,7 @@ const UserAccountInvalidationListener = () => {
       const currentAdminToken = localStorage.getItem('adminToken') || '';
 
       if (event.detail?.role === 'user' && (!staleToken || staleToken === currentUserToken)) {
-        handleLogout();
+        handleLogout(event.detail?.message ? { error: event.detail.message } : null);
         return;
       }
 

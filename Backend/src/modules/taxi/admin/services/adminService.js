@@ -2376,10 +2376,16 @@ const serializeUser = (user) => ({
   email: user.email || '',
   gender: user.gender || '',
   profileImage: user.profileImage || '',
+  governmentIdProof: user.governmentIdProof || {
+    type: '',
+    imageUrl: '',
+    fileName: '',
+    uploadedAt: null,
+  },
   mobile: user.phone || user.mobile || '',
   phone: user.phone || user.mobile || '',
   wallet_balance: Number(user.wallet_balance || 0),
-  active: user.active !== false && !user.deletedAt,
+  active: user.active !== false && user.isActive !== false && !user.deletedAt,
   deletedAt: user.deletedAt || null,
   deletion_reason: user.deletion_reason || '',
   deletionRequest: user.deletionRequest || { status: 'none' },
@@ -2392,10 +2398,13 @@ const USER_LIST_SELECT = [
   'name',
   'email',
   'gender',
+  'profileImage',
+  'governmentIdProof',
   'phone',
   'mobile',
   'wallet_balance',
   'active',
+  'isActive',
   'deletedAt',
   'deletion_reason',
   'deletionRequest',
@@ -2409,6 +2418,13 @@ const serializeUserListItem = (user) => ({
   name: user.name || '',
   email: user.email || '',
   gender: user.gender || '',
+  profileImage: user.profileImage || '',
+  governmentIdProof: user.governmentIdProof || {
+    type: '',
+    imageUrl: '',
+    fileName: '',
+    uploadedAt: null,
+  },
   mobile: user.phone || user.mobile || '',
   phone: user.phone || user.mobile || '',
   wallet_balance: Number(user.wallet_balance || 0),
@@ -3204,14 +3220,23 @@ export const resetPassword = async ({ email, otp, password }) => {
 };
 
 export const listUsers = async ({ page = 1, limit = 50, search = '' }) => {
-  const safePage = Number(page) || 1;
-  const safeLimit = Number(limit) || 50;
+  const safePage = Math.max(1, Number(page) || 1);
+  const safeLimit = Math.min(100, Math.max(1, Number(limit) || 50));
   const start = (safePage - 1) * safeLimit;
   const query = { deletedAt: null };
+  const normalizedSearch = String(search || '').trim();
 
-  if (search) {
-    const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
-    query.$or = [{ name: regex }, { phone: regex }, { email: regex }];
+  if (normalizedSearch) {
+    const escapedSearch = normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const digits = normalizedSearch.replace(/\D/g, '');
+    const regex = new RegExp(escapedSearch, 'i');
+    query.$or = [{ name: regex }, { email: regex }];
+
+    if (digits) {
+      query.$or.push({ phone: new RegExp(`^${digits}`) });
+    } else {
+      query.$or.push({ phone: regex });
+    }
   }
 
   const [users, total] = await Promise.all([
@@ -3460,6 +3485,7 @@ export const createUser = async (payload) => {
     password: await hashPassword(password),
     wallet_balance: Number(payload.wallet_balance || 0),
     active: payload.active ?? true,
+    isActive: payload.active ?? true,
   });
 
   return serializeUser(user.toObject());
@@ -3534,7 +3560,10 @@ export const updateUser = async (id, payload) => {
   }
   if (payload.profileImage !== undefined) update.profileImage = String(payload.profileImage || '').trim();
   if (payload.wallet_balance !== undefined) update.wallet_balance = Number(payload.wallet_balance || 0);
-  if (payload.active !== undefined) update.active = Boolean(payload.active);
+  if (payload.active !== undefined) {
+    update.active = Boolean(payload.active);
+    update.isActive = Boolean(payload.active);
+  }
   if (payload.password) {
     update.password = await hashPassword(String(payload.password));
   }
@@ -3557,6 +3586,7 @@ export const deleteUser = async (id) => {
         deletedAt: new Date(),
         deletion_reason: 'admin_delete',
         active: false,
+        isActive: false,
       },
     },
     { returnDocument: 'after' },
@@ -4165,6 +4195,14 @@ export const listDriverWithdrawalSummaries = async ({ page = 1, limit = 50, sear
             name: driver.name || '',
             mobile: driver.phone || '',
             email: driver.email || '',
+            bankDetails: {
+              upiId: driver.bankDetails?.upiId || '',
+              qrCodeImage: driver.bankDetails?.qrCodeImage || '',
+              accountNumber: driver.bankDetails?.accountNumber || '',
+              ifsc: driver.bankDetails?.ifsc || '',
+              branchName: driver.bankDetails?.branchName || '',
+              updatedAt: driver.bankDetails?.updatedAt || null,
+            },
           }
           : null,
       };
@@ -4204,6 +4242,14 @@ export const listDriverWithdrawals = async ({ driverId, page = 1, limit = 50 }) 
       vehicle_type: driver.vehicleType || '',
       register_for: driver.registerFor || '',
       wallet: await serializeDriverWallet(driver),
+      bankDetails: {
+        upiId: driver.bankDetails?.upiId || '',
+        qrCodeImage: driver.bankDetails?.qrCodeImage || '',
+        accountNumber: driver.bankDetails?.accountNumber || '',
+        ifsc: driver.bankDetails?.ifsc || '',
+        branchName: driver.bankDetails?.branchName || '',
+        updatedAt: driver.bankDetails?.updatedAt || null,
+      },
     },
     results: items.map((item) => ({
       _id: item._id,

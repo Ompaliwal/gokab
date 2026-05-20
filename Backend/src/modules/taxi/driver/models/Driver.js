@@ -279,6 +279,38 @@ const driverSchema = new mongoose.Schema(
         default: false,
       },
     },
+    bankDetails: {
+      upiId: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      qrCodeImage: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      accountNumber: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      ifsc: {
+        type: String,
+        default: '',
+        trim: true,
+        uppercase: true,
+      },
+      branchName: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      updatedAt: {
+        type: Date,
+        default: null,
+      },
+    },
     zoneId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TaxiZone',

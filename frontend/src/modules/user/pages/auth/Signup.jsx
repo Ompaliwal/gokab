@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import * as Motion from 'framer-motion';
 import AuthLayout from '../../components/AuthLayout';
-import { User, Mail, Camera, Smartphone, ImagePlus, LifeBuoy } from 'lucide-react';
+import { User, Mail, Camera, Smartphone, ImagePlus, LifeBuoy, FileText, ShieldCheck } from 'lucide-react';
 import { clearLocalUserSession, userAuthService } from '../../services/authService';
 import { useSettings } from '../../../../shared/context/SettingsContext';
+import { uploadService } from '../../../../shared/services/uploadService';
 
 const fieldShellClassName =
   'rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all flex items-center gap-3 focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5';
@@ -34,11 +35,19 @@ const Signup = () => {
     email: '',
     gender: 'prefer-not-to-say',
     profileImage: '',
+    governmentIdProof: {
+      type: 'other',
+      imageUrl: '',
+      fileName: '',
+      uploadedAt: null,
+    },
     referralCode: String(location.state?.referralCode || referralCodeFromQuery || preservedReferralCode || '').trim().toUpperCase(),
   });
   const [loading, setLoading] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState('');
+  const [idUploading, setIdUploading] = useState(false);
+  const [idError, setIdError] = useState('');
   const [error, setError] = useState('');
   const [otpSending, setOtpSending] = useState(false);
   const navigate = useNavigate();
@@ -73,6 +82,12 @@ const Signup = () => {
     return formData.profileImage || '';
   }, [formData.profileImage]);
 
+  const idPreviewUrl = useMemo(() => {
+    return formData.governmentIdProof?.imageUrl || '';
+  }, [formData.governmentIdProof?.imageUrl]);
+
+  const hasGovernmentIdProof = Boolean(formData.governmentIdProof?.type && formData.governmentIdProof?.imageUrl);
+
   const readFileAsDataUrl = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -80,6 +95,36 @@ const Signup = () => {
       reader.onerror = () => reject(new Error('Failed to read image'));
       reader.readAsDataURL(file);
     });
+
+  const imageFileToUploadDataUrl = async (file, { maxSize = 1280, quality = 0.82 } = {}) => {
+    const dataUrl = await readFileAsDataUrl(file);
+    if (!String(dataUrl || '').startsWith('data:image/')) {
+      throw new Error('Please choose an image file');
+    }
+
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Unable to process image'));
+      img.src = dataUrl;
+    });
+
+    const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    return canvas.toDataURL('image/jpeg', quality);
+  };
+
+  const extractUploadUrl = (uploadPayload) =>
+    uploadPayload?.data?.url ||
+    uploadPayload?.data?.secureUrl ||
+    uploadPayload?.url ||
+    uploadPayload?.secureUrl ||
+    '';
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files?.[0];
@@ -89,12 +134,9 @@ const Signup = () => {
     setPhotoUploading(true);
 
     try {
-      const dataUrl = await readFileAsDataUrl(file);
-      if (!String(dataUrl || '').startsWith('data:image/')) {
-        throw new Error('Please choose an image file');
-      }
-      const uploadPayload = await userAuthService.uploadProfileImage(dataUrl);
-      const secureUrl = uploadPayload?.data?.secureUrl || '';
+      const dataUrl = await imageFileToUploadDataUrl(file, { maxSize: 900, quality: 0.84 });
+      const uploadPayload = await uploadService.uploadImage(dataUrl, 'user-profile');
+      const secureUrl = extractUploadUrl(uploadPayload);
 
       if (!secureUrl) {
         throw new Error('Upload failed');
@@ -106,6 +148,48 @@ const Signup = () => {
       setFormData((prev) => ({ ...prev, profileImage: '' }));
     } finally {
       setPhotoUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleGovernmentIdChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIdError('');
+    setIdUploading(true);
+
+    try {
+      const dataUrl = await imageFileToUploadDataUrl(file, { maxSize: 1500, quality: 0.86 });
+      const uploadPayload = await uploadService.uploadImage(dataUrl, 'user-government-id');
+      const imageUrl = extractUploadUrl(uploadPayload);
+
+      if (!imageUrl) {
+        throw new Error('ID proof upload failed');
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        governmentIdProof: {
+          ...prev.governmentIdProof,
+          imageUrl,
+          fileName: file.name || `${prev.governmentIdProof.type}-proof`,
+          uploadedAt: new Date().toISOString(),
+        },
+      }));
+    } catch (err) {
+      setIdError(err?.message || 'ID proof upload failed');
+      setFormData((prev) => ({
+        ...prev,
+        governmentIdProof: {
+          ...prev.governmentIdProof,
+          imageUrl: '',
+          fileName: '',
+          uploadedAt: null,
+        },
+      }));
+    } finally {
+      setIdUploading(false);
       e.target.value = '';
     }
   };
@@ -136,7 +220,7 @@ const Signup = () => {
 
   const handleSignup = async (e, overrides = {}) => {
     e.preventDefault();
-    if (!formData.name || !isValidPhone) return;
+    if (!formData.name || !isValidPhone || !hasGovernmentIdProof) return;
 
     setLoading(true);
     setError('');
@@ -148,6 +232,7 @@ const Signup = () => {
         email: formData.email,
         gender: formData.gender,
         profileImage: overrides.profileImage ?? formData.profileImage,
+        governmentIdProof: formData.governmentIdProof,
         referralCode: formData.referralCode,
       });
       const payload = response?.data || {};
@@ -215,7 +300,7 @@ const Signup = () => {
             <p className="text-sm font-bold text-red-500 text-center">{error}</p>
           )}
 
-          <motion.button
+          <Motion.motion.button
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={!isValidPhone || otpSending}
@@ -233,7 +318,7 @@ const Signup = () => {
             ) : (
               <span>Continue</span>
             )}
-          </motion.button>
+          </Motion.motion.button>
 
           <div className="space-y-3 text-center">
             <p className="text-sm font-medium text-slate-500">
@@ -383,6 +468,67 @@ const Signup = () => {
           </div>
 
           <div className="space-y-3">
+            <label className="ml-1 text-xs font-bold uppercase tracking-widest text-slate-600">Government ID Proof *</label>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="h-32 w-full overflow-hidden rounded-xl bg-slate-50 border border-dashed border-slate-300 sm:w-36 flex items-center justify-center">
+                  {idPreviewUrl ? (
+                    <img src={idPreviewUrl} alt="Government ID proof" className="h-full w-full object-cover" />
+                  ) : (
+                    <FileText size={34} className="text-slate-400" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <p className="text-xs font-bold text-slate-700">Upload a clear photo of your government ID proof.</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className={`relative flex h-11 items-center justify-center gap-2 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${
+                      idUploading
+                        ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
+                        : 'cursor-pointer border-slate-200 bg-white text-slate-700 active:scale-[0.99]'
+                    }`}>
+                      <ImagePlus size={14} />
+                      Gallery
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={idUploading}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        aria-label="Upload government ID from gallery"
+                        onChange={handleGovernmentIdChange}
+                      />
+                    </label>
+                    <label className={`relative flex h-11 items-center justify-center gap-2 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition-all ${
+                      idUploading
+                        ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
+                        : 'cursor-pointer border-slate-900 bg-slate-950 text-white active:scale-[0.99]'
+                    }`}>
+                      <Camera size={14} />
+                      Camera
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        disabled={idUploading}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        aria-label="Capture government ID photo"
+                        onChange={handleGovernmentIdChange}
+                      />
+                    </label>
+                  </div>
+                  {idPreviewUrl && (
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-600">
+                      <ShieldCheck size={14} />
+                      Government ID proof uploaded
+                    </div>
+                  )}
+                  {idUploading && <p className="text-[11px] font-bold text-slate-500">Uploading ID proof...</p>}
+                  {idError && <p className="text-[11px] font-bold text-red-500">{idError}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
              <label className="ml-1 text-xs font-bold uppercase tracking-widest text-slate-600">Gender</label>
              <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
                 {['Male', 'Female', 'Other'].map((g) => (
@@ -408,12 +554,12 @@ const Signup = () => {
         </div>
 
         <div className="space-y-3">
-          <motion.button 
+          <Motion.motion.button 
             whileTap={{ scale: 0.98 }}
             type="submit"
-            disabled={!formData.name || !isValidPhone || loading || photoUploading}
+            disabled={!formData.name || !isValidPhone || !hasGovernmentIdProof || loading || photoUploading || idUploading}
             className={`w-full py-4 rounded-xl text-lg font-bold shadow-xl transition-all flex items-center justify-center gap-3 mt-4 ${
-              formData.name && isValidPhone && !loading && !photoUploading
+              formData.name && isValidPhone && hasGovernmentIdProof && !loading && !photoUploading && !idUploading
               ? 'bg-black text-white shadow-black/10' 
               : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
             }`}
@@ -423,7 +569,7 @@ const Signup = () => {
             ) : (
               <span>Let's Go!</span>
             )}
-          </motion.button>
+          </Motion.motion.button>
 
           <button
             type="button"

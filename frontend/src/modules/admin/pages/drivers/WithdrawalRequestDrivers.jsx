@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronRight, Eye, FileSearch, Search } from 'lucide-react';
+import { ChevronRight, Eye, FileSearch, QrCode, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const BASE = () => `${globalThis.__LEGACY_BACKEND_ORIGIN__}/api/v1/admin/wallet/drivers/withdrawals`;
@@ -123,6 +123,7 @@ const WithdrawalRequestDrivers = () => {
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Mobile Number</th>
+                <th className="px-6 py-4">Payout</th>
                 <th className="px-6 py-4">Requested Amount</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-right">Action</th>
@@ -131,13 +132,13 @@ const WithdrawalRequestDrivers = () => {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-sm text-gray-400">
+                  <td colSpan={7} className="px-6 py-16 text-center text-sm text-gray-400">
                     Loading...
                   </td>
                 </tr>
               ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center">
+                  <td colSpan={7} className="px-6 py-16 text-center">
                     <div className="flex flex-col items-center gap-3 text-gray-400">
                       <FileSearch size={44} strokeWidth={1.5} />
                       <p className="text-sm font-medium">No Data Found</p>
@@ -155,6 +156,22 @@ const WithdrawalRequestDrivers = () => {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {item.driver?.mobile || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <div className="space-y-1">
+                        <div className="font-semibold text-gray-800">
+                          {item.driver?.bankDetails?.upiId || item.driver?.bankDetails?.accountNumber || '-'}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          {item.driver?.bankDetails?.ifsc ? <span>{item.driver.bankDetails.ifsc}</span> : null}
+                          {item.driver?.bankDetails?.qrCodeImage ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700">
+                              <QrCode size={12} />
+                              QR
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-800">
                       Rs {Number(item.pending_amount || 0).toFixed(2)}

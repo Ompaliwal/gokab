@@ -6,15 +6,62 @@ import { getLocalUserToken, userAuthService } from '../../services/authService';
 import { useSettings } from '../../../../shared/context/SettingsContext';
 import loginIllustration from '../../../../assets/images/login-illustration.png';
 
+const extractLoginErrorMessage = (error) => {
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return (
+    error?.message ||
+    error?.error ||
+    error?.details?.message ||
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    ''
+  );
+};
+
+const isBlockedAccountMessage = (message) => {
+  const normalizedMessage = String(message || '').trim().toLowerCase();
+
+  return (
+    normalizedMessage.includes('not active') ||
+    normalizedMessage.includes('blocked') ||
+    normalizedMessage.includes('inactive')
+  );
+};
+
+const getFriendlyLoginError = (message) => {
+  const normalizedMessage = String(message || '').trim();
+  const loweredMessage = normalizedMessage.toLowerCase();
+
+  if (!normalizedMessage) {
+    return 'Unable to send OTP. Please try again.';
+  }
+
+  if (
+    loweredMessage.includes('not active') ||
+    loweredMessage.includes('blocked') ||
+    loweredMessage.includes('inactive')
+  ) {
+    return 'Your account has been blocked. Please contact support for help.';
+  }
+
+  return normalizedMessage;
+};
+
 const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { settings } = useSettings();
   const phoneInputRef = useRef(null);
+  const locationError = extractLoginErrorMessage(location.state?.error);
   
   const [phoneNumber, setPhoneNumber] = useState(() => String(location.state?.phone || '').replace(/\D/g, '').slice(-10));
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(() => String(location.state?.error || ''));
+  const [error, setError] = useState(() => (
+    isBlockedAccountMessage(locationError) ? getFriendlyLoginError(locationError) : ''
+  ));
   const [showInput, setShowInput] = useState(false);
   
   const appName = settings.general?.app_name || 'Rydon24';
@@ -34,6 +81,14 @@ const Login = () => {
     }
   }, [navigate, userHomeRoute]);
 
+  useEffect(() => {
+    if (!location.state) {
+      return;
+    }
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
+
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
     if (!isValidPhone || loading) return;
@@ -47,7 +102,7 @@ const Login = () => {
         state: { phone: phoneNumber },
       });
     } catch (err) {
-      setError(err?.message || 'Unable to send OTP. Please try again.');
+      setError(getFriendlyLoginError(extractLoginErrorMessage(err)));
     } finally {
       setLoading(false);
     }
@@ -167,6 +222,11 @@ const Login = () => {
                       className="flex-1 bg-transparent border-none p-0 text-xl font-bold text-slate-900 outline-none focus:ring-0 placeholder:text-slate-200 tracking-widest"
                     />
                   </div>
+                  {error ? (
+                    <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+                      {error}
+                    </div>
+                  ) : null}
                 </div>
 
                 <motion.button 

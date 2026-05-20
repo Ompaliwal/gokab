@@ -65,7 +65,7 @@ export const adminService = {
   getReferralSettings: (type) => api.get(`/admin/referrals/settings/${type}`),
   updateReferralSettings: (type, data) => api.patch(`/admin/referrals/settings/${type}`, data),
   // Wallet Payment APIs
-  searchUsers: (query) => api.get(`/admin/users?search=${query}`),
+  searchUsers: (query) => api.get(`/admin/users?search=${encodeURIComponent(query)}`),
   searchDrivers: (query) => api.get(`/admin/drivers?search=${query}`),
   searchOwners: (query) => api.get(`/admin/owners?search=${query}`),
 

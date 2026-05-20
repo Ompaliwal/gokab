@@ -99,6 +99,28 @@ const userSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    governmentIdProof: {
+      type: {
+        type: String,
+        enum: ['aadhaar', 'voter_id', 'passport', 'driving_license', 'other', ''],
+        default: '',
+        trim: true,
+      },
+      imageUrl: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      fileName: {
+        type: String,
+        default: '',
+        trim: true,
+      },
+      uploadedAt: {
+        type: Date,
+        default: null,
+      },
+    },
     fcmTokenWeb: {
       type: String,
       default: '',
@@ -221,6 +243,9 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.index({ phone: 1 }, { unique: true });
+userSchema.index({ deletedAt: 1, createdAt: -1 });
+userSchema.index({ name: 1 });
+userSchema.index({ email: 1 });
 userSchema.index({ 'addresses.location': '2dsphere' });
 userSchema.index({ 'deletionRequest.status': 1, deletedAt: 1 });
 

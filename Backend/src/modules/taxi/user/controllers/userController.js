@@ -1298,6 +1298,12 @@ const toUserPayload = (user, options = {}) => ({
   email: user.email || '',
   gender: user.gender || '',
   profileImage: user.profileImage || '',
+  governmentIdProof: user.governmentIdProof || {
+    type: '',
+    imageUrl: '',
+    fileName: '',
+    uploadedAt: null,
+  },
   referralCode: user.referralCode || '',
   referralCount: Number(user.referralCount || 0),
   deletionRequestStatus: user.deletionRequest?.status || 'none',
@@ -1320,13 +1326,56 @@ const ensureUserCanLogin = (user) => {
 
 const canRestoreUserForSignup = (user) => Boolean(user?.deletedAt);
 
-const buildReactivatedUserPayload = async ({ req, name, phone, email, countryCode, gender, profileImage, referrer }) => ({
+const VALID_GOVERNMENT_ID_TYPES = new Set(['aadhaar', 'voter_id', 'passport', 'driving_license', 'other']);
+
+const normalizeGovernmentIdProof = (input = {}, { required = false } = {}) => {
+  const type = toCleanString(input.type).toLowerCase();
+  const imageUrl = toCleanString(input.imageUrl || input.url || input.secureUrl);
+  const fileName = toCleanString(input.fileName || input.name || 'government-id');
+
+  if (!type && !imageUrl && !required) {
+    return {
+      type: '',
+      imageUrl: '',
+      fileName: '',
+      uploadedAt: null,
+    };
+  }
+
+  if (!VALID_GOVERNMENT_ID_TYPES.has(type)) {
+    throw new ApiError(400, 'A valid government ID type is required');
+  }
+
+  if (!imageUrl) {
+    throw new ApiError(400, 'Government ID proof image is required');
+  }
+
+  return {
+    type,
+    imageUrl,
+    fileName: fileName || `${type}-proof`,
+    uploadedAt: input.uploadedAt ? new Date(input.uploadedAt) : new Date(),
+  };
+};
+
+const buildReactivatedUserPayload = async ({
+  req,
+  name,
+  phone,
+  email,
+  countryCode,
+  gender,
+  profileImage,
+  governmentIdProof,
+  referrer,
+}) => ({
   name,
   phone,
   countryCode,
   email,
   gender,
   profileImage,
+  governmentIdProof,
   password: await hashPassword(String(req.body.password || '').trim() || crypto.randomBytes(24).toString('hex')),
   isVerified: true,
   referredBy: referrer?._id || null,
@@ -1462,6 +1511,7 @@ export const registerUser = async (req, res) => {
   const countryCode = toCleanString(req.body.countryCode) || '+91';
   const gender = normalizeGender(req.body.gender);
   const profileImage = toCleanString(req.body.profileImage);
+  const governmentIdProof = normalizeGovernmentIdProof(req.body.governmentIdProof || {}, { required: false });
   const referralCode = normalizeReferralCode(req.body.referralCode);
 
   validateName(name);
@@ -1488,6 +1538,7 @@ export const registerUser = async (req, res) => {
     countryCode,
     gender,
     profileImage,
+    governmentIdProof,
     referrer,
   });
 
@@ -1573,6 +1624,7 @@ export const signupUser = async (req, res) => {
   const countryCode = toCleanString(req.body.countryCode) || '+91';
   const gender = normalizeGender(req.body.gender);
   const profileImage = toCleanString(req.body.profileImage);
+  const governmentIdProof = normalizeGovernmentIdProof(req.body.governmentIdProof || {}, { required: true });
   const referralCode = normalizeReferralCode(req.body.referralCode);
 
   validateName(name);
@@ -1601,6 +1653,7 @@ export const signupUser = async (req, res) => {
     countryCode,
     gender,
     profileImage,
+    governmentIdProof,
     referrer,
   });
 

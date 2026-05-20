@@ -11,6 +11,7 @@ import {
   MapPin,
   MoreHorizontal,
   Phone,
+  QrCode,
   Search,
   ShieldCheck,
   User,
@@ -80,7 +81,7 @@ const WithdrawalRequestDetail = () => {
       try {
         const response = await adminService.getDriverWithdrawals(id, { limit: itemsPerPage });
         applyPayload(response?.data || response || {});
-      } catch (driverLookupError) {
+      } catch {
         const fallbackResponse = await adminService.getDriverWithdrawalContextByRequestId(
           requestId || id,
           {
@@ -144,6 +145,10 @@ const WithdrawalRequestDetail = () => {
     () => history.find((item) => item.paymentMethod)?.paymentMethod || 'bank_transfer',
     [history],
   );
+  const bankDetails = driver?.bankDetails || {};
+  const maskedAccountNumber = bankDetails.accountNumber
+    ? bankDetails.accountNumber.slice(-4).padStart(bankDetails.accountNumber.length, '*')
+    : '';
 
   const toggleMenu = (event, requestId) => {
     event.stopPropagation();
@@ -311,6 +316,52 @@ const WithdrawalRequestDetail = () => {
                     </p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-sky-50 text-sky-600 rounded-2xl">
+                <Building size={20} />
+              </div>
+              <h4 className="text-[14px] font-black text-gray-900 uppercase tracking-widest leading-none">
+                Bank Details
+              </h4>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">UPI ID</p>
+                <p className="mt-1 text-sm font-bold text-gray-800 break-all">{bankDetails.upiId || '-'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Account Number</p>
+                <p className="mt-1 text-sm font-bold text-gray-800">{maskedAccountNumber || '-'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">IFSC</p>
+                <p className="mt-1 text-sm font-bold text-gray-800">{bankDetails.ifsc || '-'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Branch Name</p>
+                <p className="mt-1 text-sm font-bold text-gray-800">{bankDetails.branchName || '-'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">UPI QR Code</p>
+                {bankDetails.qrCodeImage ? (
+                  <a
+                    href={bankDetails.qrCodeImage}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-700"
+                  >
+                    <QrCode size={14} />
+                    View QR Code
+                  </a>
+                ) : (
+                  <p className="mt-1 text-sm font-bold text-gray-800">-</p>
+                )}
               </div>
             </div>
           </div>

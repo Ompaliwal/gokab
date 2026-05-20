@@ -232,6 +232,54 @@ const serializeDriverRouteBooking = (routeBooking = {}) => {
   };
 };
 
+const serializeDriverBankDetails = (bankDetails = {}) => ({
+  upiId: String(bankDetails?.upiId || "").trim(),
+  qrCodeImage: String(bankDetails?.qrCodeImage || "").trim(),
+  accountNumber: String(bankDetails?.accountNumber || "").trim(),
+  ifsc: String(bankDetails?.ifsc || "").trim().toUpperCase(),
+  branchName: String(bankDetails?.branchName || "").trim(),
+  updatedAt: bankDetails?.updatedAt || null,
+});
+
+const normalizeDriverBankDetails = (payload = {}, existing = {}) => {
+  const next = serializeDriverBankDetails(existing);
+
+  if (Object.prototype.hasOwnProperty.call(payload, "upiId")) {
+    const upiId = String(payload.upiId || "").trim().toLowerCase();
+    if (upiId && !/^[a-z0-9.\-_]{2,}@[a-z0-9.\-_]{2,}$/i.test(upiId)) {
+      throw new ApiError(400, "Enter a valid UPI ID");
+    }
+    next.upiId = upiId;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "qrCodeImage")) {
+    next.qrCodeImage = String(payload.qrCodeImage || "").trim();
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "accountNumber")) {
+    const accountNumber = String(payload.accountNumber || "").replace(/\s/g, "");
+    if (accountNumber && !/^\d{6,20}$/.test(accountNumber)) {
+      throw new ApiError(400, "Account number must be 6 to 20 digits");
+    }
+    next.accountNumber = accountNumber;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "ifsc")) {
+    const ifsc = String(payload.ifsc || "").trim().toUpperCase();
+    if (ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
+      throw new ApiError(400, "Enter a valid IFSC code");
+    }
+    next.ifsc = ifsc;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(payload, "branchName")) {
+    next.branchName = String(payload.branchName || "").trim().slice(0, 120);
+  }
+
+  next.updatedAt = new Date();
+  return next;
+};
+
 const validateBusPassengerName = (value = "") => {
   if (!BUS_DRIVER_NAME_REGEX.test(String(value || "").trim())) {
     throw new ApiError(400, "Passenger name is required");
@@ -2778,6 +2826,7 @@ export const getCurrentDriver = async (req, res) => {
       status: driver.status,
       rating: driver.rating,
       wallet: await serializeDriverWallet(driver),
+      bankDetails: serializeDriverBankDetails(driver.bankDetails),
       referralCode: driver.referralCode || "",
       deletionRequest: driver.deletionRequest || { status: "none" },
       isOnline: driver.isOnline,
@@ -3213,6 +3262,13 @@ export const updateCurrentDriver = async (req, res) => {
     }
   }
 
+  if (Object.prototype.hasOwnProperty.call(req.body || {}, "bankDetails")) {
+    driver.bankDetails = normalizeDriverBankDetails(
+      req.body?.bankDetails || {},
+      driver.bankDetails || {},
+    );
+  }
+
   await driver.save();
 
   res.json({
@@ -3224,6 +3280,7 @@ export const updateCurrentDriver = async (req, res) => {
       email: driver.email,
       profileImage: driver.profileImage || "",
       routeBooking: serializeDriverRouteBooking(driver.routeBooking),
+      bankDetails: serializeDriverBankDetails(driver.bankDetails),
     },
   });
 };

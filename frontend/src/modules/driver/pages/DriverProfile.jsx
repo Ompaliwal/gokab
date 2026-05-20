@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import * as Motion from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { 
     User, 
     Car, 
@@ -25,11 +26,16 @@ import {
     Mail,
     HandCoins,
     Phone,
-    X
+    X,
+    Landmark,
+    QrCode,
+    Upload,
+    Save
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 import { clearDriverAuthState, getCurrentDriver, updateDriverProfile } from '../services/registrationService';
+import { uploadService } from '../../../shared/services/uploadService';
 
 const unwrapDriver = (response) => response?.data?.data || response?.data || response || null;
 const ROUTE_BOOKING_STORAGE_KEY = 'driver_route_booking_preferences';
@@ -74,10 +80,39 @@ const normalizeRouteBookingPreferences = (routeBooking = null) => {
     };
 };
 
+const normalizeBankDetails = (bankDetails = {}) => ({
+    upiId: String(bankDetails?.upiId || '').trim(),
+    qrCodeImage: String(bankDetails?.qrCodeImage || '').trim(),
+    accountNumber: String(bankDetails?.accountNumber || '').trim(),
+    ifsc: String(bankDetails?.ifsc || '').trim().toUpperCase(),
+    branchName: String(bankDetails?.branchName || '').trim(),
+    updatedAt: bankDetails?.updatedAt || null,
+});
+
+const readFileAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('Failed to read image'));
+        reader.readAsDataURL(file);
+    });
+
+const extractUploadUrl = (payload) =>
+    payload?.data?.url ||
+    payload?.data?.secureUrl ||
+    payload?.url ||
+    payload?.secureUrl ||
+    '';
+
 const DriverProfile = () => {
     const navigate = useNavigate();
     const [routeBookingPreferences, setRouteBookingPreferences] = useState(() => readRouteBookingPreferences());
     const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+    const [isBankModalOpen, setIsBankModalOpen] = useState(false);
+    const [bankForm, setBankForm] = useState(() => normalizeBankDetails());
+    const [bankSaving, setBankSaving] = useState(false);
+    const [bankUploading, setBankUploading] = useState(false);
+    const [bankError, setBankError] = useState('');
     const [legalModal, setLegalModal] = useState(null); 
     const [driver, setDriver] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +134,7 @@ const DriverProfile = () => {
                 if (!active) return;
                 const nextDriver = unwrapDriver(response);
                 setDriver(nextDriver);
+                setBankForm(normalizeBankDetails(nextDriver?.bankDetails));
                 const nextRouteBooking = normalizeRouteBookingPreferences(nextDriver?.routeBooking);
                 setRouteBookingPreferences(writeRouteBookingPreferences(nextRouteBooking));
             } catch (err) {
@@ -206,8 +242,87 @@ Processing Time: Refunds are typically credited back to the original payment met
 
         return routeBookingPreferences.label || formatRouteBookingLabel(routeBookingPreferences.coordinates);
     }, [routeBookingPreferences.coordinates, routeBookingPreferences.enabled, routeBookingPreferences.label]);
+    const bankDetails = useMemo(() => normalizeBankDetails(driver?.bankDetails), [driver?.bankDetails]);
+    const bankDetailsSubtitle = useMemo(() => {
+        if (bankDetails.upiId) return bankDetails.upiId;
+        if (bankDetails.accountNumber) return `A/C ${bankDetails.accountNumber.slice(-4).padStart(bankDetails.accountNumber.length, '*')}`;
+        return 'Add UPI, QR and bank account';
+    }, [bankDetails.accountNumber, bankDetails.upiId]);
 
     const hasProfileImage = Boolean(driver?.profileImage);
+
+    const openBankDetails = () => {
+        setBankForm(normalizeBankDetails(driver?.bankDetails));
+        setBankError('');
+        setIsBankModalOpen(true);
+    };
+
+    const handleBankFieldChange = (field, value) => {
+        setBankForm((current) => ({
+            ...current,
+            [field]: field === 'ifsc' ? String(value || '').toUpperCase() : value,
+        }));
+    };
+
+    const handleQrUpload = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setBankUploading(true);
+        setBankError('');
+
+        try {
+            const dataUrl = await readFileAsDataUrl(file);
+            if (!dataUrl.startsWith('data:image/')) {
+                throw new Error('Please choose an image file');
+            }
+
+            const uploadPayload = await uploadService.uploadImage(dataUrl, 'driver-bank-qr');
+            const qrCodeImage = extractUploadUrl(uploadPayload);
+
+            if (!qrCodeImage) {
+                throw new Error('QR upload failed');
+            }
+
+            setBankForm((current) => ({ ...current, qrCodeImage }));
+        } catch (err) {
+            setBankError(err?.message || 'QR upload failed');
+        } finally {
+            setBankUploading(false);
+            event.target.value = '';
+        }
+    };
+
+    const handleBankDetailsSave = async () => {
+        if (bankSaving || bankUploading) return;
+
+        setBankSaving(true);
+        setBankError('');
+
+        try {
+            const response = await updateDriverProfile({
+                bankDetails: {
+                    upiId: bankForm.upiId,
+                    qrCodeImage: bankForm.qrCodeImage,
+                    accountNumber: bankForm.accountNumber,
+                    ifsc: bankForm.ifsc,
+                    branchName: bankForm.branchName,
+                },
+            });
+            const updated = unwrapDriver(response);
+            const nextBankDetails = normalizeBankDetails(updated?.bankDetails || bankForm);
+            setDriver((current) => ({
+                ...(current || {}),
+                bankDetails: nextBankDetails,
+            }));
+            setBankForm(nextBankDetails);
+            setIsBankModalOpen(false);
+        } catch (err) {
+            setBankError(err?.message || 'Unable to save bank details');
+        } finally {
+            setBankSaving(false);
+        }
+    };
 
     const handleRouteBookingToggle = async () => {
         if (routeBookingBusy) {
@@ -291,6 +406,7 @@ Processing Time: Refunds are typically credited back to the original payment met
                     items: [
                 { id: 'personal', label: 'Personal Information', sub: driverPhone, icon: <User size={20} />, path: `${routePrefix}/edit-profile` },
                 { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} />, path: `${routePrefix}/wallet` },
+                { id: 'bankDetails', label: 'Bank Details', sub: bankDetailsSubtitle, icon: <Landmark size={20} />, action: openBankDetails },
                 ...(!isOwner ? [
                     { id: 'vehicle', label: 'My Vehicle', icon: <Car size={20} />, path: `${routePrefix}/vehicle-fleet` },
                 ] : []),
@@ -415,7 +531,7 @@ Processing Time: Refunds are typically credited back to the original payment met
                         <h3 className="px-6 text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-3">{section.title}</h3>
                         <div className="space-y-0">
                             {section.items.map((item) => (
-                                <motion.div 
+                                <Motion.motion.div 
                                     key={item.id}
                                     whileTap={item.type !== 'toggle' ? { backgroundColor: '#F8F9FA' } : {}}
                                     onClick={() => {
@@ -439,7 +555,7 @@ Processing Time: Refunds are typically credited back to the original payment met
                                             disabled={routeBookingBusy}
                                             className={`w-10 h-5.5 rounded-full relative transition-colors duration-300 ${routeBookingPreferences.enabled ? 'bg-slate-900' : 'bg-slate-200'} ${routeBookingBusy ? 'opacity-70' : ''}`}
                                         >
-                                            <motion.div 
+                                            <Motion.motion.div 
                                                 animate={{ x: routeBookingPreferences.enabled ? 20 : 2 }}
                                                 className="absolute top-1 w-3.5 h-3.5 rounded-full bg-white shadow-sm"
                                             />
@@ -447,7 +563,7 @@ Processing Time: Refunds are typically credited back to the original payment met
                                     ) : (
                                         <ChevronRight size={16} className="text-slate-200" />
                                     )}
-                                </motion.div>
+                                </Motion.motion.div>
                             ))}
                         </div>
                     </div>
@@ -502,7 +618,7 @@ Processing Time: Refunds are typically credited back to the original payment met
             <AnimatePresence>
                 {isLogoutOpen && (
                     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/45 px-5 backdrop-blur-sm">
-                        <motion.div
+                        <Motion.motion.div
                             initial={{ opacity: 0, scale: 0.96, y: 12 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -529,7 +645,151 @@ Processing Time: Refunds are typically credited back to the original payment met
                                     Logout
                                 </button>
                             </div>
-                        </motion.div>
+                        </Motion.motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {isBankModalOpen && (
+                    <div className="fixed inset-0 z-[210] flex items-end justify-center bg-black/45 px-4 pb-6 backdrop-blur-sm sm:items-center sm:pb-0">
+                        <Motion.motion.div
+                            initial={{ opacity: 0, y: 80 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 80 }}
+                            className="w-full max-w-lg overflow-hidden rounded-[32px] bg-white shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="max-h-[88vh] overflow-y-auto p-6">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white">
+                                            <Landmark size={22} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-slate-950">Bank Details</h3>
+                                            <p className="text-xs font-medium text-slate-500">Used for payouts and payment verification</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsBankModalOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+
+                                <div className="mt-6 space-y-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">UPI ID</label>
+                                        <input
+                                            type="text"
+                                            inputMode="email"
+                                            value={bankForm.upiId}
+                                            onChange={(e) => handleBankFieldChange('upiId', e.target.value)}
+                                            placeholder="name@upi"
+                                            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white"
+                                        />
+                                    </div>
+
+                                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                            <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-white sm:w-36">
+                                                {bankForm.qrCodeImage ? (
+                                                    <img src={bankForm.qrCodeImage} alt="UPI QR code" className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <QrCode size={42} className="text-slate-300" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 space-y-3">
+                                                <div>
+                                                    <p className="text-[13px] font-bold text-slate-900">UPI QR Code</p>
+                                                    <p className="mt-1 text-xs font-medium text-slate-500">Upload your payout QR image from gallery or camera.</p>
+                                                </div>
+                                                <label className={`relative flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl text-[12px] font-bold uppercase tracking-wider transition ${
+                                                    bankUploading ? 'bg-slate-200 text-slate-400' : 'bg-slate-950 text-white active:scale-[0.99]'
+                                                }`}>
+                                                    <Upload size={15} />
+                                                    {bankUploading ? 'Uploading...' : 'Upload QR'}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        disabled={bankUploading}
+                                                        onChange={handleQrUpload}
+                                                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                                        aria-label="Upload UPI QR code"
+                                                    />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Account Number</label>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                value={bankForm.accountNumber}
+                                                onChange={(e) => handleBankFieldChange('accountNumber', e.target.value.replace(/\D/g, ''))}
+                                                placeholder="Enter account number"
+                                                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">IFSC</label>
+                                            <input
+                                                type="text"
+                                                value={bankForm.ifsc}
+                                                onChange={(e) => handleBankFieldChange('ifsc', e.target.value)}
+                                                placeholder="ABCD0123456"
+                                                maxLength={11}
+                                                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[15px] font-bold uppercase text-slate-900 outline-none focus:border-slate-900 focus:bg-white"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Branch Name</label>
+                                        <input
+                                            type="text"
+                                            value={bankForm.branchName}
+                                            onChange={(e) => handleBankFieldChange('branchName', e.target.value)}
+                                            placeholder="Enter branch name"
+                                            className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-[15px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:bg-white"
+                                        />
+                                    </div>
+
+                                    {bankError ? (
+                                        <p className="rounded-2xl bg-rose-50 px-4 py-3 text-xs font-bold text-rose-600">{bankError}</p>
+                                    ) : null}
+                                </div>
+
+                                <div className="mt-6 grid grid-cols-2 gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsBankModalOpen(false)}
+                                        className="h-12 rounded-2xl border border-slate-200 text-[13px] font-bold text-slate-700"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleBankDetailsSave}
+                                        disabled={bankSaving || bankUploading}
+                                        className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 text-[13px] font-bold text-white disabled:opacity-60"
+                                    >
+                                        {bankSaving ? (
+                                            <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                                        ) : (
+                                            <Save size={15} />
+                                        )}
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </Motion.motion.div>
+                        <div className="absolute inset-0 -z-10" onClick={() => setIsBankModalOpen(false)} />
                     </div>
                 )}
             </AnimatePresence>
@@ -538,7 +798,7 @@ Processing Time: Refunds are typically credited back to the original payment met
             <AnimatePresence>
                 {legalModal && (
                     <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/45 backdrop-blur-sm px-4 pb-8 sm:items-center sm:pb-0">
-                        <motion.div
+                        <Motion.motion.div
                             initial={{ opacity: 0, y: 100 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 100 }}
@@ -576,7 +836,7 @@ Processing Time: Refunds are typically credited back to the original payment met
                                     Understood
                                 </button>
                             </div>
-                        </motion.div>
+                        </Motion.motion.div>
                         <div className="absolute inset-0 -z-10" onClick={() => setLegalModal(null)} />
                     </div>
                 )}

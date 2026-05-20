@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Download, UserPlus, MoreHorizontal,
   ChevronRight, UserCheck, Edit2, Lock, Trash2,
-  Loader2
+  Loader2, Ban, FileText
 } from 'lucide-react';
 
 const StatusToggle = ({ status, onToggle }) => (
@@ -31,6 +31,7 @@ const UserList = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
@@ -39,12 +40,21 @@ const UserList = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [page, setPage] = useState(1);
   const [paginator, setPaginator] = useState(null);
+  const latestRequestId = useRef(0);
+  const hasLoadedUsersRef = useRef(false);
 
-  const fetchUsers = async ({ nextPage = page, nextLimit = itemsPerPage, nextSearch = searchTerm } = {}) => {
+  const fetchUsers = useCallback(async ({ nextPage = page, nextLimit = itemsPerPage, nextSearch = searchTerm } = {}) => {
+    const requestId = latestRequestId.current + 1;
+    latestRequestId.current = requestId;
+    const showInitialLoader = !hasLoadedUsersRef.current;
+
     try {
-      setIsLoading(true);
+      setIsLoading(showInitialLoader);
+      setIsRefreshing(!showInitialLoader);
       setError(null);
       const resData = await adminService.getUsers(nextPage, nextLimit, String(nextSearch || '').trim());
+      if (requestId !== latestRequestId.current) return;
+
       if (resData.success) {
         const mapped = (resData.data?.results || []).map(u => ({
           id: u._id,
@@ -52,36 +62,35 @@ const UserList = () => {
           gender: GENDER_LABELS[u.gender] || 'N/A',
           email: u.email || 'N/A',
           phone: u.mobile || 'N/A',
+          profileImage: u.profileImage || '',
+          governmentIdProof: u.governmentIdProof || null,
           status: u.active ? 'Active' : 'Suspended',
         }));
         setUsers(mapped);
         setPaginator(resData.data?.paginator || null);
+        hasLoadedUsersRef.current = true;
       } else {
         setError(resData.message || 'Failed to fetch users');
       }
     } catch (err) {
+      if (requestId !== latestRequestId.current) return;
       setError(err.message || 'Network error');
     } finally {
-      setIsLoading(false);
+      if (requestId === latestRequestId.current) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
     }
-  };
+  }, [itemsPerPage, page, searchTerm]);
 
   useEffect(() => {
-    fetchUsers({ nextPage: 1, nextLimit: itemsPerPage, nextSearch: searchTerm });
-    setPage(1);
-  }, [itemsPerPage]);
-
-  useEffect(() => {
+    const trimmedSearch = String(searchTerm || '').trim();
     const timeoutId = window.setTimeout(() => {
-      fetchUsers({ nextPage: 1, nextLimit: itemsPerPage, nextSearch: searchTerm });
-      setPage(1);
-    }, 250);
-    return () => window.clearTimeout(timeoutId);
-  }, [searchTerm]);
+      fetchUsers({ nextPage: page, nextLimit: itemsPerPage, nextSearch: trimmedSearch });
+    }, trimmedSearch ? 350 : 0);
 
-  useEffect(() => {
-    fetchUsers({ nextPage: page, nextLimit: itemsPerPage, nextSearch: searchTerm });
-  }, [page]);
+    return () => window.clearTimeout(timeoutId);
+  }, [fetchUsers, page, itemsPerPage, searchTerm]);
 
   useEffect(() => {
     const closeMenu = () => setActiveMenu(null);
@@ -99,6 +108,21 @@ const UserList = () => {
     } catch (err) {
       console.error('Failed to toggle status', err);
     }
+  };
+
+  const handleBlockUser = async (user) => {
+    if (!user) return;
+    const shouldBlock = user.status === 'Active';
+    const confirmed = window.confirm(
+      shouldBlock
+        ? `Block ${user.name}? They will not be able to log in, open their profile, or register again with ${user.phone}.`
+        : `Unblock ${user.name}? They will be able to use their account again.`
+    );
+
+    if (!confirmed) return;
+
+    await handleToggleStatus(user.id, user.status);
+    setActiveMenu(null);
   };
 
   const handleAddUser = () => { navigate('/admin/users/create'); };
@@ -143,7 +167,7 @@ const UserList = () => {
 
     const rect = e.currentTarget.getBoundingClientRect();
     const menuWidth = 176;
-    const menuHeight = 170;
+    const menuHeight = 210;
     const gap = 8;
     let left = rect.right - menuWidth;
     left = Math.max(12, Math.min(left, window.innerWidth - menuWidth - 12));
@@ -205,9 +229,12 @@ const UserList = () => {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search users..." 
+            placeholder="Search by name, mobile, or email..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
             className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
           />
         </div>
@@ -215,7 +242,10 @@ const UserList = () => {
           <span>Show</span>
           <select
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(Number(e.target.value) || 10)}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value) || 10);
+              setPage(1);
+            }}
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
           >
             {[10, 25, 50].map((value) => (
@@ -234,6 +264,12 @@ const UserList = () => {
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-visible">
+        {isRefreshing && (
+          <div className="border-b border-gray-100 px-4 py-2 text-xs font-medium text-indigo-600 flex items-center gap-2">
+            <Loader2 size={13} className="animate-spin" />
+            Updating users...
+          </div>
+        )}
         <div className="overflow-x-auto overflow-y-visible">
           <table className="w-full">
             <thead>
@@ -242,6 +278,7 @@ const UserList = () => {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">Gender</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">Mobile</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">Email</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">ID Proof</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-900">Status</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-900">Action</th>
               </tr>
@@ -252,7 +289,11 @@ const UserList = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-medium text-xs flex items-center justify-center">
-                        {user.name.split(' ').map(n => n[0]).join('')}
+                        {user.profileImage ? (
+                          <img src={user.profileImage} alt={user.name} className="h-full w-full rounded-full object-cover" />
+                        ) : (
+                          user.name.split(' ').map(n => n[0]).join('')
+                        )}
                       </div>
                       <div>
                         <button
@@ -268,6 +309,22 @@ const UserList = () => {
                   <td className="px-4 py-3 text-sm text-gray-700">{user.gender}</td>
                   <td className="px-4 py-3 text-sm text-gray-700">{user.phone}</td>
                   <td className="px-4 py-3 text-sm text-gray-700">{user.email}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {user.governmentIdProof?.imageUrl ? (
+                      <a
+                        href={user.governmentIdProof.imageUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FileText size={13} />
+                        {String(user.governmentIdProof.type || 'ID').replace(/_/g, ' ')}
+                      </a>
+                    ) : (
+                      <span className="text-xs font-medium text-rose-500">Missing</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center">
                     <StatusToggle status={user.status} onToggle={() => handleToggleStatus(user.id, user.status)} />
                   </td>
@@ -328,6 +385,13 @@ const UserList = () => {
               </button>
               <button onClick={() => handleEditUser(users.find((item) => item.id === activeMenu))} className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
                 <Lock size={13} className="text-amber-500" /> Update Password
+              </button>
+              <button
+                onClick={() => handleBlockUser(users.find((item) => item.id === activeMenu))}
+                className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+              >
+                <Ban size={13} className={users.find((item) => item.id === activeMenu)?.status === 'Active' ? 'text-red-500' : 'text-emerald-500'} />
+                {users.find((item) => item.id === activeMenu)?.status === 'Active' ? 'Block User' : 'Unblock User'}
               </button>
               <div className="h-px bg-gray-100 my-1" />
               <button onClick={() => handleDeleteUser(activeMenu)} className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
