@@ -2419,33 +2419,39 @@ const ActiveTrip = () => {
                                     </button>
                                 </motion.div>
                             )}
-                            {driverPaymentStatus === 'qr_generated' && (
-                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-3xl p-5 mb-6 text-center shadow-2xl text-white" style={{ backgroundColor: routeStrokeColor }}>
-                                    <div className="bg-white p-3 rounded-2xl inline-block mb-3 relative overflow-hidden">
-                                        <img
-                                            src={paymentQr?.imageUrl}
-                                            alt={`Payment QR for ${displayFare}`}
-                                            className="h-36 w-36 object-contain"
-                                        />
-                                        <motion.div animate={{ top: ['0%', '100%', '0%'] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="absolute left-0 w-full h-0.5 bg-slate-200" />
-                                    </div>
-                                    <p className="text-white font-semibold text-sm uppercase tracking-wide">Scan to pay {displayFare}</p>
-                                    <p className="text-white/45 text-[10px] font-semibold mt-1 mb-4 uppercase tracking-wide">
-                                        Razorpay collection QR for this ride
-                                    </p>
-                                    {paymentQr?.linkUrl && (
-                                        <a
-                                            href={paymentQr.linkUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="mb-3 block text-[10px] font-semibold uppercase tracking-wide text-white/70 underline underline-offset-4"
-                                        >
-                                            Open payment link
-                                        </a>
-                                    )}
-                                <button onClick={() => setDriverPaymentStatus('success')} className="w-full py-3 bg-white/10 text-white rounded-xl text-[10px] font-semibold uppercase tracking-wide border border-white/5">Confirm Received</button>
-                            </motion.div>
-                            )}
+                            {driverPaymentStatus === 'qr_generated' && (() => {
+                                const isInlineQrImage = String(paymentQr?.imageUrl || '').startsWith('data:image/');
+
+                                return (
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-3xl p-5 mb-6 text-center shadow-2xl text-white" style={{ backgroundColor: routeStrokeColor }}>
+                                        <div className="mx-auto mb-3 flex h-[15rem] w-full max-w-[15rem] items-center justify-center rounded-2xl bg-white p-3 relative overflow-hidden">
+                                            <img
+                                                src={paymentQr?.imageUrl}
+                                                alt={`Payment QR for ${displayFare}`}
+                                                className={isInlineQrImage ? 'h-40 w-40 object-contain' : 'h-auto w-[185%] max-w-none object-contain'}
+                                            />
+                                            {isInlineQrImage && (
+                                                <motion.div animate={{ top: ['0%', '100%', '0%'] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} className="absolute left-0 w-full h-0.5 bg-slate-200" />
+                                            )}
+                                        </div>
+                                        <p className="text-white font-semibold text-sm uppercase tracking-wide">Scan to pay {displayFare}</p>
+                                        <p className="text-white/45 text-[10px] font-semibold mt-1 mb-4 uppercase tracking-wide">
+                                            Razorpay collection QR for this ride
+                                        </p>
+                                        {paymentQr?.linkUrl && (
+                                            <a
+                                                href={paymentQr.linkUrl}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="mb-3 block text-[10px] font-semibold uppercase tracking-wide text-white/70 underline underline-offset-4"
+                                            >
+                                                Open payment link
+                                            </a>
+                                        )}
+                                        <button onClick={() => setDriverPaymentStatus('success')} className="w-full py-3 bg-white/10 text-white rounded-xl text-[10px] font-semibold uppercase tracking-wide border border-white/5">Confirm Received</button>
+                                    </motion.div>
+                                );
+                            })()}
                             <motion.button
                                 whileTap={{ scale: 0.96 }}
                                 disabled={driverPaymentStatus !== 'success' || selectedPaymentMode === 'cash'}
