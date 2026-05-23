@@ -80,7 +80,7 @@ function LandingPage() {
              </div>
              <div className="top-contact-item">
                <Mail size={16} />
-               <span>supportrydon@gmail.com</span>
+               <span>supportRedigo@gmail.com</span>
              </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ function LandingPage() {
           <div className="new-hero-left">
             <span className="new-hero-subtitle">Travel securely with us!</span>
             <h1 className="new-hero-title">Book your taxi from<br/>anywhere today!</h1>
-            <p className="new-hero-desc">Everything your taxi business needs is already here!<br/>Rydon made for taxi service companies!</p>
+            <p className="new-hero-desc">Everything your taxi business needs is already here!<br/>Redigo made for taxi service companies!</p>
             <div className="new-hero-cta-row">
               <button className="new-hero-action-btn" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.Redigo.user', '_blank')}>Book Your Ride</button>
               <button className="new-hero-login-btn" onClick={() => navigate('/login')}>
@@ -316,7 +316,7 @@ function LandingPage() {
         <div className="footer-main-content">
           <div className="footer-col-1">
             <a href="/" className="footer-logo">
-               <span style={{color: '#FFB300', fontSize: '2.5rem', fontWeight: 800}}>Rydon</span><span style={{color: '#fff', fontSize: '2.5rem', fontWeight: 800}}>24</span>
+               <span style={{color: '#FFB300', fontSize: '2.5rem', fontWeight: 800}}>Redigo</span><span style={{color: '#fff', fontSize: '2.5rem', fontWeight: 800}}>24</span>
             </a>
             <p>We provide the best taxi and ride services in the region. Reliable, fast, and secure rides at your fingertips.</p>
             <p>Our fleet consists of well-maintained vehicles driven by professional drivers to ensure a comfortable journey.</p>

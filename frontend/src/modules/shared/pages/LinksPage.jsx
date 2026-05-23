@@ -31,7 +31,7 @@ const LinksPage = () => {
       <nav className="links-nav">
         <div className="nav-container">
           <a href="/" className="nav-logo">
-            <span className="logo-rydon">Rydon</span><span className="logo-24">24</span>
+            <span className="logo-Redigo">Redigo</span><span className="logo-24">24</span>
           </a>
           <a href="/" className="back-home">Back to Home</a>
         </div>

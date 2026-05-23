@@ -3232,7 +3232,7 @@ Processing Time: Refunds are typically credited back to the original payment met
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Owner</p>
-                    <a href="mailto:supportrydon@gmail.com" className="text-base font-bold text-slate-900 hover:text-emerald-600 transition">supportrydon@gmail.com</a>
+                    <a href="mailto:supportRedigo@gmail.com" className="text-base font-bold text-slate-900 hover:text-emerald-600 transition">supportRedigo@gmail.com</a>
                   </div>
                 </div>
 
