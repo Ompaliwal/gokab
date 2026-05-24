@@ -11,7 +11,6 @@ import {
 import api from '../../../../shared/api/axiosInstance';
 import toast from 'react-hot-toast';
 import { useSettings } from '../../../../shared/context/SettingsContext';
-let liveFaviconObjectUrl = '';
 const DEFAULT_ADMIN_THEME_COLOR = '#405189';
 const DEFAULT_LANDING_THEME_COLOR = '#0AB39C';
 const DEFAULT_SIDEBAR_TEXT_COLOR = '#CBD5E1';
@@ -178,28 +177,7 @@ const resizeImageDataUrl = (dataUrl, size = 64) =>
 
 const setLiveFavicon = (faviconUrl = '') => {
   const rels = ['icon', 'shortcut icon', 'apple-touch-icon'];
-
-  if (liveFaviconObjectUrl) {
-    URL.revokeObjectURL(liveFaviconObjectUrl);
-    liveFaviconObjectUrl = '';
-  }
-
-  let resolvedHref = 'data:,';
-
-  if (faviconUrl) {
-    const [meta, content] = String(faviconUrl).split(',');
-    const mimeMatch = meta.match(/data:(.*?)(;base64)?$/i);
-    const mime = mimeMatch?.[1] || 'image/png';
-    const binary = window.atob(content || '');
-    const bytes = new Uint8Array(binary.length);
-
-    for (let index = 0; index < binary.length; index += 1) {
-      bytes[index] = binary.charCodeAt(index);
-    }
-
-    liveFaviconObjectUrl = URL.createObjectURL(new Blob([bytes], { type: mime }));
-    resolvedHref = liveFaviconObjectUrl;
-  }
+  const resolvedHref = faviconUrl || 'data:,';
 
   rels.forEach((rel) => {
     let link = document.head.querySelector(`link[rel='${rel}']`);
