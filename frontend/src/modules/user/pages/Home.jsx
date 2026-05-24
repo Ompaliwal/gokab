@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User } from 'lucide-react';
@@ -202,6 +202,7 @@ const Home = () => {
   const [showDeferredSections, setShowDeferredSections] = useState(false);
   const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const currentRideRef = useRef(currentRide);
+  const currentRideRequestSeqRef = useRef(0);
 
   const persistCurrentRide = (ride) => {
     const normalizedRide = isActiveCurrentRide(ride) ? ride : null;
@@ -217,6 +218,110 @@ const Home = () => {
   useEffect(() => {
     currentRideRef.current = currentRide;
   }, [currentRide]);
+
+  const syncCurrentRide = useCallback(async (options = {}) => {
+    const { force = false } = options;
+    const requestSeq = currentRideRequestSeqRef.current + 1;
+    currentRideRequestSeqRef.current = requestSeq;
+
+    try {
+      let rideData = null;
+
+      try {
+        rideData = unwrapApiPayload(await api.get('/rides/active/me'));
+      } catch (error) {
+        const status = Number(error?.status || error?.response?.status || 0);
+        if (status !== 404) {
+          throw error;
+        }
+      }
+
+      if (currentRideRequestSeqRef.current !== requestSeq) {
+        return;
+      }
+
+      if (rideData?._id || rideData?.rideId) {
+        const normalizedRide = {
+          rideId: rideData._id || rideData.rideId,
+          pickup: rideData.pickupAddress || rideData.pickup,
+          drop: rideData.dropAddress || rideData.drop,
+          pickupCoords: rideData.pickupLocation?.coordinates || rideData.pickupCoords || null,
+          dropCoords: rideData.dropLocation?.coordinates || rideData.dropCoords || null,
+          fare: rideData.fare,
+          baseFare: rideData.baseFare || rideData.fare || 0,
+          status: rideData.status,
+          liveStatus: rideData.liveStatus,
+          serviceType: rideData.serviceType,
+          scheduledAt: rideData.scheduledAt || null,
+          acceptedAt: rideData.acceptedAt || null,
+          arrivedAt: rideData.arrivedAt || null,
+          estimatedDistanceMeters: rideData.estimatedDistanceMeters || 0,
+          estimatedDurationMinutes: rideData.estimatedDurationMinutes || 0,
+          paymentMethod: rideData.paymentMethod || 'Cash',
+          pricingSnapshot: rideData.pricingSnapshot || null,
+          otp: rideData.otp || '',
+          driver: rideData.driverId || rideData.driver,
+          vehicleIconUrl: rideData.vehicleIconUrl,
+          vehicleIconType: rideData.vehicleIconType,
+        };
+        if (isActiveCurrentRide(normalizedRide)) {
+          persistCurrentRide(normalizedRide);
+          currentRideRef.current = normalizedRide;
+          return;
+        }
+      }
+
+      try {
+        const rentalResponse = await userService.getActiveRentalBooking();
+        const rentalRide = unwrapApiPayload(rentalResponse);
+
+        if (currentRideRequestSeqRef.current !== requestSeq) {
+          return;
+        }
+
+        if (rentalRide?.id) {
+          const status = String(rentalRide.status || '').toLowerCase();
+          const isTerminal = ['completed', 'cancelled', 'delivered'].includes(status);
+
+          if (isTerminal) {
+            clearCurrentRide();
+            currentRideRef.current = null;
+            return;
+          }
+
+          const previousRentalRide = currentRideRef.current && String(currentRideRef.current.serviceType || '').toLowerCase() === 'rental'
+            ? currentRideRef.current
+            : {};
+          const nextRentalRide = normalizeRentalCurrentRideSnapshot({
+            ...rentalRide,
+            pickup: rentalRide.serviceLocation?.name || rentalRide.serviceLocation?.address || 'Rental pickup',
+            drop: rentalRide.assignedVehicle?.name || rentalRide.vehicleName || 'Assigned vehicle',
+          }, previousRentalRide);
+          persistCurrentRide(nextRentalRide);
+          currentRideRef.current = nextRentalRide;
+          return;
+        }
+      } catch (error) {
+        const status = Number(error?.status || error?.response?.status || 0);
+        if (status !== 404) {
+          if (!force) {
+            return;
+          }
+        }
+      }
+
+      if (currentRideRequestSeqRef.current !== requestSeq) {
+        return;
+      }
+
+      persistCurrentRide(null);
+      currentRideRef.current = null;
+    } catch (error) {
+      if (force) {
+        console.error(error);
+      }
+    }
+  }, []);
 
   const handleEndRide = async () => {
     if (!currentRide?.rideId) return;
@@ -317,11 +422,11 @@ const Home = () => {
 
       const nextInterval = currentRideRef.current ? ACTIVE_RIDE_SYNC_INTERVAL_MS : IDLE_RIDE_SYNC_INTERVAL_MS;
       syncTimer = window.setTimeout(() => {
-        syncCurrentRide();
+        runScheduledSync();
       }, nextInterval);
     };
 
-    const syncCurrentRide = async () => {
+    const runScheduledSync = async () => {
       if (cancelled || syncInFlight || document.visibilityState === 'hidden') {
         scheduleNextSync();
         return;
@@ -329,86 +434,7 @@ const Home = () => {
 
       syncInFlight = true;
       try {
-        let rideData = null;
-
-        try {
-          rideData = unwrapApiPayload(await api.get('/rides/active/me'));
-        } catch (error) {
-          const status = Number(error?.response?.status || 0);
-          if (status !== 404) {
-            throw error;
-          }
-        }
-
-        if (rideData?._id || rideData?.rideId) {
-          const normalizedRide = {
-            rideId: rideData._id || rideData.rideId,
-            pickup: rideData.pickupAddress || rideData.pickup,
-            drop: rideData.dropAddress || rideData.drop,
-            pickupCoords: rideData.pickupLocation?.coordinates || rideData.pickupCoords || null,
-            dropCoords: rideData.dropLocation?.coordinates || rideData.dropCoords || null,
-            fare: rideData.fare,
-            baseFare: rideData.baseFare || rideData.fare || 0,
-            status: rideData.status,
-            liveStatus: rideData.liveStatus,
-            serviceType: rideData.serviceType,
-            scheduledAt: rideData.scheduledAt || null,
-            acceptedAt: rideData.acceptedAt || null,
-            arrivedAt: rideData.arrivedAt || null,
-            estimatedDistanceMeters: rideData.estimatedDistanceMeters || 0,
-            estimatedDurationMinutes: rideData.estimatedDurationMinutes || 0,
-            paymentMethod: rideData.paymentMethod || 'Cash',
-            pricingSnapshot: rideData.pricingSnapshot || null,
-            otp: rideData.otp || '',
-            driver: rideData.driverId || rideData.driver,
-            vehicleIconUrl: rideData.vehicleIconUrl,
-            vehicleIconType: rideData.vehicleIconType,
-          };
-          if (cancelled) return;
-          persistCurrentRide(normalizedRide);
-          currentRideRef.current = normalizedRide;
-          return;
-        }
-
-      try {
-        const rentalResponse = await userService.getActiveRentalBooking();
-        const rentalRide = rentalResponse?.id ? rentalResponse : (rentalResponse?.data || null);
-
-        if (rentalRide?.id) {
-          const status = String(rentalRide.status || '').toLowerCase();
-          const isTerminal = ['completed', 'cancelled', 'delivered'].includes(status);
-
-          if (isTerminal) {
-            if (cancelled) return;
-            clearCurrentRide();
-            currentRideRef.current = null;
-            return;
-          }
-
-          if (cancelled) return;
-          const previousRentalRide = currentRideRef.current && String(currentRideRef.current.serviceType || '').toLowerCase() === 'rental'
-            ? currentRideRef.current
-            : {};
-          const nextRentalRide = normalizeRentalCurrentRideSnapshot({
-            ...rentalRide,
-            pickup: rentalRide.serviceLocation?.name || rentalRide.serviceLocation?.address || 'Rental pickup',
-            drop: rentalRide.assignedVehicle?.name || rentalRide.vehicleName || 'Assigned vehicle',
-          }, previousRentalRide);
-          persistCurrentRide(nextRentalRide);
-          currentRideRef.current = nextRentalRide;
-          return;
-        }
-      } catch (error) {
-        const status = Number(error?.response?.status || 0);
-        if (status !== 404) {
-          // Keep the previous card on transient failures, but don't block normal cleanup on 404/not found.
-          return;
-        }
-      }
-
-        if (cancelled) return;
-        persistCurrentRide(null);
-        currentRideRef.current = null;
+        await syncCurrentRide();
       } finally {
         syncInFlight = false;
         scheduleNextSync();
@@ -417,11 +443,11 @@ const Home = () => {
 
     const handleWindowFocus = () => {
       if (document.visibilityState !== 'hidden') {
-        syncCurrentRide();
+        runScheduledSync();
       }
     };
 
-    syncCurrentRide();
+    runScheduledSync();
     window.addEventListener('focus', handleWindowFocus);
     document.addEventListener('visibilitychange', handleWindowFocus);
 
@@ -435,7 +461,15 @@ const Home = () => {
       window.removeEventListener('storage', refreshCurrentRide);
       window.removeEventListener(CURRENT_RIDE_UPDATED_EVENT, refreshCurrentRide);
     };
-  }, []);
+  }, [syncCurrentRide]);
+
+  useEffect(() => {
+    if (!location.pathname.startsWith('/taxi/user') && location.pathname !== '/user') {
+      return;
+    }
+
+    syncCurrentRide({ force: true });
+  }, [location.key, location.pathname, syncCurrentRide]);
 
   const driverName = currentRide?.driver?.name || 'Captain';
   const serviceType = String(currentRide?.serviceType || currentRide?.type || 'ride').toLowerCase();

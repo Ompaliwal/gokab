@@ -11,6 +11,7 @@ const ACTIVE_RENTAL_STATUSES = new Set(['assigned', 'confirmed', 'end_requested'
 const MIN_SEND_INTERVAL_MS = 15000;
 const MIN_SEND_DISTANCE_METERS = 50;
 const ACTIVE_RENTAL_SYNC_INTERVAL_MS = 45000;
+const unwrapApiPayload = (response) => response?.data?.data || response?.data || response || null;
 
 const isRentalRide = (ride) => String(ride?.serviceType || '').toLowerCase() === 'rental';
 
@@ -90,7 +91,7 @@ const RentalLocationTracker = () => {
     const syncActiveRental = async () => {
       try {
         const response = await userService.getActiveRentalBooking();
-        const payload = response?.data?.data || response?.data || null;
+        const payload = unwrapApiPayload(response);
 
         if (cancelled) {
           return;

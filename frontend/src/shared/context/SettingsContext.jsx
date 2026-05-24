@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axiosInstance';
 import { BACKEND_ORIGIN } from '../api/runtimeConfig';
 
-let activeFaviconObjectUrl = '';
 const SETTINGS_CACHE_KEY = 'appSettingsCache:v1';
 const DEFAULT_ADMIN_THEME_COLOR = '#405189';
 const DEFAULT_LANDING_THEME_COLOR = '#0ab39c';
@@ -159,24 +158,11 @@ const dataUrlToBlob = (dataUrl = '') => {
 
 const buildFaviconHref = (faviconUrl = '') => {
   if (!faviconUrl) {
-    if (activeFaviconObjectUrl) {
-      URL.revokeObjectURL(activeFaviconObjectUrl);
-      activeFaviconObjectUrl = '';
-    }
     return '';
   }
 
   if (faviconUrl.startsWith('data:')) {
-    if (activeFaviconObjectUrl) {
-      URL.revokeObjectURL(activeFaviconObjectUrl);
-    }
-    activeFaviconObjectUrl = URL.createObjectURL(dataUrlToBlob(faviconUrl));
-    return activeFaviconObjectUrl;
-  }
-
-  if (activeFaviconObjectUrl) {
-    URL.revokeObjectURL(activeFaviconObjectUrl);
-    activeFaviconObjectUrl = '';
+    return faviconUrl;
   }
 
   const normalized = normalizeAssetUrl(faviconUrl);
@@ -298,12 +284,7 @@ export const SettingsProvider = ({ children }) => {
       });
     }
 
-    return () => {
-      if (activeFaviconObjectUrl) {
-        URL.revokeObjectURL(activeFaviconObjectUrl);
-        activeFaviconObjectUrl = '';
-      }
-    };
+    // No cleanup required since data URIs or static URLs do not require object URL revocation.
   }, [settings.general?.app_name, settings.general?.favicon, settings.customization?.favicon]);
 
   useEffect(() => {

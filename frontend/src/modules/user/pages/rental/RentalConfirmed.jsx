@@ -123,6 +123,7 @@ const RentalConfirmed = () => {
   const location = useLocation();
   const { settings } = useSettings();
   const appName = settings.general?.app_name || 'App';
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const state = location.state || {};
   const [clockNow, setClockNow] = useState(() => Date.now());
 
@@ -134,6 +135,12 @@ const RentalConfirmed = () => {
       clearCurrentRide();
     }
   }, [isCompletedRentalRide]);
+
+  useEffect(() => {
+    if (activeRentalRide && !isCompletedRentalRide) {
+      saveCurrentRide(activeRentalRide);
+    }
+  }, [activeRentalRide, isCompletedRentalRide]);
   const isEndRequestPending = String(activeRentalRide?.status || '').toLowerCase() === 'end_requested' && !isCompletedRentalRide;
   const [distanceToHub, setDistanceToHub] = useState(null);
   const [locationError, setLocationError] = useState(null);
@@ -311,9 +318,9 @@ const RentalConfirmed = () => {
         liveStatus: payload?.status || 'end_requested',
         finalCharge: payload?.finalCharge || payload?.rideMetrics?.currentCharge || finalTotal,
         finalElapsedMinutes: payload?.finalElapsedMinutes || payload?.rideMetrics?.elapsedMinutes || liveElapsedMinutes,
-      };
+        };
       saveCurrentRide(nextRideState);
-      navigate('/rental/confirmed', {
+      navigate(`${routePrefix}/rental/confirmed`, {
         replace: true,
         state: nextRideState,
       });
@@ -447,7 +454,7 @@ const RentalConfirmed = () => {
           {isCompletedRentalRide || isEndRequestPending ? (
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/user')}
+              onClick={() => navigate(routePrefix || '/user')}
               className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
             >
               <Home size={16} strokeWidth={2.5} /> {isCompletedRentalRide ? 'Back to Home' : 'Track from Home'}
@@ -625,7 +632,7 @@ const RentalConfirmed = () => {
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-6 pt-3 bg-gradient-to-t from-[#EEF2F7] via-[#F3F4F6]/95 to-transparent pointer-events-none z-30">
         <motion.button
           whileTap={{ scale: 0.98 }}
-          onClick={() => navigate('/taxi/user')}
+          onClick={() => navigate(routePrefix || '/user')}
           className="pointer-events-auto w-full bg-slate-950 py-4 rounded-[18px] text-[15px] font-bold text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
         >
           <Home size={16} strokeWidth={2} /> Go to Home Dashboard
