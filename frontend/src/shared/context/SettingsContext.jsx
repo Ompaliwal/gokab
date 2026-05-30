@@ -3,8 +3,8 @@ import api from '../api/axiosInstance';
 import { BACKEND_ORIGIN } from '../api/runtimeConfig';
 
 const SETTINGS_CACHE_KEY = 'appSettingsCache:v1';
-const DEFAULT_ADMIN_THEME_COLOR = '#405189';
-const DEFAULT_LANDING_THEME_COLOR = '#0ab39c';
+const DEFAULT_ADMIN_THEME_COLOR = '#20A354';
+const DEFAULT_LANDING_THEME_COLOR = '#20A354';
 const DEFAULT_SIDEBAR_TEXT_COLOR = '#cbd5e1';
 
 export const normalizeAssetUrl = (url = '') => {

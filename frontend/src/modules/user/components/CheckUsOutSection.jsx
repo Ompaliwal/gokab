@@ -7,8 +7,8 @@ const CheckUsOutSection = () => {
   return (
     <div className="px-5 pb-10">
       <div className="mb-4 ml-1">
-        <h2 className="text-[20px] font-black text-gray-900 tracking-tight">Check us out</h2>
-        <p className="mt-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">
+        <h2 className="text-[20px] font-bold text-primary tracking-tight">Check us out</h2>
+        <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
           Join our growing community
         </p>
       </div>
@@ -47,7 +47,7 @@ const CheckUsOutSection = () => {
         <div className="p-6">
           <div className="flex items-start justify-between">
             <div className="max-w-[75%]">
-              <h3 className="text-[22px] font-black text-slate-900 leading-tight tracking-tight">
+              <h3 className="text-[22px] font-bold text-slate-900 leading-tight tracking-tight">
                 Experience the ride of your life.
               </h3>
               <p className="mt-2 text-[13px] font-bold text-slate-500 leading-relaxed">
@@ -65,16 +65,16 @@ const CheckUsOutSection = () => {
           {/* Stats/Features */}
           <div className="mt-6 pt-6 border-t border-slate-100 grid grid-cols-3 gap-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Rating</p>
-              <p className="mt-1 text-[16px] font-black text-slate-900">4.8/5.0</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Rating</p>
+              <p className="mt-1 text-[16px] font-bold text-slate-900">4.8/5.0</p>
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Users</p>
-              <p className="mt-1 text-[16px] font-black text-slate-900">50K+</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Users</p>
+              <p className="mt-1 text-[16px] font-bold text-slate-900">50K+</p>
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Cities</p>
-              <p className="mt-1 text-[16px] font-black text-slate-900">20+</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Cities</p>
+              <p className="mt-1 text-[16px] font-bold text-slate-900">20+</p>
             </div>
           </div>
         </div>

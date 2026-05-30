@@ -193,7 +193,7 @@ const Wallet = () => {
           }
         },
         theme: {
-          color: '#E85D04',
+          color: '#20A354',
         },
       });
 

@@ -14,8 +14,11 @@ import {
   createDriverWithdrawalRequest,
   createServiceCenterVehicle,
   captureServiceCenterBookingFingerprint,
+  completePoolingOnboardingRequest,
   createOwnerFleetDriver,
+  createOwnerPoolingVehicle,
   updateOwnerFleetDriver,
+  updateOwnerPoolingVehicle,
   updateOwnerFleetVehicle,
   deleteServiceCenterBookingFingerprint,
   deleteCurrentDriverAccount,
@@ -33,6 +36,7 @@ import {
   updateBusDriverLiveLocation,
   updateBusDriverLiveTripStatus,
   getCurrentDriver,
+  getPoolingDriverBookings,
   getBusDriverSeatLayout,
   listBusDriverBookings,
   getDriverPaymentQrStatus,
@@ -50,6 +54,7 @@ import {
   getServiceCenterStaffMembers,
   getServiceCenterVehicles,
   listOwnerBusServices,
+  getOwnerPoolingVehicles,
   saveDriverFcmToken,
   getOwnerFleetDrivers,
   getOwnerFleetDashboard,
@@ -60,6 +65,7 @@ import {
   getServiceLocations,
   loginDriver,
   startDriverLoginOtpRequest,
+  startPoolingOnboardingRequest,
   saveOnboardingDocuments,
   saveOnboardingPersonal,
   saveOnboardingReferral,
@@ -81,11 +87,16 @@ import {
   verifyServiceCenterBookingFingerprint,
   verifyOnboardingOtp,
   verifyDriverLoginOtpRequest,
+  verifyPoolingOnboardingOtpRequest,
   addOwnerVehicle,
   deleteOwnerBusService,
+  deleteOwnerPoolingVehicle,
   getOwnerFleetVehicles,
   deleteOwnerFleetVehicle,
   updateCurrentDriverDocument,
+  getPoolingOnboardingSessionRequest,
+  savePoolingOnboardingDetailsRequest,
+  uploadPoolingOnboardingImageRequest,
 } from "../controllers/driverController.js";
 import { triggerDriverSosAlert } from '../../safety/controllers/safetyController.js';
 
@@ -98,10 +109,39 @@ driverRouter.post(
   "/auth/verify-otp",
   asyncHandler(verifyDriverLoginOtpRequest),
 );
+driverRouter.post(
+  "/pooling/onboarding/send-otp",
+  asyncHandler(startPoolingOnboardingRequest),
+);
+driverRouter.post(
+  "/pooling/onboarding/verify-otp",
+  asyncHandler(verifyPoolingOnboardingOtpRequest),
+);
+driverRouter.get(
+  "/pooling/onboarding/session/:registrationId",
+  asyncHandler(getPoolingOnboardingSessionRequest),
+);
+driverRouter.patch(
+  "/pooling/onboarding/details",
+  asyncHandler(savePoolingOnboardingDetailsRequest),
+);
+driverRouter.post(
+  "/pooling/onboarding/complete",
+  asyncHandler(completePoolingOnboardingRequest),
+);
+driverRouter.post(
+  "/pooling/onboarding/upload-image",
+  asyncHandler(uploadPoolingOnboardingImageRequest),
+);
 driverRouter.get(
   "/me",
-  authenticate(["driver", "owner", "bus_driver", "service_center", "service_center_staff"], { allowPending: true }),
+  authenticate(["driver", "owner", "pooling_driver", "bus_driver", "service_center", "service_center_staff"], { allowPending: true }),
   asyncHandler(getCurrentDriver),
+);
+driverRouter.get(
+  "/pooling/bookings",
+  authenticate(["pooling_driver"], { allowPending: true }),
+  asyncHandler(getPoolingDriverBookings),
 );
 driverRouter.patch(
   "/me",
@@ -203,10 +243,11 @@ driverRouter.post(
   authenticate([
     "driver",
     "owner",
+    "pooling_driver",
     "bus_driver",
     "service_center",
     "service_center_staff",
-  ]),
+  ], { allowPending: true }),
   asyncHandler(saveDriverFcmToken),
 );
 driverRouter.get(
@@ -353,6 +394,26 @@ driverRouter.delete(
   "/fleet/vehicles/:vehicleId",
   authenticate(["driver", "owner"]),
   asyncHandler(deleteOwnerFleetVehicle),
+);
+driverRouter.get(
+  "/fleet/pooling-vehicles",
+  authenticate(["owner"]),
+  asyncHandler(getOwnerPoolingVehicles),
+);
+driverRouter.post(
+  "/fleet/pooling-vehicles",
+  authenticate(["owner"]),
+  asyncHandler(createOwnerPoolingVehicle),
+);
+driverRouter.patch(
+  "/fleet/pooling-vehicles/:vehicleId",
+  authenticate(["owner"]),
+  asyncHandler(updateOwnerPoolingVehicle),
+);
+driverRouter.delete(
+  "/fleet/pooling-vehicles/:vehicleId",
+  authenticate(["owner"]),
+  asyncHandler(deleteOwnerPoolingVehicle),
 );
 driverRouter.get(
   "/service-center/staff",

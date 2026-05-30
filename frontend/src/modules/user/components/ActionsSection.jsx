@@ -13,7 +13,7 @@ const ActionCard = ({ title, description, image, surfaceClass, titleClass, butto
 
         <div className="relative z-10 flex flex-1 flex-col">
         <div className="max-w-[160px]">
-          <h3 className={`text-[18px] font-black leading-none tracking-tight ${titleClass}`}>{title}</h3>
+          <h3 className={`text-[18px] font-bold leading-none tracking-tight ${titleClass}`}>{title}</h3>
           <p className="mt-2 text-[12px] font-semibold leading-snug text-slate-600">{description}</p>
         </div>
 
@@ -24,7 +24,7 @@ const ActionCard = ({ title, description, image, surfaceClass, titleClass, butto
               e.stopPropagation();
               navigate(path);
             }}
-            className="relative inline-flex items-center rounded-full px-3.5 py-2 text-[11px] font-black whitespace-nowrap text-white shadow-[0_12px_26px_rgba(2,6,23,0.16)] backdrop-blur-md bg-white/10 border border-white/35 overflow-hidden transition-all active:scale-95"
+            className="relative inline-flex items-center rounded-full px-3.5 py-2 text-[11px] font-bold whitespace-nowrap text-white shadow-[0_12px_26px_rgba(2,6,23,0.16)] backdrop-blur-md bg-white/10 border border-white/35 overflow-hidden transition-all active:scale-95"
           >
             <span aria-hidden="true" className={`absolute inset-0 ${buttonClass} opacity-40`} />
             <span
@@ -55,7 +55,7 @@ const ActionsSection = () => {
   return (
     <div className="px-5">
       <div className="mb-3 ml-1">
-        <h2 className="text-[19px] font-black text-gray-900 tracking-tight">What do you need today?</h2>
+        <h2 className="text-[19.5px] font-extrabold text-primary tracking-tight">What do you need today?</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

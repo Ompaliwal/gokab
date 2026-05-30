@@ -210,7 +210,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto pb-28 relative overflow-x-hidden font-['Inter']">
+    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto pb-28 relative overflow-x-hidden font-sans">
       {/* Premium Header Background */}
       <div className="absolute top-0 inset-x-0 h-80 bg-slate-900 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/30 via-slate-900 to-slate-900" />
@@ -222,7 +222,7 @@ const Profile = () => {
         {/* Header Section */}
         <div className="px-6 pt-12 pb-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="font-['Outfit'] text-2xl font-extrabold text-white tracking-tight">Profile</h1>
+            <h1 className="font-sans text-2xl font-extrabold text-white tracking-tight">Profile</h1>
             <MotionButton
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -257,7 +257,7 @@ const Profile = () => {
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="font-['Outfit'] text-[22px] font-extrabold text-slate-900 truncate capitalize leading-tight">
+                <h2 className="font-sans text-[22px] font-extrabold text-slate-900 truncate capitalize leading-tight">
                   {profile.name}
                 </h2>
                 <p className="text-[14px] font-bold text-slate-400 mt-1 flex items-center gap-1.5">
@@ -271,18 +271,18 @@ const Profile = () => {
             <div className="grid grid-cols-3 gap-3 mt-8 pt-6 border-t border-slate-50">
               <div className="text-center">
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Total Trips</p>
-                <p className="font-['Outfit'] text-[18px] font-extrabold text-slate-900 mt-1">{profile.stats.trips}</p>
+                <p className="font-sans text-[18px] font-extrabold text-slate-900 mt-1">{profile.stats.trips}</p>
               </div>
               <div className="text-center border-x border-slate-50">
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Rating</p>
                 <div className="flex items-center justify-center gap-1 mt-1">
                   <Star size={14} className="text-amber-400 fill-amber-400" />
-                  <p className="font-['Outfit'] text-[18px] font-extrabold text-slate-900">{profile.stats.rating}</p>
+                  <p className="font-sans text-[18px] font-extrabold text-slate-900">{profile.stats.rating}</p>
                 </div>
               </div>
               <div className="text-center">
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Credits</p>
-                <p className="font-['Outfit'] text-[18px] font-extrabold text-indigo-600 mt-1">₹{profile.stats.wallet}</p>
+                <p className="font-sans text-[18px] font-extrabold text-indigo-600 mt-1">₹{profile.stats.wallet}</p>
               </div>
             </div>
           </MotionDiv>
@@ -297,7 +297,7 @@ const Profile = () => {
         >
           {menuSections.map((section, sIdx) => (
             <motion.div key={sIdx} variants={itemVariants} className="space-y-4">
-              <h3 className="font-['Outfit'] text-[12px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">
+              <h3 className="font-sans text-[12px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">
                 {section.title}
               </h3>
               

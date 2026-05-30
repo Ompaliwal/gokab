@@ -71,8 +71,8 @@ const ExplorerSection = () => {
       {/* Explore India Section */}
       <div>
         <div className="mb-3 ml-1">
-          <h2 className="text-[19px] font-black text-gray-900 tracking-tight">Explore India</h2>
-          <p className="mt-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">
+          <h2 className="text-[19px] font-bold text-primary tracking-tight">Explore India</h2>
+          <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
             Top tourist destinations across the country
           </p>
         </div>
@@ -93,11 +93,11 @@ const ExplorerSection = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
                 <div className="absolute top-4 right-4 bg-white/92 backdrop-blur-md px-2.5 py-1 rounded-full shadow-sm border border-white/60 z-10">
-                  <p className="text-[9px] font-black text-primary tracking-widest uppercase">{city.code}</p>
+                  <p className="text-[9px] font-bold text-primary tracking-widest uppercase">{city.code}</p>
                 </div>
               </div>
               <div className="mt-3 px-2">
-                <h4 className="text-[15px] font-black text-gray-900 leading-tight tracking-tight flex items-center justify-between">
+                <h4 className="text-[15px] font-bold text-slate-900 leading-tight tracking-tight flex items-center justify-between">
                   {city.title}
                   <div className="w-7 h-7 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
                     <ArrowRight size={14} strokeWidth={2.5} />
@@ -113,7 +113,7 @@ const ExplorerSection = () => {
           <button
             type="button"
             onClick={() => handleExploreDestination(indiaCities[0])}
-            className="flex-shrink-0 w-[128px] flex flex-col justify-center items-center gap-2 bg-white/75 border border-white/80 rounded-[18px] active:scale-95 transition-all text-slate-500 font-black h-[136px] self-start shadow-[0_14px_32px_rgba(15,23,42,0.05)]"
+            className="flex-shrink-0 w-[128px] flex flex-col justify-center items-center gap-2 bg-white/75 border border-white/80 rounded-[18px] active:scale-95 transition-all text-slate-500 font-bold h-[136px] self-start shadow-[0_14px_32px_rgba(15,23,42,0.05)]"
           >
             <div className="w-10 h-10 rounded-full bg-slate-50 border border-white/80 shadow-sm flex items-center justify-center">
               <ArrowRight size={18} strokeWidth={2.5} className="text-slate-300" />

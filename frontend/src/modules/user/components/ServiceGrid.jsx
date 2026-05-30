@@ -27,12 +27,12 @@ const ServiceTile = ({ icon, label, description, path, accentClass, loading }) =
       className="flex h-full min-h-[112px] w-full items-center justify-center transition-transform"
     >
       <div className="flex h-[108px] w-[92%] flex-col items-center justify-center gap-1.5 px-1 py-1">
-        <div className={`flex h-[82px] w-[82px] items-center justify-center rounded-[18px] ${accentClass || 'bg-gray-50'}`}>
-          <img src={icon} alt={label} className="h-[70px] w-[70px] object-contain drop-shadow-sm" />
+        <div className={`flex h-[82px] w-[82px] items-center justify-center rounded-[18px] overflow-hidden ${accentClass || 'bg-gray-50'}`}>
+          <img src={icon} alt={label} className="h-[70px] w-[70px] object-contain scale-[1.12] mix-blend-multiply drop-shadow-sm" />
         </div>
 
         <div className="flex flex-col items-center gap-0.5 text-center">
-          <span className="min-h-[24px] text-[10.5px] font-black leading-tight tracking-tight text-slate-900 line-clamp-2 uppercase">
+          <span className="min-h-[24px] text-[10.5px] font-bold leading-tight tracking-tight text-slate-900 line-clamp-2 uppercase">
             {label}
           </span>
           <span className="sr-only">{description}</span>
@@ -69,12 +69,12 @@ const ServiceGrid = () => {
 
   const getAccent = (index) => {
     const accnets = [
-      'bg-[linear-gradient(135deg,#FFF7ED_0%,#FFE5C2_100%)]', // Orange
-      'bg-[linear-gradient(135deg,#FEFCE8_0%,#FDE68A_100%)]', // Yellow
-      'bg-[linear-gradient(135deg,#EFF6FF_0%,#DBEAFE_100%)]', // Blue
-      'bg-[linear-gradient(135deg,#F5F3FF_0%,#E9D5FF_100%)]', // Purple
-      'bg-[linear-gradient(135deg,#ECFDF5_0%,#A7F3D0_100%)]', // Green
-      'bg-[linear-gradient(135deg,#FFF1F2_0%,#FECDD3_100%)]', // Rose
+      'bg-[linear-gradient(135deg,#F0FDF4_0%,#DCFCE7_100%)]', // Minty Green
+      'bg-[linear-gradient(135deg,#ECFEFF_0%,#CFFAFE_100%)]', // Light Cyan
+      'bg-[linear-gradient(135deg,#F0F9FF_0%,#E0F2FE_100%)]', // Sky Blue
+      'bg-[linear-gradient(135deg,#EBFDF5_0%,#D1FAE5_100%)]', // Emerald Green
+      'bg-[linear-gradient(135deg,#F4FBF7_0%,#D8F3E5_100%)]', // Subtle Teal
+      'bg-[linear-gradient(135deg,#FEFCE8_0%,#FEF9C3_100%)]', // Soft Gold
     ];
     return accnets[index % accnets.length];
   };
@@ -112,13 +112,9 @@ const ServiceGrid = () => {
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.26em] text-slate-400">Services</p>
-            <h2 className="mt-1 text-[18px] font-black tracking-tight text-slate-900">Choose your ride</h2>
+            <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-slate-400">Services</p>
+            <h2 className="mt-1 text-[18px] font-bold tracking-tight text-primary">Choose your ride</h2>
             <p className="mt-0.5 text-[11px] font-bold text-slate-500">Tap to start quickly.</p>
-          </div>
-
-          <div className="rounded-full border border-white/80 bg-white/90 px-3 py-2 text-[11px] font-black text-slate-600 shadow-sm">
-            {optionCount} {optionLabel}
           </div>
         </div>
 

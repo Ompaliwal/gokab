@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User } from 'lucide-react';
@@ -21,15 +21,17 @@ import { userService } from '../services/userService';
 import {
   CURRENT_RIDE_UPDATED_EVENT,
   getCurrentRide,
+  getCurrentRideSignature,
   isActiveCurrentRide,
   saveCurrentRide,
   clearCurrentRide,
 } from '../services/currentRideService';
 
 const Motion = motion;
-const ACTIVE_RIDE_SYNC_INTERVAL_MS = 12000;
-const IDLE_RIDE_SYNC_INTERVAL_MS = 30000;
+const ACTIVE_RIDE_SYNC_INTERVAL_MS = 15000;
+const IDLE_RIDE_SYNC_INTERVALS_MS = [60000, 120000, 180000];
 const DEFERRED_SECTION_DELAY_MS = 250;
+const FORCED_SYNC_COOLDOWN_MS = 10000;
 
 const getCurrentRideIcon = (ride) => {
   const customIcon = String(
@@ -191,7 +193,7 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { settings } = useSettings();
-  const appName = settings.general?.app_name || 'App';
+  const appName = settings.general?.app_name || 'Redigo';
 
   const [currentRide, setCurrentRide] = useState(() => {
     const ride = getCurrentRide();
@@ -202,10 +204,19 @@ const Home = () => {
   const [showDeferredSections, setShowDeferredSections] = useState(false);
   const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const currentRideRef = useRef(currentRide);
-  const currentRideRequestSeqRef = useRef(0);
+  const lastSyncAtRef = useRef(0);
+  const consecutiveIdleMissesRef = useRef(0);
+  const lastRideSignatureRef = useRef(getCurrentRideSignature(currentRide));
 
   const persistCurrentRide = (ride) => {
     const normalizedRide = isActiveCurrentRide(ride) ? ride : null;
+    const nextSignature = getCurrentRideSignature(normalizedRide);
+
+    if (lastRideSignatureRef.current === nextSignature) {
+      return;
+    }
+
+    lastRideSignatureRef.current = nextSignature;
     setCurrentRide(normalizedRide);
 
     if (normalizedRide) {
@@ -217,111 +228,8 @@ const Home = () => {
 
   useEffect(() => {
     currentRideRef.current = currentRide;
+    lastRideSignatureRef.current = getCurrentRideSignature(currentRide);
   }, [currentRide]);
-
-  const syncCurrentRide = useCallback(async (options = {}) => {
-    const { force = false } = options;
-    const requestSeq = currentRideRequestSeqRef.current + 1;
-    currentRideRequestSeqRef.current = requestSeq;
-
-    try {
-      let rideData = null;
-
-      try {
-        rideData = unwrapApiPayload(await api.get('/rides/active/me'));
-      } catch (error) {
-        const status = Number(error?.status || error?.response?.status || 0);
-        if (status !== 404) {
-          throw error;
-        }
-      }
-
-      if (currentRideRequestSeqRef.current !== requestSeq) {
-        return;
-      }
-
-      if (rideData?._id || rideData?.rideId) {
-        const normalizedRide = {
-          rideId: rideData._id || rideData.rideId,
-          pickup: rideData.pickupAddress || rideData.pickup,
-          drop: rideData.dropAddress || rideData.drop,
-          pickupCoords: rideData.pickupLocation?.coordinates || rideData.pickupCoords || null,
-          dropCoords: rideData.dropLocation?.coordinates || rideData.dropCoords || null,
-          fare: rideData.fare,
-          baseFare: rideData.baseFare || rideData.fare || 0,
-          status: rideData.status,
-          liveStatus: rideData.liveStatus,
-          serviceType: rideData.serviceType,
-          scheduledAt: rideData.scheduledAt || null,
-          acceptedAt: rideData.acceptedAt || null,
-          arrivedAt: rideData.arrivedAt || null,
-          estimatedDistanceMeters: rideData.estimatedDistanceMeters || 0,
-          estimatedDurationMinutes: rideData.estimatedDurationMinutes || 0,
-          paymentMethod: rideData.paymentMethod || 'Cash',
-          pricingSnapshot: rideData.pricingSnapshot || null,
-          otp: rideData.otp || '',
-          driver: rideData.driverId || rideData.driver,
-          vehicleIconUrl: rideData.vehicleIconUrl,
-          vehicleIconType: rideData.vehicleIconType,
-        };
-        if (isActiveCurrentRide(normalizedRide)) {
-          persistCurrentRide(normalizedRide);
-          currentRideRef.current = normalizedRide;
-          return;
-        }
-      }
-
-      try {
-        const rentalResponse = await userService.getActiveRentalBooking();
-        const rentalRide = unwrapApiPayload(rentalResponse);
-
-        if (currentRideRequestSeqRef.current !== requestSeq) {
-          return;
-        }
-
-        if (rentalRide?.id) {
-          const status = String(rentalRide.status || '').toLowerCase();
-          const isTerminal = ['completed', 'cancelled', 'delivered'].includes(status);
-
-          if (isTerminal) {
-            clearCurrentRide();
-            currentRideRef.current = null;
-            return;
-          }
-
-          const previousRentalRide = currentRideRef.current && String(currentRideRef.current.serviceType || '').toLowerCase() === 'rental'
-            ? currentRideRef.current
-            : {};
-          const nextRentalRide = normalizeRentalCurrentRideSnapshot({
-            ...rentalRide,
-            pickup: rentalRide.serviceLocation?.name || rentalRide.serviceLocation?.address || 'Rental pickup',
-            drop: rentalRide.assignedVehicle?.name || rentalRide.vehicleName || 'Assigned vehicle',
-          }, previousRentalRide);
-          persistCurrentRide(nextRentalRide);
-          currentRideRef.current = nextRentalRide;
-          return;
-        }
-      } catch (error) {
-        const status = Number(error?.status || error?.response?.status || 0);
-        if (status !== 404) {
-          if (!force) {
-            return;
-          }
-        }
-      }
-
-      if (currentRideRequestSeqRef.current !== requestSeq) {
-        return;
-      }
-
-      persistCurrentRide(null);
-      currentRideRef.current = null;
-    } catch (error) {
-      if (force) {
-        console.error(error);
-      }
-    }
-  }, []);
 
   const handleEndRide = async () => {
     if (!currentRide?.rideId) return;
@@ -375,15 +283,15 @@ const Home = () => {
     let cancelled = false;
     const scheduleDeferredSections = window.requestIdleCallback
       ? window.requestIdleCallback(() => {
-          if (!cancelled) {
-            setShowDeferredSections(true);
-          }
-        }, { timeout: DEFERRED_SECTION_DELAY_MS })
+        if (!cancelled) {
+          setShowDeferredSections(true);
+        }
+      }, { timeout: DEFERRED_SECTION_DELAY_MS })
       : window.setTimeout(() => {
-          if (!cancelled) {
-            setShowDeferredSections(true);
-          }
-        }, DEFERRED_SECTION_DELAY_MS);
+        if (!cancelled) {
+          setShowDeferredSections(true);
+        }
+      }, DEFERRED_SECTION_DELAY_MS);
 
     return () => {
       cancelled = true;
@@ -401,10 +309,14 @@ const Home = () => {
       const ride = getCurrentRide();
       if (String(ride?.serviceType || '').toLowerCase() === 'rental') {
         const normalizedRentalRide = normalizeRentalCurrentRideSnapshot(ride, currentRideRef.current || {});
-        setCurrentRide(isActiveCurrentRide(normalizedRentalRide) ? normalizedRentalRide : null);
+        const nextRide = isActiveCurrentRide(normalizedRentalRide) ? normalizedRentalRide : null;
+        lastRideSignatureRef.current = getCurrentRideSignature(nextRide);
+        setCurrentRide(nextRide);
         return;
       }
-      setCurrentRide(isActiveCurrentRide(ride) ? ride : null);
+      const nextRide = isActiveCurrentRide(ride) ? ride : null;
+      lastRideSignatureRef.current = getCurrentRideSignature(nextRide);
+      setCurrentRide(nextRide);
     };
 
     refreshCurrentRide();
@@ -420,21 +332,129 @@ const Home = () => {
         return;
       }
 
-      const nextInterval = currentRideRef.current ? ACTIVE_RIDE_SYNC_INTERVAL_MS : IDLE_RIDE_SYNC_INTERVAL_MS;
+      const nextInterval = currentRideRef.current
+        ? ACTIVE_RIDE_SYNC_INTERVAL_MS
+        : IDLE_RIDE_SYNC_INTERVALS_MS[Math.min(consecutiveIdleMissesRef.current, IDLE_RIDE_SYNC_INTERVALS_MS.length - 1)];
       syncTimer = window.setTimeout(() => {
-        runScheduledSync();
+        syncCurrentRide();
       }, nextInterval);
     };
 
-    const runScheduledSync = async () => {
+    const syncCurrentRide = async (reason = 'timer') => {
       if (cancelled || syncInFlight || document.visibilityState === 'hidden') {
         scheduleNextSync();
         return;
       }
 
+      if (
+        reason !== 'timer' &&
+        Date.now() - lastSyncAtRef.current < FORCED_SYNC_COOLDOWN_MS
+      ) {
+        return;
+      }
+
       syncInFlight = true;
+      lastSyncAtRef.current = Date.now();
       try {
-        await syncCurrentRide();
+        const token = localStorage.getItem('userToken') || localStorage.getItem('token');
+        if (!token) {
+          persistCurrentRide(null);
+          currentRideRef.current = null;
+          consecutiveIdleMissesRef.current = 0;
+          return;
+        }
+
+        let rideData = null;
+
+        try {
+          rideData = unwrapApiPayload(await api.get('/rides/active/me'));
+        } catch (error) {
+          const status = Number(error?.response?.status || 0);
+          if (status !== 404) {
+            throw error;
+          }
+        }
+
+        if (rideData?._id || rideData?.rideId) {
+          const normalizedRide = {
+            rideId: rideData._id || rideData.rideId,
+            pickup: rideData.pickupAddress || rideData.pickup,
+            drop: rideData.dropAddress || rideData.drop,
+            pickupCoords: rideData.pickupLocation?.coordinates || rideData.pickupCoords || null,
+            dropCoords: rideData.dropLocation?.coordinates || rideData.dropCoords || null,
+            fare: rideData.fare,
+            baseFare: rideData.baseFare || rideData.fare || 0,
+            status: rideData.status,
+            liveStatus: rideData.liveStatus,
+            serviceType: rideData.serviceType,
+            scheduledAt: rideData.scheduledAt || null,
+            acceptedAt: rideData.acceptedAt || null,
+            arrivedAt: rideData.arrivedAt || null,
+            estimatedDistanceMeters: rideData.estimatedDistanceMeters || 0,
+            estimatedDurationMinutes: rideData.estimatedDurationMinutes || 0,
+            paymentMethod: rideData.paymentMethod || 'Cash',
+            pricingSnapshot: rideData.pricingSnapshot || null,
+            otp: rideData.otp || '',
+            driver: rideData.driverId || rideData.driver,
+            vehicleIconUrl: rideData.vehicleIconUrl,
+            vehicleIconType: rideData.vehicleIconType,
+          };
+          if (isActiveCurrentRide(normalizedRide)) {
+            if (cancelled) return;
+            consecutiveIdleMissesRef.current = 0;
+            persistCurrentRide(normalizedRide);
+            currentRideRef.current = normalizedRide;
+            return;
+          }
+        }
+        try {
+          const rentalResponse = await userService.getActiveRentalBooking();
+          const rentalRide = rentalResponse?.id ? rentalResponse : (rentalResponse?.data || null);
+
+          if (rentalRide?.id) {
+            const status = String(rentalRide.status || '').toLowerCase();
+            const isTerminal = ['completed', 'cancelled', 'delivered'].includes(status);
+
+            if (isTerminal) {
+              if (cancelled) return;
+              consecutiveIdleMissesRef.current = Math.min(
+                consecutiveIdleMissesRef.current + 1,
+                IDLE_RIDE_SYNC_INTERVALS_MS.length - 1,
+              );
+              clearCurrentRide();
+              currentRideRef.current = null;
+              return;
+            }
+
+            if (cancelled) return;
+            consecutiveIdleMissesRef.current = 0;
+            const previousRentalRide = currentRideRef.current && String(currentRideRef.current.serviceType || '').toLowerCase() === 'rental'
+              ? currentRideRef.current
+              : {};
+            const nextRentalRide = normalizeRentalCurrentRideSnapshot({
+              ...rentalRide,
+              pickup: rentalRide.serviceLocation?.name || rentalRide.serviceLocation?.address || 'Rental pickup',
+              drop: rentalRide.assignedVehicle?.name || rentalRide.vehicleName || 'Assigned vehicle',
+            }, previousRentalRide);
+            persistCurrentRide(nextRentalRide);
+            currentRideRef.current = nextRentalRide;
+            return;
+          }
+        } catch (error) {
+          const status = Number(error?.response?.status || 0);
+          if (status !== 404) {
+            // Keep the previous card on transient failures, but don't block normal cleanup on 404/not found.
+            return;
+          }
+        }
+
+        if (cancelled) return;
+        consecutiveIdleMissesRef.current = Math.min(
+          consecutiveIdleMissesRef.current + 1,
+          IDLE_RIDE_SYNC_INTERVALS_MS.length - 1,
+        );
+        persistCurrentRide(null);
+        currentRideRef.current = null;
       } finally {
         syncInFlight = false;
         scheduleNextSync();
@@ -443,11 +463,11 @@ const Home = () => {
 
     const handleWindowFocus = () => {
       if (document.visibilityState !== 'hidden') {
-        runScheduledSync();
+        syncCurrentRide('focus');
       }
     };
 
-    runScheduledSync();
+    syncCurrentRide('mount');
     window.addEventListener('focus', handleWindowFocus);
     document.addEventListener('visibilitychange', handleWindowFocus);
 
@@ -461,15 +481,7 @@ const Home = () => {
       window.removeEventListener('storage', refreshCurrentRide);
       window.removeEventListener(CURRENT_RIDE_UPDATED_EVENT, refreshCurrentRide);
     };
-  }, [syncCurrentRide]);
-
-  useEffect(() => {
-    if (!location.pathname.startsWith('/taxi/user') && location.pathname !== '/user') {
-      return;
-    }
-
-    syncCurrentRide({ force: true });
-  }, [location.key, location.pathname, syncCurrentRide]);
+  }, []);
 
   const driverName = currentRide?.driver?.name || 'Captain';
   const serviceType = String(currentRide?.serviceType || currentRide?.type || 'ride').toLowerCase();
@@ -497,12 +509,12 @@ const Home = () => {
       : rideStage === 'started'
         ? serviceType === 'parcel' ? 'Parcel in transit' : 'Ride in progress'
         : rideStage === 'arrived'
-        ? serviceType === 'parcel' ? 'Parcel reached destination' : `${driverName} reached destination`
-        : rideStage === 'arriving'
-        ? serviceType === 'parcel' ? `${driverName} reached sender` : `${driverName} has arrived`
-        : serviceType === 'parcel'
-          ? 'Parcel booked'
-          : 'Ride booked';
+          ? serviceType === 'parcel' ? 'Parcel reached destination' : `${driverName} reached destination`
+          : rideStage === 'arriving'
+            ? serviceType === 'parcel' ? `${driverName} reached sender` : `${driverName} has arrived`
+            : serviceType === 'parcel'
+              ? 'Parcel booked'
+              : 'Ride booked';
   const rideStageContextLabel = isScheduledAcceptedRide
     ? 'Driver assigned for your scheduled trip'
     : rideStageLabel;
@@ -557,14 +569,14 @@ const Home = () => {
   const footerIllustrationBg = {
     backgroundImage: `url(${indiaGateRealImg})`,
     backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center calc(100% + 65px)',
+    backgroundPosition: 'center bottom',
     backgroundSize: 'cover',
   };
   const footerIllustrationFadeMask = {
     WebkitMaskImage:
-      'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 88%, rgba(0,0,0,0) 100%)',
+      'linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%)',
     maskImage:
-      'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 88%, rgba(0,0,0,0) 100%)',
+      'linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%)',
     WebkitMaskRepeat: 'no-repeat',
     maskRepeat: 'no-repeat',
     WebkitMaskSize: '100% 100%',
@@ -583,10 +595,10 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] pb-24 max-w-lg mx-auto relative overflow-hidden font-sans no-scrollbar">
-      <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-orange-100/60 blur-3xl pointer-events-none" />
-      <div className="absolute top-52 left-[-60px] h-52 w-52 rounded-full bg-emerald-100/60 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-28 right-[-40px] h-40 w-40 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-white pb-24 max-w-lg mx-auto relative overflow-hidden font-sans no-scrollbar">
+      <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-emerald-50/50 blur-3xl pointer-events-none" />
+      <div className="absolute top-52 left-[-60px] h-52 w-52 rounded-full bg-green-50/40 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-28 right-[-40px] h-40 w-40 rounded-full bg-emerald-50/30 blur-3xl pointer-events-none" />
 
 
       <div className="relative z-10 space-y-4 pb-6">
@@ -660,58 +672,169 @@ const Home = () => {
             </div>
           </motion.button>
         )}
-        
+
         {/* Active Rental Dashboard - Only visible during active rentals */}
-        {serviceType === 'rental' && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mx-5 overflow-hidden rounded-[32px] border border-white/60 bg-white/50 p-5 shadow-[0_20px_40px_rgba(0,0,0,0.06)] backdrop-blur-2xl relative"
-          >
-            <div className="relative z-10 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-20 w-24 flex items-center justify-center shrink-0">
-                  <img src={currentRideIcon} alt="" className="h-full w-full object-contain scale-110" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">
-                    {rideStage === 'end_requested' ? 'Review Pending' : 'Live Rental'}
-                  </p>
-                  <h2 className="text-[24px] font-black tracking-tight text-slate-900 leading-none mt-1">
-                    {rentalTimerLabel}
-                  </h2>
-                  <div className="flex items-center gap-1.5 mt-1.5">
-                    <div className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
-                    <p className="text-[12px] font-black text-slate-900">
-                      {currentRide.vehicle?.name || 'Assigned Vehicle'}
-                    </p>
+        {serviceType === 'rental' && (() => {
+          const rentalH = Math.floor(rentalElapsedSeconds / 3600);
+          const rentalM = Math.floor((rentalElapsedSeconds % 3600) / 60);
+          const rentalS = rentalElapsedSeconds % 60;
+
+          const includedHours = Math.max(
+            Number(currentRide?.includedHours || 0),
+            Number(currentRide?.selectedPackage?.durationHours || 0),
+            Number(currentRide?.requestedHours || 0) > 0 && Number(currentRide?.extraHourRate || 0) <= 0 ? Number(currentRide.requestedHours) : 0,
+            1,
+          );
+
+          const packageName = currentRide?.selectedPackage?.name || `${includedHours} hrs Package`;
+          const isExtraTime = (rentalElapsedSeconds / 3600) > includedHours;
+          const progressPercentage = Math.min(100, ((rentalElapsedSeconds / 3600) / includedHours) * 100);
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+              className="mx-5 overflow-hidden rounded-[32px] border border-white/80 bg-white/70 p-5 shadow-[0_24px_48px_rgba(15,23,42,0.08)] backdrop-blur-2xl relative"
+            >
+              {/* Radial background glows */}
+              <div className="absolute -right-12 -bottom-12 h-36 w-36 rounded-full bg-orange-200/30 blur-3xl pointer-events-none" />
+              <div className="absolute -left-12 -top-12 h-36 w-36 rounded-full bg-emerald-200/30 blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 space-y-4">
+                {/* Header Row */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-orange-600">
+                      {rideStage === 'end_requested' ? 'End Pending' : 'Live Rental'}
+                    </span>
+                  </div>
+                  <div className="rounded-full bg-slate-100/80 px-2.5 py-0.5 border border-slate-200/40 text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {packageName}
                   </div>
                 </div>
-              </div>
-              
-              <div className="text-right space-y-2.5">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Current Fare</p>
-                  <p className="text-[18px] font-black text-slate-900 tracking-tight">Rs {rentalCurrentCharge.toFixed(0)}</p>
+
+                {/* Main Content Layout */}
+                <div className="grid grid-cols-12 gap-3 items-center">
+                  {/* Left Side: Vehicle Pedestal */}
+                  <div className="col-span-5 flex flex-col items-center">
+                    <motion.div
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className="relative h-20 w-full rounded-2xl bg-gradient-to-b from-slate-50 to-slate-100/80 border border-slate-200/40 flex items-center justify-center p-2 shadow-inner overflow-hidden group"
+                    >
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.05)_0%,transparent_70%)]" />
+                      <img
+                        src={currentRideIcon}
+                        alt=""
+                        className="h-full w-full object-contain scale-110 relative z-10 transition-transform duration-300 group-hover:scale-125"
+                      />
+                    </motion.div>
+                    <p className="mt-2 text-center text-[11px] font-bold text-slate-800 truncate w-full">
+                      {currentRide.vehicle?.name || 'Honda Amaze'}
+                    </p>
+                  </div>
+
+                  {/* Right Side: Chronometer and Visual progress */}
+                  <div className="col-span-7 pl-2 flex flex-col justify-center space-y-2">
+                    <div className="space-y-1">
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-400">Duration Elapsed</p>
+
+                      {/* Premium stopwatch display */}
+                      <div className="flex items-center gap-1">
+                        <div className="flex flex-col items-center">
+                          <span className="font-mono text-2xl font-bold tracking-tight text-slate-900 leading-none">
+                            {String(rentalH).padStart(2, '0')}
+                          </span>
+                          <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Hrs</span>
+                        </div>
+                        <span className="text-xl font-medium text-slate-300 -translate-y-1 animate-pulse">:</span>
+                        <div className="flex flex-col items-center">
+                          <span className="font-mono text-2xl font-bold tracking-tight text-slate-900 leading-none">
+                            {String(rentalM).padStart(2, '0')}
+                          </span>
+                          <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Min</span>
+                        </div>
+                        <span className="text-xl font-medium text-slate-300 -translate-y-1 animate-pulse">:</span>
+                        <div className="flex flex-col items-center">
+                          <span className="font-mono text-2xl font-bold tracking-tight text-rose-500 leading-none">
+                            {String(rentalS).padStart(2, '0')}
+                          </span>
+                          <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Sec</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress slider showing package usage */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[9px] font-medium text-slate-400">
+                        <span>Limit: {includedHours} hrs</span>
+                        <span className={isExtraTime ? "text-rose-500 font-semibold" : "text-emerald-600 font-semibold"}>
+                          {isExtraTime ? 'Extra Hours Incurred' : `${progressPercentage.toFixed(0)}% consumed`}
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/30">
+                        <motion.div
+                          className={`h-full rounded-full ${isExtraTime ? 'bg-gradient-to-r from-orange-500 to-rose-500' : 'bg-gradient-to-r from-emerald-400 to-teal-500'}`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progressPercentage}%` }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEndRide();
-                  }}
-                  disabled={endingRide || rideStage === 'end_requested'}
-                  className="bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl shadow-[0_8px_16px_rgba(15,23,42,0.2)] active:scale-95 disabled:opacity-50 disabled:grayscale transition-all"
-                >
-                  {endingRide ? 'Ending...' : rideStage === 'end_requested' ? 'Pending' : 'End Ride'}
-                </button>
+
+                {/* Footer Section: Fare and Action */}
+                <div className="mt-2 pt-3 border-t border-slate-100 flex items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-400">Live Cost</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xs font-semibold text-emerald-600">₹</span>
+                      <span className="text-xl font-extrabold text-slate-900 tracking-tight leading-none">
+                        {rentalCurrentCharge.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      </span>
+                    </div>
+                    {isExtraTime && (
+                      <p className="text-[8px] font-medium text-rose-500">Includes extra hour rates</p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEndRide();
+                    }}
+                    disabled={endingRide || rideStage === 'end_requested'}
+                    className="relative group overflow-hidden rounded-2xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_8px_20px_rgba(244,63,94,0.3)] transition-all active:scale-95 disabled:opacity-50 disabled:grayscale flex items-center gap-2"
+                  >
+                    {endingRide ? (
+                      <>
+                        <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <span>Ending...</span>
+                      </>
+                    ) : rideStage === 'end_requested' ? (
+                      <span>Pending</span>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white group-hover:animate-pulse">
+                          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                          <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                        <span>End Ride</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-            
-            <div className="absolute -right-6 -bottom-6 h-24 w-24 rounded-full bg-orange-100/40 blur-3xl pointer-events-none" />
-            <div className="absolute -left-6 -top-6 h-24 w-24 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
-          </motion.div>
-        )}
+            </motion.div>
+          );
+        })()}
 
         <ServiceGrid />
         {showDeferredSections ? (
@@ -736,16 +859,16 @@ const Home = () => {
           }}
         >
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-white via-white/40 to-transparent" />
+            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#EEF2F7]/20 via-[#EEF2F7]/5 to-transparent" />
             <div className="relative z-10 flex h-full items-start justify-center px-6 pt-10 text-left">
               <div className="flex max-w-[340px] flex-col items-start px-2 py-2 -translate-x-4">
                 <div className="text-[48px] font-black tracking-[-0.04em] text-[#FFB300] drop-shadow-[0_10px_30px_rgba(255,179,0,0.4)] leading-none">
                   Redigo
                 </div>
-                <div className="mt-2 text-[14px] font-sans italic font-black tracking-wide text-slate-800">
+                <div className="mt-2 text-[14px] font-sans italic font-black tracking-[0.04em] text-slate-800">
                   Your Trusted Journey Partner
                 </div>
-                <div className="mt-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <div className="mt-2 text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">
                   Made for Everyone, Crafted for You.
                   <img
                     src="/flag-in.svg"
@@ -853,7 +976,7 @@ const Home = () => {
               ) : null}
             </div>
             <div className="shrink-0 text-right flex flex-col items-end gap-1">
-              <p className="text-[11px] font-black text-slate-900 px-2 py-0.5 rounded-lg bg-slate-100">
+              <p className="rounded-lg bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-900">
                 Rs {Number(serviceType === 'rental' ? rentalCurrentCharge : currentRide.fare || 0).toFixed(0)}
               </p>
               <div className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-slate-900 text-white shadow-md">

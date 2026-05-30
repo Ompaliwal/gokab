@@ -109,7 +109,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#E7F5E8] flex flex-col font-['Outfit'] select-none overflow-hidden relative">
+    <div className="min-h-screen bg-[#E7F5E8] flex flex-col font-sans select-none overflow-hidden relative">
       <div className="absolute top-0 left-0 right-0 h-[65%] z-0">
         <motion.img 
           initial={{ opacity: 0, scale: 1.1 }}
