@@ -313,24 +313,24 @@ const BusHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
+    <div className="min-h-screen bg-[#F6FCF7] max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
       <header className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
           >
-            <ArrowLeft size={18} className="text-slate-900" />
+            <ArrowLeft size={18} className="text-emerald-900" />
           </button>
           <div className="flex-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Bus Tickets</p>
-            <h1 className="text-xl font-bold text-slate-900">Book your journey</h1>
+            <h1 className="text-xl font-bold text-emerald-950">Book your journey</h1>
           </div>
         </div>
       </header>
 
       <div className="px-5 pt-6 space-y-6">
-        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl shadow-slate-200">
+        <div className="rounded-3xl bg-gradient-to-br from-emerald-800 via-green-800 to-emerald-950 p-6 text-white shadow-xl shadow-emerald-100">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold leading-tight">Travel with ease</h2>
@@ -361,11 +361,11 @@ const BusHome = () => {
 
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <Search size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Search Buses</h3>
+              <h3 className="text-lg font-bold text-emerald-950">Search Buses</h3>
               <p className="text-xs text-slate-500 font-medium">Find available buses on your route</p>
             </div>
           </div>
@@ -383,7 +383,7 @@ const BusHome = () => {
                   value={fromCity}
                   onChange={(event) => setFromCity(event.target.value)}
                   placeholder="Enter source city"
-                  className="w-full bg-transparent text-base font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="w-full bg-transparent text-base font-semibold text-emerald-950 focus:outline-none placeholder:text-slate-300"
                 />
               </div>
               
@@ -391,7 +391,7 @@ const BusHome = () => {
                 <button
                   type="button"
                   onClick={swapCities}
-                  className="w-10 h-10 rounded-full bg-white border border-slate-200 text-slate-600 flex items-center justify-center shadow-sm active:rotate-180 transition-transform duration-300"
+                  className="w-10 h-10 rounded-full bg-white border border-emerald-200 text-emerald-700 flex items-center justify-center shadow-sm active:rotate-180 transition-transform duration-300"
                 >
                   <ArrowRightLeft size={16} />
                 </button>
@@ -410,7 +410,7 @@ const BusHome = () => {
                   value={toCity}
                   onChange={(event) => setToCity(event.target.value)}
                   placeholder="Enter destination city"
-                  className="w-full bg-transparent text-base font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="w-full bg-transparent text-base font-semibold text-emerald-950 focus:outline-none placeholder:text-slate-300"
                 />
               </div>
             </div>
@@ -425,7 +425,7 @@ const BusHome = () => {
               </div>
               <div className="flex-1">
                 <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">Date of Journey</label>
-                <span className="text-base font-semibold text-slate-900">{formatTravelDate(date) || 'Choose date'}</span>
+                <span className="text-base font-semibold text-emerald-950">{formatTravelDate(date) || 'Choose date'}</span>
               </div>
               <span className="text-xs font-bold text-slate-400">Change</span>
             </button>
@@ -441,8 +441,8 @@ const BusHome = () => {
                   onClick={() => setDate(item.value)}
                   className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
                     date === item.value
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-50 text-slate-600 border border-slate-100 hover:border-slate-300'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-slate-50 text-emerald-700 border border-emerald-100 hover:border-emerald-300'
                   }`}
                 >
                   {item.label}
@@ -491,7 +491,7 @@ const BusHome = () => {
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handleSearch}
-              className="w-full bg-slate-900 text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-slate-200 active:scale-95 transition-all"
+              className="w-full bg-emerald-600 text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 hover:bg-emerald-700 active:scale-95 transition-all"
             >
               Search Buses <ChevronRight size={18} />
             </motion.button>
@@ -500,7 +500,7 @@ const BusHome = () => {
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-900">Popular Routes</h3>
+            <h3 className="text-lg font-bold text-emerald-950">Popular Routes</h3>
             {routesLoading && <Loader2 size={18} className="animate-spin text-slate-400" />}
           </div>
 
@@ -514,7 +514,7 @@ const BusHome = () => {
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <h4 className="text-base font-bold text-slate-900 truncate">
+                    <h4 className="text-base font-bold text-emerald-950 truncate">
                       {route.fromCity} → {route.toCity}
                     </h4>
                     <p className="mt-1 text-xs font-medium text-slate-500 truncate">
@@ -523,7 +523,7 @@ const BusHome = () => {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-[10px] font-bold uppercase text-slate-400">From</p>
-                    <p className="text-lg font-bold text-slate-900">₹{Number(route.startingPrice || 0)}</p>
+                    <p className="text-lg font-bold text-emerald-950">₹{Number(route.startingPrice || 0)}</p>
                   </div>
                 </div>
               </button>
@@ -550,7 +550,7 @@ const BusHome = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-[10px] font-bold uppercase text-slate-400 mb-1">Select Journey Date</p>
-                <h3 className="text-xl font-bold text-slate-900">{monthLabel}</h3>
+                <h3 className="text-xl font-bold text-emerald-950">{monthLabel}</h3>
               </div>
               <button
                 type="button"
@@ -570,7 +570,7 @@ const BusHome = () => {
                 <ChevronLeft size={20} />
               </button>
               <div className="flex-1 text-center">
-                <span className="text-sm font-bold text-slate-900 px-4 py-2 bg-slate-50 rounded-full">
+                <span className="text-sm font-bold text-emerald-950 px-4 py-2 bg-emerald-50 rounded-full">
                   {formatTravelDate(date)}
                 </span>
               </div>
@@ -603,11 +603,11 @@ const BusHome = () => {
                     onClick={() => selectCalendarDate(day)}
                     className={`aspect-square rounded-xl text-sm font-bold transition-all flex items-center justify-center ${
                       isSelected
-                        ? 'bg-slate-900 text-white shadow-lg'
+                        ? 'bg-emerald-600 text-white shadow-lg'
                         : isDisabled
                           ? 'text-slate-200'
                           : isCurrentMonth
-                            ? 'text-slate-800 hover:bg-slate-50'
+                            ? 'text-emerald-900 hover:bg-emerald-50'
                             : 'text-slate-300'
                     }`}
                   >
@@ -624,14 +624,14 @@ const BusHome = () => {
                   setDate(getTodayDate());
                   setCalendarOpen(false);
                 }}
-                className="flex-1 py-3 rounded-2xl bg-slate-50 text-slate-700 text-sm font-bold border border-slate-100"
+                className="flex-1 py-3 rounded-2xl bg-emerald-50 text-emerald-700 text-sm font-bold border border-emerald-100"
               >
                 Tomorrow
               </button>
               <button
                 type="button"
                 onClick={() => setCalendarOpen(false)}
-                className="flex-1 py-3 rounded-2xl bg-slate-900 text-white text-sm font-bold"
+                className="flex-1 py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold"
               >
                 Confirm
               </button>
