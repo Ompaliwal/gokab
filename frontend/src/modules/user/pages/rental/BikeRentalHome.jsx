@@ -16,11 +16,12 @@ const infoBanner = {
 const durationSuffix = { Hourly: '/hr', 'Half-Day': '/6hr', Daily: '/day' };
 
 const gradientPairs = [
-  ['#FFF7ED', '#FFFFFF'],
   ['#F0FDF4', '#FFFFFF'],
-  ['#EFF6FF', '#FFFFFF'],
-  ['#FDF4FF', '#FFFFFF'],
+  ['#ECFDF5', '#FFFFFF'],
+  ['#F7FEE7', '#FFFFFF'],
+  ['#DCFCE7', '#FFFFFF'],
   ['#FEF2F2', '#FFFFFF'],
+  ['#FFF7ED', '#FFFFFF'],
 ];
 
 const normalizeSearchValue = (value = '') => String(value || '').trim().toLowerCase();
@@ -77,13 +78,13 @@ const normalizeRentalVehicle = (item = {}, index = 0) => {
   );
 
   let tag = `${item.vehicleCategory || 'Rental'} Ready`;
-  let tagColor = 'text-blue-600';
-  let tagBg = 'bg-blue-50 border-blue-100';
+  let tagColor = 'text-emerald-700';
+  let tagBg = 'bg-emerald-50 border-emerald-100';
 
   if (mostExpensive && String(mostExpensive.id) === String(daily?.id)) {
     tag = 'Premium';
-    tagColor = 'text-purple-600';
-    tagBg = 'bg-purple-50 border-purple-100';
+    tagColor = 'text-green-700';
+    tagBg = 'bg-green-50 border-green-100';
   } else if (cheapest && String(cheapest.id) === String(hourly?.id)) {
     tag = 'Best Value';
     tagColor = 'text-emerald-600';
@@ -310,9 +311,9 @@ const BikeRentalHome = () => {
   }, [totalPages]);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] max-w-lg mx-auto font-sans relative overflow-hidden pb-12">
-      <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-orange-100/60 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-28 right-[-40px] h-40 w-40 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F6FCF7_0%,#F0FDF4_38%,#ECFDF5_100%)] max-w-lg mx-auto font-sans relative overflow-hidden pb-12">
+      <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-lime-100/70 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-28 right-[-40px] h-40 w-40 rounded-full bg-emerald-100/70 blur-3xl pointer-events-none" />
 
       <motion.header
         initial={{ opacity: 0, y: -10 }}
@@ -322,8 +323,8 @@ const BikeRentalHome = () => {
       >
         <div className="bg-white/85 backdrop-blur-2xl px-5 pt-12 pb-5 border-b border-white/40 shadow-[0_8px_32px_rgba(15,23,42,0.06)] relative overflow-hidden">
           {/* Subtle accent gradients */}
-          <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-orange-400/5 blur-[40px] pointer-events-none" />
-          <div className="absolute top-0 left-0 h-24 w-24 rounded-full bg-blue-400/5 blur-[40px] pointer-events-none" />
+          <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-lime-400/10 blur-[40px] pointer-events-none" />
+          <div className="absolute top-0 left-0 h-24 w-24 rounded-full bg-emerald-400/10 blur-[40px] pointer-events-none" />
 
           <div className="relative flex items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
@@ -331,17 +332,17 @@ const BikeRentalHome = () => {
                 whileHover={{ x: -2 }}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => navigate(-1)}
-                className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-[0_4px_12px_rgba(15,23,42,0.15)] shrink-0 group transition-all"
+                className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-[0_4px_12px_rgba(16,185,129,0.24)] shrink-0 group transition-all"
               >
                 <ArrowLeft size={20} className="text-white group-hover:opacity-80 transition-opacity" strokeWidth={2.5} />
               </motion.button>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500/60 leading-none mb-1.5">Self-drive rentals</p>
-                <h1 className="text-[24px] font-[900] tracking-tight text-slate-950 leading-none">Choose Ride</h1>
+                <h1 className="text-[24px] font-[900] tracking-tight text-emerald-950 leading-none">Choose Ride</h1>
               </div>
             </div>
             <div className="flex flex-col items-end">
-              <span className="px-3 py-1 rounded-full bg-slate-900 text-[10px] font-bold text-white shadow-sm uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-sm uppercase tracking-wider">
                 {availableCountLabel}
               </span>
             </div>
@@ -364,7 +365,7 @@ const BikeRentalHome = () => {
                         transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
                       />
                     )}
-                    <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-slate-950' : 'text-slate-400'}`}>
+                    <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-900' : 'text-slate-400'}`}>
                       {tab}
                     </span>
                   </button>
@@ -375,13 +376,13 @@ const BikeRentalHome = () => {
 
           <div className="relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <Search size={18} className="text-slate-400 group-focus-within:text-slate-900 transition-colors" strokeWidth={2.5} />
+              <Search size={18} className="text-slate-400 group-focus-within:text-emerald-700 transition-colors" strokeWidth={2.5} />
             </div>
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by vehicle, category or brand..."
-              className="w-full bg-slate-100/50 border border-slate-200/60 focus:border-slate-900/10 focus:bg-white rounded-[20px] pl-11 pr-11 py-3.5 text-[14px] font-bold text-slate-950 placeholder:text-slate-400/80 focus:outline-none focus:shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition-all"
+              className="w-full bg-slate-100/50 border border-slate-200/60 focus:border-emerald-200 focus:bg-white rounded-[20px] pl-11 pr-11 py-3.5 text-[14px] font-bold text-emerald-950 placeholder:text-slate-400/80 focus:outline-none focus:shadow-[0_8px_24px_rgba(16,185,129,0.08)] transition-all"
             />
             {searchQuery && (
               <button
@@ -407,7 +408,7 @@ const BikeRentalHome = () => {
                   key={suggestion}
                   type="button"
                   onClick={() => setSearchQuery(suggestion)}
-                  className="shrink-0 rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 shadow-sm hover:border-slate-300 transition-colors"
+                  className="shrink-0 rounded-full border border-emerald-100 bg-white px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-emerald-700 shadow-sm hover:border-emerald-300 hover:bg-emerald-50/50 transition-colors"
                 >
                   {suggestion}
                 </button>
@@ -427,8 +428,8 @@ const BikeRentalHome = () => {
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="flex items-center gap-3 rounded-[20px] border border-white/80 bg-white/60 backdrop-blur-md px-4 py-3.5 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
           >
-            <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 shadow-sm">
-              <Info size={16} className="text-blue-500" strokeWidth={2.5} />
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 shadow-sm">
+              <Info size={16} className="text-emerald-500" strokeWidth={2.5} />
             </div>
             <p className="text-[13px] font-[700] text-slate-700 tracking-tight leading-tight">
               {infoBanner[selectedDuration]}
@@ -443,13 +444,13 @@ const BikeRentalHome = () => {
               <motion.span 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }}
-                className="text-[10px] font-[800] uppercase tracking-wider text-blue-500 bg-blue-50 px-2 py-0.5 rounded-md"
+                className="text-[10px] font-[800] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md"
               >
                 {filteredCountLabel}
               </motion.span>
             )}
           </div>
-          <h2 className="text-[20px] font-[900] tracking-tight text-slate-900">Explore Fleet</h2>
+          <h2 className="text-[20px] font-[900] tracking-tight text-emerald-950">Explore Fleet</h2>
         </div>
       </div>
 
@@ -486,7 +487,7 @@ const BikeRentalHome = () => {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] bg-slate-100 text-slate-400">
                 <Car size={22} />
               </div>
-              <p className="mt-4 text-[15px] font-black text-slate-900">No rental vehicles available</p>
+              <p className="mt-4 text-[15px] font-black text-emerald-950">No rental vehicles available</p>
               <p className="mt-1 text-[12px] font-bold text-slate-400">Admin has not published any active rental vehicles yet.</p>
             </motion.div>
           ) : filteredVehicles.length === 0 ? (
@@ -500,7 +501,7 @@ const BikeRentalHome = () => {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] bg-slate-100 text-slate-400">
                 <Search size={22} />
               </div>
-              <p className="mt-4 text-[15px] font-black text-slate-900">No rentals matched your search</p>
+              <p className="mt-4 text-[15px] font-black text-emerald-950">No rentals matched your search</p>
               <p className="mt-1 text-[12px] font-bold text-slate-400">Try another vehicle name, category, or amenity.</p>
             </motion.div>
           ) : (
@@ -520,7 +521,7 @@ const BikeRentalHome = () => {
                   <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${v.tagBg} ${v.tagColor}`}>
                     {v.tag}
                   </span>
-                  <h3 className="text-[16px] font-extrabold text-slate-950 leading-tight tracking-tight">{v.name}</h3>
+                  <h3 className="text-[16px] font-extrabold text-emerald-950 leading-tight tracking-tight">{v.name}</h3>
                   {v.shortDescription ? (
                     <p className="text-[11px] font-medium text-slate-500/80">{v.shortDescription}</p>
                   ) : null}
@@ -557,14 +558,14 @@ const BikeRentalHome = () => {
                   <div>
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.15em] block">Price</span>
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-[24px] font-extrabold text-slate-950 tracking-tighter leading-none">₹{v.prices[selectedDuration]}</span>
+                      <span className="text-[24px] font-extrabold text-emerald-950 tracking-tighter leading-none">₹{v.prices[selectedDuration]}</span>
                       <span className="text-[11px] font-bold text-slate-400/80 ml-0.5">{durationSuffix[selectedDuration]}</span>
                     </div>
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.96 }}
                     onClick={() => openVehicleDetail(v)}
-                    className="bg-slate-950 text-white px-4 py-2.5 rounded-[12px] text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-[0_6px_16px_rgba(15,23,42,0.15)] active:bg-black transition-all"
+                    className="bg-emerald-600 text-white px-4 py-2.5 rounded-[12px] text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-[0_6px_16px_rgba(16,185,129,0.22)] hover:bg-emerald-700 active:bg-emerald-800 transition-all"
                   >
                     Book Now <ChevronRight size={13} strokeWidth={3} className="opacity-60" />
                   </motion.button>
@@ -581,19 +582,19 @@ const BikeRentalHome = () => {
               type="button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPage === 1}
-              className="rounded-[12px] border border-slate-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-slate-600 disabled:opacity-40"
+                className="rounded-[12px] border border-emerald-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700 disabled:opacity-40"
             >
               Previous
             </button>
             <div className="text-center">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Page</p>
-              <p className="mt-1 text-[13px] font-black text-slate-900">{currentPage} / {totalPages}</p>
+              <p className="mt-1 text-[13px] font-black text-emerald-950">{currentPage} / {totalPages}</p>
             </div>
             <button
               type="button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
-              className="rounded-[12px] border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-slate-600 disabled:opacity-40"
+                className="rounded-[12px] border border-emerald-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700 disabled:opacity-40"
             >
               Next
             </button>
@@ -601,8 +602,8 @@ const BikeRentalHome = () => {
         ) : null}
 
         <div className="flex items-center gap-3 rounded-[16px] border border-white/80 bg-white/90 px-4 py-3.5 shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
-          <div className="w-8 h-8 rounded-[10px] bg-slate-50 flex items-center justify-center shrink-0">
-            <Shield size={15} className="text-slate-400" strokeWidth={2} />
+            <div className="w-8 h-8 rounded-[10px] bg-emerald-50 flex items-center justify-center shrink-0">
+              <Shield size={15} className="text-emerald-500" strokeWidth={2} />
           </div>
           <p className="text-[11px] font-bold text-slate-400 leading-relaxed">
             All rental vehicles shown here come from the admin catalog. Valid driving license and verification are required before pickup.

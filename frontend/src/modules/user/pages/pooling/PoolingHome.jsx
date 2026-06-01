@@ -138,11 +138,11 @@ const PoolingHome = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white pb-24 max-w-lg mx-auto font-sans selection:bg-indigo-100">
+    <div className="min-h-screen bg-[#F6FCF7] pb-24 max-w-lg mx-auto font-sans selection:bg-emerald-100">
       {/* Header Section */}
-      <div className="relative bg-slate-900 px-6 pt-12 pb-28 text-white overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="relative bg-gradient-to-br from-emerald-800 via-green-800 to-emerald-950 px-6 pt-12 pb-28 text-white overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-lime-400/10 blur-3xl" />
         
         <div className="relative z-20 flex items-center justify-between mb-8">
           <button 
@@ -152,7 +152,7 @@ const PoolingHome = () => {
             <ArrowLeft size={20} />
           </button>
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/10">
-            <Users size={18} className="text-indigo-200" />
+            <Users size={18} className="text-emerald-200" />
           </div>
         </div>
 
@@ -164,9 +164,9 @@ const PoolingHome = () => {
           >
             <h1 className="text-5xl font-black tracking-tight leading-[0.9]">
               POOL <br />
-              <span className="text-indigo-400">RIDE.</span>
+              <span className="text-emerald-300">RIDE.</span>
             </h1>
-            <p className="mt-4 text-indigo-100 font-bold uppercase text-[9px] tracking-[0.3em] bg-white/10 inline-block px-3 py-1 rounded-full backdrop-blur-sm">Verified Shared Trips</p>
+            <p className="mt-4 text-emerald-100 font-bold uppercase text-[9px] tracking-[0.3em] bg-white/10 inline-block px-3 py-1 rounded-full backdrop-blur-sm">Verified Shared Trips</p>
           </motion.div>
           
           <motion.div
@@ -175,7 +175,7 @@ const PoolingHome = () => {
             transition={{ type: 'spring', damping: 15 }}
             className="relative -mr-10"
           >
-            <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full" />
+            <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
             <img src={taxiImg} alt="Pooling" className="relative z-10 h-40 w-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
           </motion.div>
         </div>
@@ -186,12 +186,12 @@ const PoolingHome = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-[40px] bg-white p-6 shadow-2xl shadow-indigo-200/50 border border-slate-50"
+          className="rounded-[40px] bg-white p-6 shadow-2xl shadow-emerald-100/70 border border-slate-50"
         >
           <div className="space-y-4">
             {/* Origin */}
             <div className="relative" ref={fromRef}>
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 z-10">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 z-10">
                 <MapPin size={20} />
               </div>
               <input
@@ -203,7 +203,7 @@ const PoolingHome = () => {
                   setSearch({ ...search, from: e.target.value });
                   setShowFromSuggestions(true);
                 }}
-                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-indigo-50 border border-transparent focus:border-indigo-100"
+                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-emerald-50 border border-transparent focus:border-emerald-100"
               />
               
               <AnimatePresence>
@@ -237,7 +237,7 @@ const PoolingHome = () => {
             <div className="relative flex justify-center -my-3 z-10">
               <button 
                 onClick={swapLocations}
-                className="h-12 w-12 rounded-2xl bg-indigo-600 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-90 transition-transform"
+                className="h-12 w-12 rounded-2xl bg-emerald-600 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-90 transition-transform"
               >
                 <ArrowLeftRight size={20} className="rotate-90" />
               </button>
@@ -257,7 +257,7 @@ const PoolingHome = () => {
                   setSearch({ ...search, to: e.target.value });
                   setShowToSuggestions(true);
                 }}
-                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-indigo-50 border border-transparent focus:border-indigo-100"
+                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-emerald-50 border border-transparent focus:border-emerald-100"
               />
 
               <AnimatePresence>
@@ -289,20 +289,20 @@ const PoolingHome = () => {
 
             {/* Date Selection */}
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500">
                 <Calendar size={20} />
               </div>
               <input
                 type="date"
                 value={search.date}
                 onChange={(e) => setSearch({ ...search, date: e.target.value })}
-                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-indigo-50 border border-transparent focus:border-indigo-100 appearance-none"
+                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-emerald-50 border border-transparent focus:border-emerald-100 appearance-none"
               />
             </div>
 
             <button
               onClick={handleSearch}
-              className="mt-2 w-full rounded-[24px] bg-slate-900 py-5 text-sm font-black text-white shadow-2xl shadow-slate-200 transition hover:bg-black active:scale-[0.98] flex items-center justify-center gap-3"
+              className="mt-2 w-full rounded-[24px] bg-emerald-600 py-5 text-sm font-black text-white shadow-2xl shadow-emerald-100 transition hover:bg-emerald-700 active:scale-[0.98] flex items-center justify-center gap-3"
             >
               <Search size={20} />
               Search Rides
@@ -342,11 +342,11 @@ const PoolingHome = () => {
                 setSearch({ ...search, from: route.from, to: route.to });
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group relative overflow-hidden rounded-[40px] border border-slate-100 bg-white p-6 transition-all hover:border-indigo-200 hover:shadow-2xl hover:shadow-indigo-100/50"
+              className="group relative overflow-hidden rounded-[40px] border border-slate-100 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-2xl hover:shadow-emerald-100/60"
             >
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-5">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-50 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-50 text-slate-400 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 shadow-sm">
                     <ArrowLeftRight size={22} />
                   </div>
                   <div>
@@ -356,7 +356,7 @@ const PoolingHome = () => {
                       <span className="text-base font-black text-slate-900">{route.to}</span>
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded-full">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-600 uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-full">
                         <Clock size={12} />
                         {route.time}
                       </div>
@@ -374,7 +374,7 @@ const PoolingHome = () => {
               </div>
               
               {/* Background Decoration */}
-              <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-indigo-50/20 rounded-full blur-2xl group-hover:bg-indigo-100/40 transition-colors" />
+              <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-emerald-50/30 rounded-full blur-2xl group-hover:bg-emerald-100/50 transition-colors" />
             </motion.div>
           ))}
         </div>
@@ -382,10 +382,10 @@ const PoolingHome = () => {
 
       {/* Safety Section */}
       <div className="mt-16 px-6">
-        <div className="rounded-[40px] bg-slate-900 p-8 text-white relative overflow-hidden">
+        <div className="rounded-[40px] bg-gradient-to-br from-emerald-800 via-green-800 to-emerald-950 p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center">
                    <ShieldCheck size={24} />
                 </div>
                 <h3 className="text-lg font-black tracking-tight">Travel with Peace</h3>
@@ -399,10 +399,10 @@ const PoolingHome = () => {
                      </div>
                    ))}
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">10k+ Verified Users</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">10k+ Verified Users</p>
              </div>
           </div>
-          <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
         </div>
       </div>
     </div>

@@ -379,7 +379,7 @@ const MapPickerSheet = ({ open, title, confirmLabel, value, initialCoords, onClo
             </div>
 
             <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-full">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border-4 border-white bg-blue-600 shadow-xl">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full border-4 border-white bg-emerald-600 shadow-xl">
                 <MapPin size={18} className="text-white" />
               </div>
             </div>
@@ -390,7 +390,7 @@ const MapPickerSheet = ({ open, title, confirmLabel, value, initialCoords, onClo
               disabled={isLocating}
               className="absolute bottom-4 right-4 z-20 flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-100 bg-white text-slate-900 shadow-xl"
             >
-              <LocateFixed size={20} className={isLocating ? 'animate-pulse text-blue-600' : ''} />
+              <LocateFixed size={20} className={isLocating ? 'animate-pulse text-emerald-600' : ''} />
             </button>
           </div>
 
@@ -398,7 +398,7 @@ const MapPickerSheet = ({ open, title, confirmLabel, value, initialCoords, onClo
             <button
               type="button"
               onClick={() => onConfirm(latLngToCoordPair(center), selectedAddress)}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-[0_14px_28px_rgba(15,23,42,0.18)]"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-emerald-600 text-sm font-black text-white shadow-[0_14px_28px_rgba(16,185,129,0.24)]"
             >
               {confirmLabel}
               <ChevronRight size={16} />
@@ -486,18 +486,18 @@ const ContactDetailsSheet = ({
                 <p className="text-sm font-black text-slate-900">Receiver</p>
               </div>
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-[24px] border-2 border-dashed border-slate-100 bg-slate-50/30 px-4 py-4 transition-colors hover:bg-blue-50/30 group">
+              <label className="flex cursor-pointer items-center gap-3 rounded-[24px] border-2 border-dashed border-slate-100 bg-slate-50/30 px-4 py-4 transition-colors hover:bg-emerald-50/40 group">
                 <div className="relative flex items-center justify-center">
                   <input
                     type="checkbox"
                     checked={useSelfForReceiver}
                     onChange={(event) => setUseSelfForReceiver(event.target.checked)}
-                    className="peer h-5 w-5 cursor-pointer appearance-none rounded-lg border-2 border-slate-200 bg-white checked:bg-blue-600 checked:border-blue-600 transition-all"
+                    className="peer h-5 w-5 cursor-pointer appearance-none rounded-lg border-2 border-slate-200 bg-white checked:bg-emerald-600 checked:border-emerald-600 transition-all"
                   />
                   <CheckCircle2 size={12} className="absolute text-white opacity-0 peer-checked:opacity-100 pointer-events-none" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-[13px] font-black text-slate-900 group-hover:text-blue-600 transition-colors">Same as Sender</p>
+                  <p className="text-[13px] font-black text-slate-900 group-hover:text-emerald-600 transition-colors">Same as Sender</p>
                   <p className="text-[11px] font-bold text-slate-400">Use sender's name and mobile for receiver</p>
                 </div>
               </label>
@@ -528,7 +528,7 @@ const ContactDetailsSheet = ({
             <button
               type="button"
               onClick={onSave}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-[0_14px_28px_rgba(15,23,42,0.18)]"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-emerald-600 text-sm font-black text-white shadow-[0_14px_28px_rgba(16,185,129,0.24)]"
             >
               Save Details
               <ChevronRight size={16} />
@@ -1251,10 +1251,10 @@ const SenderReceiverDetails = () => {
                      clearError('drop');
                    }}
                    className={`w-full h-14 bg-white border-2 rounded-2xl pl-5 pr-12 text-[15px] font-bold text-slate-900 placeholder:text-slate-300 outline-none transition-all ${
-                     errors.drop ? 'border-red-500 bg-red-50' : 'border-blue-600 focus:shadow-[0_0_0_4px_rgba(37,99,235,0.1)]'
+                     errors.drop ? 'border-red-500 bg-red-50' : 'border-emerald-600 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.12)]'
                    }`}
-                 />
-                 <Mic size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-blue-600" />
+                  />
+                 <Mic size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-emerald-600" />
               </div>
               <button className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 shrink-0">
                  <Plus size={24} />
@@ -1265,9 +1265,9 @@ const SenderReceiverDetails = () => {
 
         <button 
           onClick={() => setActiveMapPicker('drop')} 
-          className="mt-8 mx-auto flex items-center gap-2 text-blue-600 font-black text-[13px] uppercase tracking-widest hover:bg-blue-50/50 px-4 py-2 rounded-full transition-colors"
+          className="mt-8 mx-auto flex items-center gap-2 text-emerald-600 font-black text-[13px] uppercase tracking-widest hover:bg-emerald-50/60 px-4 py-2 rounded-full transition-colors"
         >
-           <MapPin size={18} fill="currentColor" className="text-blue-600/20" />
+           <MapPin size={18} fill="currentColor" className="text-emerald-600/20" />
            Select on map
         </button>
 
@@ -1283,9 +1283,9 @@ const SenderReceiverDetails = () => {
                   <button
                     key={item.id}
                     onClick={() => applySuggestion('drop', item)}
-                    className="flex w-full items-start gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-left shadow-sm hover:border-blue-200"
+                    className="flex w-full items-start gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-left shadow-sm hover:border-emerald-200"
                   >
-                    <Navigation size={14} className="mt-0.5 shrink-0 text-blue-500" />
+                    <Navigation size={14} className="mt-0.5 shrink-0 text-emerald-500" />
                     <div className="min-w-0">
                       <p className="truncate text-[13px] font-black text-slate-800">{item.label}</p>
                       {item.secondaryText ? (
@@ -1306,7 +1306,7 @@ const SenderReceiverDetails = () => {
                   <button
                     key={item}
                     onClick={() => applySuggestion('drop', item)}
-                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-sm hover:border-blue-200"
+                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-sm hover:border-emerald-200"
                   >
                     <MapPin size={12} className="shrink-0 text-emerald-500" />
                     <span className="truncate text-[12px] font-bold text-slate-700">{item}</span>
@@ -1324,9 +1324,9 @@ const SenderReceiverDetails = () => {
                   <button
                     key={item}
                     onClick={() => applySuggestion('drop', item)}
-                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-sm hover:border-blue-200"
+                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-sm hover:border-emerald-200"
                   >
-                    <Navigation size={12} className="text-blue-500 shrink-0" />
+                    <Navigation size={12} className="text-emerald-500 shrink-0" />
                     <span className="text-[12px] font-bold text-slate-700 truncate">{item}</span>
                   </button>
                 ))}
@@ -1345,7 +1345,7 @@ const SenderReceiverDetails = () => {
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
           transition={{ delay: 0.12 }} 
-          className="mt-8 rounded-[28px] bg-slate-900 px-6 py-5 text-white shadow-xl relative overflow-hidden"
+          className="mt-8 rounded-[28px] bg-gradient-to-br from-emerald-700 via-green-700 to-emerald-900 px-6 py-5 text-white shadow-xl relative overflow-hidden"
         >
           <div className="absolute right-0 top-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
           <div className="relative z-10 flex items-center justify-between gap-3">
@@ -1374,9 +1374,9 @@ const SenderReceiverDetails = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleProceed}
-            className="relative flex h-16 w-full items-center justify-center gap-3 rounded-[24px] bg-slate-900 text-[15px] font-black text-white shadow-[0_20px_40px_rgba(15,23,42,0.2)] group overflow-hidden"
+            className="relative flex h-16 w-full items-center justify-center gap-3 rounded-[24px] bg-emerald-600 text-[15px] font-black text-white shadow-[0_20px_40px_rgba(16,185,129,0.26)] group overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative z-10">
                {drop ? 'Confirm Receiver Details' : 'Select Drop Location'}
             </span>

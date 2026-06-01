@@ -79,12 +79,8 @@ const ParcelType = () => {
     const selectedVehicleIds = filteredVehicles.length
       ? filteredVehicles.map((vehicle) => vehicle?._id || vehicle?.id).filter(Boolean)
       : [selectedVehicle?._id || selectedVehicle?.id].filter(Boolean);
-    const selectedVehicles = filteredVehicles.length ? filteredVehicles : selectedVehicle ? [selectedVehicle] : [];
-
     const nextState = {
       parcelType: 'General Parcel',
-      selectedVehicle: selectedVehicle,
-      selectedVehicles,
       selectedVehicleId: selectedVehicle?._id || selectedVehicle?.id,
       selectedVehicleIds,
       category: category.id,
@@ -102,10 +98,10 @@ const ParcelType = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF] max-w-lg mx-auto flex flex-col font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#F3FBF6] max-w-lg mx-auto flex flex-col font-sans relative overflow-x-hidden">
       
       {/* Premium Header with Wave Background */}
-      <div className="relative bg-[#0047AB] pt-10 pb-20 px-6 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-green-800 pt-10 pb-20 px-6 overflow-hidden">
         {/* Subtle Wave SVG */}
         <div className="absolute bottom-0 left-0 right-0 h-16 opacity-20 pointer-events-none">
             <svg viewBox="0 0 1440 320" className="w-full h-full preserve-3d">
@@ -167,7 +163,7 @@ const ParcelType = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#312E81] via-[#4338CA] to-[#4F46E5] p-5 mb-8 shadow-lg group cursor-pointer"
+          className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-emerald-600 via-green-600 to-lime-600 p-5 mb-8 shadow-lg group cursor-pointer"
         >
           {/* Decorative coin circles */}
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full blur-xl" />
@@ -182,7 +178,7 @@ const ParcelType = () => {
                </div>
                <div className="text-white">
                   <h3 className="text-[17px] font-black tracking-tight leading-tight">Explore Rewards</h3>
-                  <p className="text-[11px] font-bold text-white/70 mt-1">Earn 2 coins for every 100 spent</p>
+                  <p className="text-[11px] font-bold text-white/75 mt-1">Earn 2 coins for every 100 spent</p>
                </div>
             </div>
             <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:translate-x-1 transition-transform">
@@ -209,10 +205,10 @@ const ParcelType = () => {
                   className="w-full h-full object-contain opacity-20 grayscale brightness-125"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                   <div className="w-32 h-32 rounded-full bg-blue-500/5 blur-3xl" />
+                   <div className="w-32 h-32 rounded-full bg-emerald-500/10 blur-3xl" />
                 </div>
-                <div className="absolute top-1/2 left-4 w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <MapPin size={24} className="text-blue-500/40" />
+                <div className="absolute top-1/2 left-4 w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <MapPin size={24} className="text-emerald-500/40" />
                 </div>
             </motion.div>
         </div>

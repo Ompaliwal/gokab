@@ -40,6 +40,57 @@ const toLatLng = (coords, fallback = { lat: 22.7196, lng: 75.8577 }) => {
   return fallback;
 };
 
+const toHistorySafeValue = (value, seen = new WeakSet()) => {
+  if (value == null) {
+    return value;
+  }
+
+  const valueType = typeof value;
+
+  if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
+    return value;
+  }
+
+  if (valueType === 'bigint') {
+    return String(value);
+  }
+
+  if (valueType === 'function' || valueType === 'symbol') {
+    return undefined;
+  }
+
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString();
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => toHistorySafeValue(item, seen))
+      .filter((item) => item !== undefined);
+  }
+
+  if (valueType === 'object') {
+    if (seen.has(value)) {
+      return undefined;
+    }
+
+    seen.add(value);
+
+    const safeObject = {};
+    Object.entries(value).forEach(([key, entryValue]) => {
+      const nextValue = toHistorySafeValue(entryValue, seen);
+      if (nextValue !== undefined) {
+        safeObject[key] = nextValue;
+      }
+    });
+
+    seen.delete(value);
+    return safeObject;
+  }
+
+  return undefined;
+};
+
 const getDriverPosition = (driver) => toLatLng(driver?.location?.coordinates, null);
 
 const getOverlayCenterOffset = (width = 56, height = 56) => ({
@@ -1598,44 +1649,60 @@ const SelectVehicle = () => {
     setShowBidModal(false);
     const baseFare = Number(selectedVehicle.price || 0);
     const finalFare = appliedPromo?.breakdown?.fare_after_discount ?? baseFare;
+    const bookingState = toHistorySafeValue({
+      pickup,
+      drop,
+      pickupCoords,
+      dropCoords,
+      stops,
+      service_location_id: routeState.service_location_id || routeState.serviceLocationId || '',
+      transport_type: resolvedTransportType,
+      vehicle: {
+        id: selectedVehicle.id,
+        vehicleTypeId: selectedVehicle.vehicleTypeId,
+        transportType: selectedVehicle.transportType,
+        iconType: selectedVehicle.iconType,
+        icon: selectedVehicle.icon,
+        vehicleIconUrl: selectedVehicle.vehicleIconUrl,
+        name: selectedVehicle.name,
+        capacity: selectedVehicle.capacity,
+        sublabel: selectedVehicle.sublabel,
+        price: selectedVehicle.price,
+        dispatchType: selectedVehicle.dispatchType,
+        supportsBidding: selectedVehicle.supportsBidding,
+        bidStepAmount: selectedVehicle.bidStepAmount,
+        maxBidSteps: selectedVehicle.maxBidSteps,
+      },
+      vehicleTypeId: selectedVehicle.vehicleTypeId,
+      vehicleIconType: selectedVehicle.iconType,
+      vehicleIconUrl: selectedVehicle.vehicleIconUrl || selectedVehicle.icon,
+      paymentMethod,
+      fare: finalFare,
+      baseFare,
+      promo_code: appliedPromo?.promo?.code || '',
+      promo: appliedPromo?.promo || null,
+      promoBreakdown: appliedPromo?.breakdown || null,
+      bookingMode: selectedVehicle.supportsBidding ? 'bidding' : 'normal',
+      pricingNegotiationMode: selectedVehicle.supportsBidding
+        ? shouldUseDriverBidding
+          ? 'driver_bid'
+          : 'user_increment_only'
+        : 'none',
+      bidStepAmount: selectedBidStepAmount,
+      bidFloorFare: selectedBidFloorFare,
+      bidCeilingMaxFare: selectedBidCeilingMaxFare,
+      userMaxBidFare: selectedVehicle.supportsBidding && shouldUseDriverBidding ? selectedBidCeiling : finalFare,
+      bidIncrement: selectedVehicle.supportsBidding && shouldUseDriverBidding ? selectedBidIncrement : 0,
+      estimatedDistanceMeters: tripMetrics.distanceMeters,
+      estimatedDurationMinutes: tripMetrics.durationMinutes,
+      rideMode,
+      scheduledAt: rideMode === 'schedule' ? new Date(scheduledAt).toISOString() : null,
+      allowedPaymentMethods,
+      searchNonce: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    });
 
     navigate(`${routePrefix}/ride/searching`, {
-      state: {
-        pickup,
-        drop,
-        pickupCoords,
-        dropCoords,
-        stops,
-        service_location_id: routeState.service_location_id || routeState.serviceLocationId || '',
-        transport_type: resolvedTransportType,
-        vehicle: selectedVehicle,
-        vehicleTypeId: selectedVehicle.vehicleTypeId,
-        vehicleIconType: selectedVehicle.iconType,
-        vehicleIconUrl: selectedVehicle.vehicleIconUrl || selectedVehicle.icon,
-        paymentMethod,
-        fare: finalFare,
-        baseFare,
-        promo_code: appliedPromo?.promo?.code || '',
-        promo: appliedPromo?.promo || null,
-        promoBreakdown: appliedPromo?.breakdown || null,
-        bookingMode: selectedVehicle.supportsBidding ? 'bidding' : 'normal',
-        pricingNegotiationMode: selectedVehicle.supportsBidding
-          ? shouldUseDriverBidding
-            ? 'driver_bid'
-            : 'user_increment_only'
-          : 'none',
-        bidStepAmount: selectedBidStepAmount,
-        bidFloorFare: selectedBidFloorFare,
-        bidCeilingMaxFare: selectedBidCeilingMaxFare,
-        userMaxBidFare: selectedVehicle.supportsBidding && shouldUseDriverBidding ? selectedBidCeiling : finalFare,
-        bidIncrement: selectedVehicle.supportsBidding && shouldUseDriverBidding ? selectedBidIncrement : 0,
-        estimatedDistanceMeters: tripMetrics.distanceMeters,
-        estimatedDurationMinutes: tripMetrics.durationMinutes,
-        rideMode,
-        scheduledAt: rideMode === 'schedule' ? new Date(scheduledAt).toISOString() : null,
-        allowedPaymentMethods,
-        searchNonce: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      },
+      state: bookingState,
     });
   };
 
