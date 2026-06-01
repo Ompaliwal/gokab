@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Fuel, Shield, ChevronRight, Star, Info, Car, Search, X } from 'lucide-react';
+import { ArrowLeft, Fuel, Shield, ChevronRight, Star, Info, Car, Search, X, Bike, Sparkles, Filter, Check } from 'lucide-react';
 import { userService } from '../../services/userService';
 const DURATION_TABS = ['Hourly', 'Half-Day', 'Daily'];
 const RENTAL_SELECTED_VEHICLE_STORAGE_KEY = 'selectedRentalVehicleDetail';
@@ -178,7 +178,31 @@ const BikeRentalHome = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedType, setSelectedType] = useState('all'); // 'all' | 'bike' | 'car'
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
+
+  const isVehicleBike = (v) => {
+    const category = String(v.vehicleCategory || '').toLowerCase();
+    return (
+      category === 'bike' ||
+      category.includes('bike') ||
+      category.includes('scooter') ||
+      category.includes('two') ||
+      Number(v.capacity || 0) <= 2
+    );
+  };
+
+  // Reset category filter when switching between bike/car type
+  useEffect(() => {
+    setSelectedCategory(null);
+    setCurrentPage(1);
+  }, [selectedType]);
+
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
 
   const openVehicleDetail = (vehicle) => {
     const payload = {
@@ -228,16 +252,34 @@ const BikeRentalHome = () => {
   }, []);
 
   const availableCountLabel = useMemo(() => {
-    const bikes = vehicles.filter(
-      (item) => String(item.vehicleCategory || '').toLowerCase() === 'bike',
-    ).length;
+    const bikes = vehicles.filter(isVehicleBike).length;
+    const cars = vehicles.length - bikes;
 
-    if (bikes === vehicles.length && vehicles.length > 0) {
-      return `${vehicles.length} bikes`;
+    if (selectedType === 'bike') {
+      return `${bikes} bike${bikes === 1 ? '' : 's'}`;
+    }
+    if (selectedType === 'car') {
+      return `${cars} car${cars === 1 ? '' : 's'}`;
     }
 
-    return `${vehicles.length} vehicles`;
-  }, [vehicles]);
+    return `${vehicles.length} vehicle${vehicles.length === 1 ? '' : 's'}`;
+  }, [vehicles, selectedType]);
+
+  const availableCategories = useMemo(() => {
+    const typeFiltered = vehicles.filter((v) => {
+      if (selectedType === 'all') return true;
+      const isBike = isVehicleBike(v);
+      return selectedType === 'bike' ? isBike : !isBike;
+    });
+
+    const cats = [...new Set(typeFiltered.map((v) => v.vehicleCategory))].filter(Boolean);
+    return cats.filter((cat) => {
+      const lower = cat.toLowerCase();
+      if (selectedType === 'bike' && lower === 'bike') return false;
+      if (selectedType === 'car' && lower === 'car') return false;
+      return true;
+    });
+  }, [vehicles, selectedType]);
 
   const rentalSuggestions = useMemo(() => {
     const seen = new Set();
@@ -272,28 +314,43 @@ const BikeRentalHome = () => {
   }, [rentalSuggestions, searchQuery]);
 
   const filteredVehicles = useMemo(() => {
-    const query = normalizeSearchValue(searchQuery);
+    let result = vehicles;
 
-    if (!query) {
-      return vehicles;
+    // 1. Search Query Filter
+    const query = normalizeSearchValue(searchQuery);
+    if (query) {
+      result = result.filter((vehicle) => {
+        const haystack = [
+          vehicle.name,
+          vehicle.vehicleCategory,
+          vehicle.shortDescription,
+          vehicle.description,
+          vehicle.fuel,
+          ...(vehicle.amenities || []),
+          ...(vehicle.features || []),
+        ]
+          .join(' ')
+          .toLowerCase();
+
+        return haystack.includes(query);
+      });
     }
 
-    return vehicles.filter((vehicle) => {
-      const haystack = [
-        vehicle.name,
-        vehicle.vehicleCategory,
-        vehicle.shortDescription,
-        vehicle.description,
-        vehicle.fuel,
-        ...(vehicle.amenities || []),
-        ...(vehicle.features || []),
-      ]
-        .join(' ')
-        .toLowerCase();
+    // 2. Primary Type Filter (Bike vs Car)
+    if (selectedType !== 'all') {
+      result = result.filter((v) => {
+        const isBike = isVehicleBike(v);
+        return selectedType === 'bike' ? isBike : !isBike;
+      });
+    }
 
-      return haystack.includes(query);
-    });
-  }, [searchQuery, vehicles]);
+    // 3. Sub-category Filter
+    if (selectedCategory) {
+      result = result.filter((v) => v.vehicleCategory === selectedCategory);
+    }
+
+    return result;
+  }, [searchQuery, vehicles, selectedType, selectedCategory]);
 
   const filteredCountLabel = `${filteredVehicles.length} result${filteredVehicles.length === 1 ? '' : 's'}`;
   const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / RENTAL_PAGE_SIZE));
@@ -322,7 +379,6 @@ const BikeRentalHome = () => {
         className="sticky top-0 z-30 w-full"
       >
         <div className="bg-white/85 backdrop-blur-2xl px-5 pt-12 pb-5 border-b border-white/40 shadow-[0_8px_32px_rgba(15,23,42,0.06)] relative overflow-hidden">
-          {/* Subtle accent gradients */}
           <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-lime-400/10 blur-[40px] pointer-events-none" />
           <div className="absolute top-0 left-0 h-24 w-24 rounded-full bg-emerald-400/10 blur-[40px] pointer-events-none" />
 
@@ -398,7 +454,7 @@ const BikeRentalHome = () => {
           </div>
 
           {visibleSuggestions.length > 0 && !searchQuery && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               className="flex gap-2 overflow-x-auto no-scrollbar pt-4 pb-1"
@@ -419,7 +475,7 @@ const BikeRentalHome = () => {
       </motion.header>
 
       <div className="px-5 pt-6 space-y-5">
-        <AnimatePresence mode="wait">
+        {/* <AnimatePresence mode="wait">
           <motion.div
             key={selectedDuration}
             initial={{ opacity: 0, y: -8 }}
@@ -435,14 +491,126 @@ const BikeRentalHome = () => {
               {infoBanner[selectedDuration]}
             </p>
           </motion.div>
-        </AnimatePresence>
+        </AnimatePresence> */}
+
+        {/* Premium Filter Hub */}
+        <div className="rounded-[24px] border border-white/80 bg-white/40 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(15,23,42,0.04)] space-y-4 relative overflow-hidden">
+          <div className="absolute -top-12 -left-12 h-24 w-24 rounded-full bg-emerald-500/5 blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-12 -right-12 h-24 w-24 rounded-full bg-lime-500/5 blur-2xl pointer-events-none" />
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <Filter size={14} className="text-emerald-700" strokeWidth={2.5} />
+              </div>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-slate-700">Filter Fleet</span>
+            </div>
+            {(selectedType !== 'all' || selectedCategory) && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setSelectedType('all');
+                  setSelectedCategory(null);
+                }}
+                className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 hover:bg-emerald-100/70 px-2.5 py-1 rounded-full transition-colors border border-emerald-100"
+              >
+                Reset Filters
+              </motion.button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 bg-slate-100/50 p-1 rounded-2xl border border-slate-200/30">
+            {[
+              { id: 'all', label: 'All Fleet', icon: Sparkles },
+              { id: 'bike', label: 'Bikes', icon: Bike },
+              { id: 'car', label: 'Cars & SUVs', icon: Car },
+            ].map((type) => {
+              const isActive = selectedType === type.id;
+              const Icon = type.icon;
+              return (
+                <button
+                  key={type.id}
+                  onClick={() => setSelectedType(type.id)}
+                  className="relative py-3 rounded-xl flex flex-col items-center justify-center gap-1 transition-all outline-none"
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeFilterType"
+                      className="absolute inset-0 bg-white rounded-xl shadow-[0_4px_16px_rgba(16,185,129,0.12)] border border-emerald-100/80"
+                      transition={{ type: 'spring', bounce: 0.18, duration: 0.4 }}
+                    />
+                  )}
+                  <Icon
+                    size={16}
+                    className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-600' : 'text-slate-400'
+                      }`}
+                    strokeWidth={2.5}
+                  />
+                  <span
+                    className={`relative z-10 text-[10px] font-black uppercase tracking-wider transition-colors duration-300 leading-none ${isActive ? 'text-emerald-950' : 'text-slate-400'
+                      }`}
+                  >
+                    {type.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <AnimatePresence>
+            {availableCategories.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="pt-1.5 border-t border-slate-100/80">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400/80 mb-2 leading-none">
+                    Select Category
+                  </p>
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    {availableCategories.map((cat) => {
+                      const isActive = selectedCategory === cat;
+                      return (
+                        <button
+                          key={cat}
+                          onClick={() => setSelectedCategory(isActive ? null : cat)}
+                          className={`shrink-0 rounded-full border px-3.5 py-2 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all ${isActive
+                              ? 'border-emerald-200 bg-emerald-50/80 text-emerald-800 shadow-[0_2px_8px_rgba(16,185,129,0.08)]'
+                              : 'border-slate-200/70 bg-white/60 text-slate-500 hover:border-slate-300 hover:bg-white'
+                            }`}
+                        >
+                          {isActive && (
+                            <motion.span
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                              className="inline-block"
+                            >
+                              <Check size={10} strokeWidth={3} className="text-emerald-600" />
+                            </motion.span>
+                          )}
+                          {cat}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <div className="relative pt-2">
           <div className="flex items-center justify-between mb-1">
             <p className="text-[10px] font-[800] uppercase tracking-[0.2em] text-slate-400">Available Near You</p>
             {searchQuery && (
-              <motion.span 
-                initial={{ opacity: 0 }} 
+              <motion.span
+                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-[10px] font-[800] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md"
               >
@@ -505,75 +673,75 @@ const BikeRentalHome = () => {
               <p className="mt-1 text-[12px] font-bold text-slate-400">Try another vehicle name, category, or amenity.</p>
             </motion.div>
           ) : (
-          paginatedVehicles.map((v, idx) => (
-            <motion.div
-              key={v.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.38, delay: idx * 0.07, ease: 'easeOut' }}
-              className="rounded-[24px] border border-white/80 bg-white/90 shadow-[0_8px_24px_rgba(15,23,42,0.06)] overflow-hidden"
-            >
-              <div
-                className="px-4 pt-3.5 pb-3 flex items-center justify-between"
-                style={{ background: `linear-gradient(135deg, ${v.gradientFrom} 0%, ${v.gradientTo} 100%)` }}
+            paginatedVehicles.map((v, idx) => (
+              <motion.div
+                key={v.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: idx * 0.07, ease: 'easeOut' }}
+                className="rounded-[24px] border border-white/80 bg-white/90 shadow-[0_8px_24px_rgba(15,23,42,0.06)] overflow-hidden"
               >
-                <div className="flex-1 min-w-0 pr-2 space-y-1">
-                  <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${v.tagBg} ${v.tagColor}`}>
-                    {v.tag}
-                  </span>
-                  <h3 className="text-[16px] font-extrabold text-emerald-950 leading-tight tracking-tight">{v.name}</h3>
-                  {v.shortDescription ? (
-                    <p className="text-[11px] font-medium text-slate-500/80">{v.shortDescription}</p>
-                  ) : null}
-                  <div className="flex items-center gap-1">
-                    <Star size={10} className="text-yellow-500 fill-yellow-400" />
-                    <span className="text-[11px] font-bold text-slate-700">{v.rating}</span>
-                    <span className="text-[10px] font-medium text-slate-400">· {v.kmLimit[selectedDuration]} limit</span>
-                  </div>
-                </div>
-                {v.image ? (
-                  <img src={v.image} alt={v.name} className="h-20 w-24 object-contain drop-shadow-lg shrink-0 -mt-2 -mb-2" />
-                ) : (
-                  <div className="flex h-20 w-24 items-center justify-center rounded-[20px] bg-white/60 text-slate-300 shadow-sm shrink-0">
-                    <Car size={28} />
-                  </div>
-                )}
-              </div>
-
-              <div className="px-4 pb-4 pt-3 space-y-2.5 border-t border-slate-50">
-                <div className="flex flex-wrap gap-1">
-                  {v.features.map((feature) => (
-                    <span key={feature} className="text-[9px] font-bold bg-slate-50 text-slate-500 px-2 py-0.5 rounded-full border border-slate-100">
-                      {feature}
+                <div
+                  className="px-4 pt-3.5 pb-3 flex items-center justify-between"
+                  style={{ background: `linear-gradient(135deg, ${v.gradientFrom} 0%, ${v.gradientTo} 100%)` }}
+                >
+                  <div className="flex-1 min-w-0 pr-2 space-y-1">
+                    <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full border ${v.tagBg} ${v.tagColor}`}>
+                      {v.tag}
                     </span>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <Fuel size={11} className="text-slate-300 shrink-0" />
-                  <span className="text-[11px] font-bold text-slate-400">{v.fuel}</span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.15em] block">Price</span>
-                    <div className="flex items-baseline gap-0.5">
-                      <span className="text-[24px] font-extrabold text-emerald-950 tracking-tighter leading-none">₹{v.prices[selectedDuration]}</span>
-                      <span className="text-[11px] font-bold text-slate-400/80 ml-0.5">{durationSuffix[selectedDuration]}</span>
+                    <h3 className="text-[16px] font-extrabold text-emerald-950 leading-tight tracking-tight">{v.name}</h3>
+                    {v.shortDescription ? (
+                      <p className="text-[11px] font-medium text-slate-500/80">{v.shortDescription}</p>
+                    ) : null}
+                    <div className="flex items-center gap-1">
+                      <Star size={10} className="text-yellow-500 fill-yellow-400" />
+                      <span className="text-[11px] font-bold text-slate-700">{v.rating}</span>
+                      <span className="text-[10px] font-medium text-slate-400">· {v.kmLimit[selectedDuration]} limit</span>
                     </div>
                   </div>
-                  <motion.button
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => openVehicleDetail(v)}
-                    className="bg-emerald-600 text-white px-4 py-2.5 rounded-[12px] text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-[0_6px_16px_rgba(16,185,129,0.22)] hover:bg-emerald-700 active:bg-emerald-800 transition-all"
-                  >
-                    Book Now <ChevronRight size={13} strokeWidth={3} className="opacity-60" />
-                  </motion.button>
+                  {v.image ? (
+                    <img src={v.image} alt={v.name} className="h-20 w-24 object-contain drop-shadow-lg shrink-0 -mt-2 -mb-2" />
+                  ) : (
+                    <div className="flex h-20 w-24 items-center justify-center rounded-[20px] bg-white/60 text-slate-300 shadow-sm shrink-0">
+                      <Car size={28} />
+                    </div>
+                  )}
                 </div>
-              </div>
-            </motion.div>
-          ))
-        )}
+
+                <div className="px-4 pb-4 pt-3 space-y-2.5 border-t border-slate-50">
+                  <div className="flex flex-wrap gap-1">
+                    {v.features.map((feature) => (
+                      <span key={feature} className="text-[9px] font-bold bg-slate-50 text-slate-500 px-2 py-0.5 rounded-full border border-slate-100">
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Fuel size={11} className="text-slate-300 shrink-0" />
+                    <span className="text-[11px] font-bold text-slate-400">{v.fuel}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.15em] block">Price</span>
+                      <div className="flex items-baseline gap-0.5">
+                        <span className="text-[24px] font-extrabold text-emerald-950 tracking-tighter leading-none">₹{v.prices[selectedDuration]}</span>
+                        <span className="text-[11px] font-bold text-slate-400/80 ml-0.5">{durationSuffix[selectedDuration]}</span>
+                      </div>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => openVehicleDetail(v)}
+                      className="bg-emerald-600 text-white px-4 py-2.5 rounded-[12px] text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-[0_6px_16px_rgba(16,185,129,0.22)] hover:bg-emerald-700 active:bg-emerald-800 transition-all"
+                    >
+                      Book Now <ChevronRight size={13} strokeWidth={3} className="opacity-60" />
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          )}
         </AnimatePresence>
 
         {!loading && !errorMessage && filteredVehicles.length > RENTAL_PAGE_SIZE ? (
@@ -582,7 +750,7 @@ const BikeRentalHome = () => {
               type="button"
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={currentPage === 1}
-                className="rounded-[12px] border border-emerald-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700 disabled:opacity-40"
+              className="rounded-[12px] border border-emerald-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-700 disabled:opacity-40"
             >
               Previous
             </button>
@@ -594,7 +762,7 @@ const BikeRentalHome = () => {
               type="button"
               onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
               disabled={currentPage === totalPages}
-                className="rounded-[12px] border border-emerald-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700 disabled:opacity-40"
+              className="rounded-[12px] border border-emerald-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700 disabled:opacity-40"
             >
               Next
             </button>
@@ -602,8 +770,8 @@ const BikeRentalHome = () => {
         ) : null}
 
         <div className="flex items-center gap-3 rounded-[16px] border border-white/80 bg-white/90 px-4 py-3.5 shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
-            <div className="w-8 h-8 rounded-[10px] bg-emerald-50 flex items-center justify-center shrink-0">
-              <Shield size={15} className="text-emerald-500" strokeWidth={2} />
+          <div className="w-8 h-8 rounded-[10px] bg-emerald-50 flex items-center justify-center shrink-0">
+            <Shield size={15} className="text-emerald-500" strokeWidth={2} />
           </div>
           <p className="text-[11px] font-bold text-slate-400 leading-relaxed">
             All rental vehicles shown here come from the admin catalog. Valid driving license and verification are required before pickup.
