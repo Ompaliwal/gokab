@@ -638,13 +638,13 @@ const IntercityVehicle = () => {
               <h2 className="mt-1 text-xl font-semibold text-slate-900">{fromCity} to {toCity}</h2>
               <p className="mt-2 text-sm text-slate-500">{dropAddress}</p>
             </div>
-            <div className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+            <div className="rounded-full bg-[#20A354]/10 px-3 py-1 text-xs font-bold text-[#20A354]">
               {Math.max(1, pricedVehicles.length)} vehicle{pricedVehicles.length === 1 ? '' : 's'}
             </div>
           </div>
           {pickupAddress ? (
             <div className="mt-4 flex items-start gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              <MapPin size={16} className="mt-0.5 shrink-0 text-blue-600" />
+              <MapPin size={16} className="mt-0.5 shrink-0 text-[#20A354]" />
               <span className="line-clamp-2">{pickupAddress}</span>
             </div>
           ) : null}
@@ -676,8 +676,8 @@ const IntercityVehicle = () => {
                   type="button"
                   key={type}
                   onClick={() => setTripType(type)}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                    active ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700'
+                  className={`rounded-2xl border px-4 py-3 text-sm font-bold transition ${
+                    active ? 'border-[#20A354] bg-[#20A354]/10 text-[#20A354]' : 'border-slate-200 bg-white text-slate-700'
                   }`}
                 >
                   {type}
@@ -690,8 +690,8 @@ const IntercityVehicle = () => {
             <button
               type="button"
               onClick={() => setRideMode('now')}
-              className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                rideMode === 'now' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700'
+              className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${
+                rideMode === 'now' ? 'border-[#20A354] bg-[#20A354]/10 text-[#20A354]' : 'border-slate-200 bg-white text-slate-700'
               }`}
             >
               <Clock3 size={16} />
@@ -700,8 +700,8 @@ const IntercityVehicle = () => {
             <button
               type="button"
               onClick={() => setRideMode('schedule')}
-              className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
-                rideMode === 'schedule' ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700'
+              className={`flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold transition ${
+                rideMode === 'schedule' ? 'border-[#20A354] bg-[#20A354]/10 text-[#20A354]' : 'border-slate-200 bg-white text-slate-700'
               }`}
             >
               <Calendar size={16} />
@@ -716,7 +716,7 @@ const IntercityVehicle = () => {
                 <button
                   type="button"
                   onClick={() => openPicker(travelDateInputRef)}
-                  className="flex h-12 w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-sm text-slate-900 outline-none transition focus:border-blue-500"
+                  className="flex h-12 w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-sm text-slate-900 outline-none transition focus:border-[#20A354]"
                 >
                   <span>{travelDate || 'Select travel date'}</span>
                   <Calendar size={16} className="text-slate-400" />
@@ -740,7 +740,7 @@ const IntercityVehicle = () => {
                 <button
                   type="button"
                   onClick={() => openPicker(scheduledAtInputRef)}
-                  className="flex h-12 w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-sm text-slate-900 outline-none transition focus:border-blue-500"
+                  className="flex h-12 w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 text-left text-sm text-slate-900 outline-none transition focus:border-[#20A354]"
                 >
                   <span>{scheduledAt ? scheduledAt.replace('T', ' ') : 'Select pickup time'}</span>
                   <Clock3 size={16} className="text-slate-400" />
@@ -834,7 +834,7 @@ const IntercityVehicle = () => {
                     }
                   }}
                   className={`w-full rounded-3xl border p-4 text-left transition ${
-                    isActive ? 'border-blue-600 bg-blue-50/60 shadow-sm' : 'border-slate-200 bg-white'
+                    isActive ? 'border-[#20A354] bg-[#20A354]/10 shadow-sm' : 'border-slate-200 bg-white'
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -880,7 +880,7 @@ const IntercityVehicle = () => {
             whileTap={{ scale: 0.98 }}
             onClick={handleContinue}
             disabled={!selectedVehicle}
-            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white disabled:opacity-50"
+            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#20A354] hover:bg-[#16783c] px-6 text-sm font-bold text-white shadow-md hover:shadow-lg disabled:opacity-50 transition-colors"
           >
             Continue
             <ChevronRight size={16} />

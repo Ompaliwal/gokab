@@ -899,6 +899,7 @@ const AdminLayout = () => {
           },
           { icon: ShieldAlert, label: 'SOS', path: '/admin/safety', permission: 'dashboard.view' },
           { icon: Car, label: 'Trip Requests', path: '/admin/trips', permission: 'trips.view' },
+          { icon: Globe, label: 'Outstation Requests', path: '/admin/outstation', permission: 'trips.view' },
           { icon: Package, label: 'Delivery Requests', path: '/admin/deliveries', permission: 'deliveries.view' },
           { icon: Clock, label: 'Ongoing Requests', path: '/admin/ongoing', permission: 'ongoing.view' },
         ],

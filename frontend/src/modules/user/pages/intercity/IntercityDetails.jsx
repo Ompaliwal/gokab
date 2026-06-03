@@ -348,8 +348,8 @@ const IntercityDetails = () => {
                 >
                   <ArrowLeft size={20} className="text-slate-900" strokeWidth={2.5} />
                 </motion.button>
-                <div className="flex-1 bg-white rounded-[24px] shadow-lg border border-indigo-50 px-5 py-4 min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 mb-1">
+                <div className="flex-1 bg-white rounded-[24px] shadow-lg border border-[#20A354]/20 px-5 py-4 min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#20A354] mb-1">
                     {activeMapField === 'pickup' ? `Pickup in ${fromCity}` : `Drop in ${toCity}`}
                   </p>
                   <p className="text-[14px] font-bold text-slate-900 truncate leading-tight">
@@ -358,8 +358,8 @@ const IntercityDetails = () => {
                 </div>
               </div>
               {activeMapField === 'drop' && (
-                <div className="mt-3 ml-[52px] rounded-2xl border border-indigo-100 bg-white/95 px-4 py-3 shadow-sm">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-indigo-600">Initial Destination</p>
+                <div className="mt-3 ml-[52px] rounded-2xl border border-[#20A354]/20 bg-white/95 px-4 py-3 shadow-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#20A354]">Initial Destination</p>
                   <p className="mt-1 text-[13px] font-bold text-slate-900 truncate">{toCity}</p>
                 </div>
               )}
@@ -407,7 +407,7 @@ const IntercityDetails = () => {
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-4 bg-slate-50">
-                  <LoaderCircle size={44} className="animate-spin text-blue-300" />
+                  <LoaderCircle size={44} className="animate-spin text-[#20A354]" />
                   <p className="text-[12px] font-black uppercase tracking-[0.2em] text-slate-400 animate-pulse">Syncing Map</p>
                 </div>
               )}
@@ -419,10 +419,10 @@ const IntercityDetails = () => {
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   className="flex flex-col items-center"
                 >
-                  <div className="w-12 h-12 bg-blue-600 rounded-[18px] flex items-center justify-center shadow-2xl border-4 border-white">
+                  <div className="w-12 h-12 bg-[#20A354] rounded-[18px] flex items-center justify-center shadow-2xl border-4 border-white">
                     <MapPinned size={20} className="text-white" />
                   </div>
-                  <div className="w-1 h-6 bg-blue-600 -mt-2 shadow-2xl" />
+                  <div className="w-1 h-6 bg-[#20A354] -mt-2 shadow-2xl" />
                 </motion.div>
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-black/20 rounded-full blur-md" />
               </div>
@@ -433,17 +433,17 @@ const IntercityDetails = () => {
                 className="absolute bottom-10 right-6 w-14 h-14 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-slate-100 active:scale-90 transition-all z-20 disabled:opacity-70"
               >
                 {isLocating ? (
-                  <LoaderCircle size={24} className="animate-spin text-blue-500" />
+                  <LoaderCircle size={24} className="animate-spin text-[#20A354]" />
                 ) : (
                   <Navigation size={24} className="text-slate-900" />
                 )}
               </button>
             </div>
 
-            <div className="px-6 pt-6 pb-12 bg-white border-t border-indigo-50 space-y-5">
+            <div className="px-6 pt-6 pb-12 bg-white border-t border-[#20A354]/10 space-y-5">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
-                  <MapPin size={24} className="text-blue-600" />
+                <div className="w-12 h-12 rounded-2xl bg-[#20A354]/10 flex items-center justify-center shrink-0 border border-[#20A354]/20">
+                  <MapPin size={24} className="text-[#20A354]" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="text-[16px] font-black text-slate-900 leading-none">Confirm Spot</h4>
@@ -454,7 +454,7 @@ const IntercityDetails = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleConfirmMapLocation}
                 disabled={isGeocoding}
-                className="w-full h-16 bg-blue-600 rounded-[22px] text-white font-black text-[16px] uppercase tracking-widest shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40"
+                className="w-full h-16 bg-[#20A354] rounded-[22px] text-white font-black text-[16px] uppercase tracking-widest shadow-xl shadow-[#20A354]/20 flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-40"
               >
                 <Check size={20} strokeWidth={3} />
                 Confirm Location
@@ -465,7 +465,7 @@ const IntercityDetails = () => {
       </AnimatePresence>
 
       {/* Main UI */}
-      <header className="fixed top-0 left-1/2 z-30 flex w-full max-w-lg -translate-x-1/2 items-center gap-4 border-b border-indigo-50 bg-white/92 px-6 pb-6 pt-12 backdrop-blur-lg">
+      <header className="fixed top-0 left-1/2 z-30 flex w-full max-w-lg -translate-x-1/2 items-center gap-4 border-b border-[#20A354]/10 bg-white/92 px-6 pb-6 pt-12 backdrop-blur-lg">
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={() => navigate(-1)} 
@@ -483,16 +483,16 @@ const IntercityDetails = () => {
 
       <div className="px-6 pt-6 space-y-6">
         {/* Address Entry Card */}
-        <div className="bg-white rounded-[32px] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-indigo-50 relative">
+        <div className="bg-white rounded-[32px] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-[#20A354]/10 relative">
           {/* Vertical dash line */}
           <div className="absolute left-[39px] top-[74px] bottom-[74px] w-[2px] bg-slate-100 border-l border-dashed border-slate-200" />
           
           {/* Pickup Section */}
           <div className="relative mb-10">
-            <label className="text-[11px] font-black text-blue-600 uppercase tracking-[0.15em] ml-11 block mb-2">Pickup in {fromCity}</label>
+            <label className="text-[11px] font-black text-[#20A354] uppercase tracking-[0.15em] ml-11 block mb-2">Pickup in {fromCity}</label>
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center shrink-0 z-10">
-                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+              <div className="w-8 h-8 rounded-full bg-[#20A354]/10 border-2 border-[#20A354]/20 flex items-center justify-center shrink-0 z-10">
+                <div className="w-2.5 h-2.5 bg-[#20A354] rounded-full" />
               </div>
               {isLoaded && HAS_VALID_GOOGLE_MAPS_KEY ? (
                 <Autocomplete
@@ -508,7 +508,7 @@ const IntercityDetails = () => {
                       setPickup(e.target.value);
                       setPickupCoords(null);
                     }}
-                    className="w-full h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-blue-100 focus:bg-white transition-all"
+                    className="w-full h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-[#20A354]/20 focus:bg-white transition-all"
                   />
                 </Autocomplete>
               ) : (
@@ -520,14 +520,14 @@ const IntercityDetails = () => {
                     setPickup(e.target.value);
                     setPickupCoords(null);
                   }}
-                  className="flex-1 h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-blue-100 focus:bg-white transition-all"
+                  className="flex-1 h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-[#20A354]/20 focus:bg-white transition-all"
                 />
               )}
             </div>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => openMapPicker('pickup')}
-              className="ml-12 mt-3 flex items-center gap-2 rounded-xl bg-blue-50 px-4 py-2 text-[12px] font-black text-blue-700 border border-blue-100/50"
+              className="ml-12 mt-3 flex items-center gap-2 rounded-xl bg-[#20A354]/10 px-4 py-2 text-[12px] font-black text-[#20A354] border border-[#20A354]/20"
             >
               <MapPinned size={14} /> Map Selection
             </motion.button>
@@ -535,10 +535,10 @@ const IntercityDetails = () => {
 
           {/* Drop Section */}
           <div className="relative">
-            <label className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.15em] ml-11 block mb-2">Drop in {toCity}</label>
+            <label className="text-[11px] font-black text-[#20A354] uppercase tracking-[0.15em] ml-11 block mb-2">Drop in {toCity}</label>
             <div className="flex items-center gap-4">
-              <div className="w-8 h-8 rounded-full bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center shrink-0 z-10">
-                <MapPin size={14} className="text-indigo-600" strokeWidth={3} />
+              <div className="w-8 h-8 rounded-full bg-[#20A354]/10 border-2 border-[#20A354]/20 flex items-center justify-center shrink-0 z-10">
+                <MapPin size={14} className="text-[#20A354]" strokeWidth={3} />
               </div>
               {isLoaded && HAS_VALID_GOOGLE_MAPS_KEY ? (
                 <Autocomplete
@@ -554,7 +554,7 @@ const IntercityDetails = () => {
                       setDrop(e.target.value);
                       setDropCoords(null);
                     }}
-                    className="w-full h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-indigo-100 focus:bg-white transition-all"
+                    className="w-full h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-[#20A354]/20 focus:bg-white transition-all"
                   />
                 </Autocomplete>
               ) : (
@@ -566,14 +566,14 @@ const IntercityDetails = () => {
                     setDrop(e.target.value);
                     setDropCoords(null);
                   }}
-                  className="flex-1 h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-indigo-100 focus:bg-white transition-all"
+                  className="flex-1 h-14 bg-slate-50 border-2 border-transparent rounded-2xl px-5 text-[15px] font-bold text-slate-900 focus:outline-none focus:border-[#20A354]/20 focus:bg-white transition-all"
                 />
               )}
             </div>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => openMapPicker('drop')}
-              className="ml-12 mt-3 flex items-center gap-2 rounded-xl bg-indigo-50 px-4 py-2 text-[12px] font-black text-indigo-700 border border-indigo-100/50"
+              className="ml-12 mt-3 flex items-center gap-2 rounded-xl bg-[#20A354]/10 px-4 py-2 text-[12px] font-black text-[#20A354] border border-[#20A354]/20"
             >
               <MapPinned size={14} /> Map Selection
             </motion.button>
@@ -584,7 +584,7 @@ const IntercityDetails = () => {
         {/* Feature Tip */}
         <div className="bg-slate-900 rounded-[32px] p-6 text-white flex items-center gap-5 shadow-xl shadow-slate-200">
           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
-            <ShieldCheck size={28} className="text-blue-400" />
+            <ShieldCheck size={28} className="text-[#20A354]" />
           </div>
           <div>
             <h4 className="text-[15px] font-black leading-tight">Doorstep Service</h4>
@@ -603,9 +603,9 @@ const IntercityDetails = () => {
             </p>
           </div>
           {isFetchingDrivers ? (
-            <LoaderCircle size={20} className="animate-spin text-blue-500 shrink-0" />
+            <LoaderCircle size={20} className="animate-spin text-[#20A354] shrink-0" />
           ) : (
-            <div className="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-black text-blue-700 shrink-0">
+            <div className="rounded-full bg-[#20A354]/10 px-3 py-1 text-[11px] font-black text-[#20A354] shrink-0">
               Live
             </div>
           )}
@@ -619,7 +619,7 @@ const IntercityDetails = () => {
           whileTap={{ scale: 0.97 }}
           onClick={handleContinue}
           disabled={isProceeding}
-          className="w-full h-16 bg-blue-600 text-white rounded-[22px] text-[16px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl shadow-blue-500/20 active:scale-95 transition-all"
+          className="w-full h-16 bg-[#20A354] text-white rounded-[22px] text-[16px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl shadow-[#20A354]/20 active:scale-95 transition-all"
         >
           {isProceeding ? (
             <>

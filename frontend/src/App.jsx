@@ -175,6 +175,7 @@ const AdminDashboard = lazy(() => import('./modules/admin/pages/dashboard/MainDa
 const AdminEarnings = lazy(() => import('./modules/admin/pages/dashboard/AdminEarnings'));
 const AdminChat = lazy(() => import('./modules/admin/pages/operations/Chat'));
 const AdminTrips = lazy(() => import('./modules/admin/pages/operations/Trips'));
+const AdminOutstation = lazy(() => import('./modules/admin/pages/operations/Outstation'));
 const AdminDeliveries = lazy(() => import('./modules/admin/pages/operations/Deliveries'));
 const AdminOngoing = lazy(() => import('./modules/admin/pages/operations/Ongoing'));
 const AdminWalletPayment = lazy(() => import('./modules/admin/pages/wallet/WalletPayment'));
@@ -1105,6 +1106,7 @@ function App() {
                 <Route path="earnings" element={<AdminEarnings />} />
                 <Route path="chat" element={<AdminChat />} />
                 <Route path="trips" element={<AdminTrips />} />
+                <Route path="outstation" element={<AdminOutstation />} />
                 <Route path="deliveries" element={<AdminDeliveries />} />
                 <Route path="ongoing" element={<AdminOngoing />} />
                 <Route path="bus-service" element={<AdminBusServiceManager />} />

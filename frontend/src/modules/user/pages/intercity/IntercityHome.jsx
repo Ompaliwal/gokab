@@ -178,12 +178,18 @@ const IntercityHome = () => {
         const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setMapCenter(coords);
         setPickupCoords([coords.lng, coords.lat]);
-        reverseGeocode(coords);
       },
       null,
       { enableHighAccuracy: true },
     );
-  }, [isLoaded]);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded && pickupCoords && !pickupAddress) {
+      const coords = { lat: pickupCoords[1], lng: pickupCoords[0] };
+      reverseGeocode(coords);
+    }
+  }, [isLoaded, pickupCoords]);
 
   const getAutocompleteSessionToken = () => {
     if (!window.google?.maps?.places?.AutocompleteSessionToken) {

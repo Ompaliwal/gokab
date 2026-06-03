@@ -133,7 +133,7 @@ const IntercityConfirm = () => {
       >
         <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] ${
           status === 'scheduled' ? 'bg-emerald-600/20 text-emerald-400' :
-          status === 'error' ? 'bg-rose-600/20 text-rose-400' : 'bg-blue-600/20 text-blue-400'
+          status === 'error' ? 'bg-rose-600/20 text-rose-400' : 'bg-[#20A354]/20 text-[#20A354]'
         }`}>
           {status === 'scheduled' ? <CheckCircle2 size={26} /> : <Navigation size={26} />}
         </div>
@@ -149,7 +149,7 @@ const IntercityConfirm = () => {
         </p>
         <div className="mt-6 rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-left">
           <div className="flex items-center gap-3 text-white">
-            <Calendar size={16} className="text-blue-300" />
+            <Calendar size={16} className="text-[#20A354]" />
             <span className="text-sm font-bold">Scheduled For</span>
           </div>
           <p className="mt-2 text-lg font-black text-white">{formattedSchedule || state.date || 'Scheduled'}</p>
@@ -159,7 +159,7 @@ const IntercityConfirm = () => {
           </div>
         </div>
         {status === 'saving' ? (
-          <div className="mt-6 flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-[0.18em] text-blue-300">
+          <div className="mt-6 flex items-center justify-center gap-3 text-[12px] font-black uppercase tracking-[0.18em] text-[#20A354]">
             <LoaderCircle size={18} className="animate-spin" />
             Saving Schedule
           </div>
