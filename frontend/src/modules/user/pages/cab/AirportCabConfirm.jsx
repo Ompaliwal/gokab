@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ChevronRight, MapPin, Calendar, Clock, Plane, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, Calendar, Clock, Plane, ArrowLeft, Home } from 'lucide-react';
 
 const AirportCabConfirm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state || {};
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Safety check if accessed directly
     if (!state.pickup) {
-      navigate('/cab');
+      navigate(`${routePrefix}/cab`);
     }
-  }, [navigate, state.pickup]);
+  }, [navigate, routePrefix, state.pickup]);
 
   if (!state.pickup) return null;
 
@@ -24,7 +24,6 @@ const AirportCabConfirm = () => {
       <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
       <div className="absolute top-40 left-[-60px] h-40 w-40 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
 
-      {/* Header */}
       <header className="bg-white/90 backdrop-blur-md px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-white/80 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/')} className="w-9 h-9 rounded-[12px] border border-white/80 bg-white/90 flex items-center justify-center shadow-sm active:scale-95 transition-all">
@@ -38,9 +37,9 @@ const AirportCabConfirm = () => {
       </header>
 
       <div className="px-5 pt-10 flex flex-col items-center">
-        <motion.div 
-          initial={{ scale: 0, opacity: 0 }} 
-          animate={{ scale: mounted ? 1 : 0, opacity: mounted ? 1 : 0 }} 
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: mounted ? 1 : 0, opacity: mounted ? 1 : 0 }}
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6 shadow-[0_8px_24px_rgba(16,185,129,0.2)]"
         >
@@ -64,7 +63,7 @@ const AirportCabConfirm = () => {
           className="w-full bg-white/90 backdrop-blur-md rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-white/80 p-5 space-y-4 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-bl-full pointer-events-none" />
-          
+
           <div className="flex justify-between items-center pb-4 border-b border-slate-100">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Service</p>
@@ -74,7 +73,7 @@ const AirportCabConfirm = () => {
             </div>
             <div className="text-right">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vehicle</p>
-              <h3 className="text-[16px] font-black text-slate-900">{state.vehicle?.name} {state.vehicle?.icon}</h3>
+              <h3 className="text-[16px] font-black text-slate-900">{state.vehicle?.name}</h3>
             </div>
           </div>
 
@@ -91,7 +90,7 @@ const AirportCabConfirm = () => {
               </div>
               <div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</p>
-                <p className="text-[14px] font-bold text-slate-900 leading-snug tracking-tight">Indore Airport — Terminal {state.terminal}</p>
+                <p className="text-[14px] font-bold text-slate-900 leading-snug tracking-tight">Indore Airport - Terminal {state.terminal}</p>
               </div>
             </div>
           </div>
@@ -114,11 +113,9 @@ const AirportCabConfirm = () => {
             </div>
           </div>
         </motion.div>
-
       </div>
 
-      {/* CTA */}
-      <motion.div 
+      <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.4 }}
@@ -126,10 +123,12 @@ const AirportCabConfirm = () => {
       >
         <div className="pointer-events-auto bg-white/90 rounded-[20px] border border-white/80 shadow-[0_4px_14px_rgba(15,23,42,0.06)] px-5 py-4 flex items-center justify-between mb-3">
           <p className="text-[13px] font-black text-slate-700">Fixed Fare</p>
-          <p className="text-[22px] font-black text-slate-900 tracking-tight">₹{state.fare}</p>
+          <p className="text-[22px] font-black text-slate-900 tracking-tight">Rs {state.fare}</p>
         </div>
-        <motion.button onClick={() => navigate('/taxi/user')}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+        <motion.button
+          onClick={() => navigate(routePrefix || '/')}
+          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95"
+        >
           <Home size={16} strokeWidth={2.5} /> Go to Home Dashboard
         </motion.button>
       </motion.div>

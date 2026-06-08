@@ -128,6 +128,7 @@ const defaultFormData = {
   },
   status: 1,
   active: true,
+  airport: false,
   supported_other_vehicle_types: [],
   vehicle_preference: [],
 };
@@ -343,6 +344,7 @@ const VehicleType = ({ mode: propMode }) => {
               delivery_distance_pricing: normalizeDeliveryDistancePricing(selectedVehicle.delivery_distance_pricing),
               status: Number(selectedVehicle.status ?? (selectedVehicle.active !== false ? 1 : 0)),
               active: selectedVehicle.active !== false && Number(selectedVehicle.status ?? 1) !== 0,
+              airport: Boolean(selectedVehicle.airport),
               supported_other_vehicle_types: Array.isArray(selectedVehicle.supported_other_vehicle_types)
                 ? selectedVehicle.supported_other_vehicle_types.map((item) => String(item?._id || item))
                 : typeof selectedVehicle.supported_vehicles === 'string' && selectedVehicle.supported_vehicles
@@ -460,6 +462,7 @@ const VehicleType = ({ mode: propMode }) => {
             },
         status: formData.active ? 1 : 0,
         active: formData.active,
+        airport: Boolean(formData.airport),
         supported_other_vehicle_types: sanitizeObjectIdList(formData.supported_other_vehicle_types),
         vehicle_preference: sanitizeObjectIdList(formData.vehicle_preference),
       };
@@ -1040,6 +1043,15 @@ const VehicleType = ({ mode: propMode }) => {
                 className="h-4 w-4 rounded border-slate-300"
               />
               Accept share ride
+            </label>
+            <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+              <input
+                type="checkbox"
+                checked={Boolean(formData.airport)}
+                onChange={(e) => updateForm('airport', e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300"
+              />
+              Available for Airport Services
             </label>
             <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
               <input

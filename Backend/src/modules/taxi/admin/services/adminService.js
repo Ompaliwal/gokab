@@ -5816,7 +5816,7 @@ export const listPublicVehicleCatalog = async () => {
   }
 
   const items = await Vehicle.find()
-    .select('name short_description description transport_type dispatch_type icon_types delivery_category delivery_distance_pricing capacity image icon map_icon status active')
+    .select('name short_description description transport_type dispatch_type icon_types delivery_category delivery_distance_pricing capacity image icon map_icon status active airport')
     .sort({ createdAt: -1 })
     .lean();
 
@@ -5836,6 +5836,7 @@ export const listPublicVehicleCatalog = async () => {
     map_icon: item.map_icon || item.icon || item.image || '',
     status: item.status ?? 1,
     active: item.active !== false && Number(item.status ?? 1) !== 0,
+    airport: Boolean(item.airport),
   }));
 
   const payload = {
@@ -5896,6 +5897,7 @@ export const createVehicleType = async (payload) => {
     capacity: Number(payload.capacity || 0),
     size: payload.size ?? '',
     is_taxi: payload.is_taxi || transportType,
+    airport: Boolean(payload.airport),
     is_accept_share_ride: Number(payload.is_accept_share_ride || 0) ? 1 : 0,
     delivery_category: ['delivery', 'both'].includes(transportType)
       ? normalizeDeliveryCategory(payload.delivery_category)
@@ -5964,6 +5966,9 @@ export const updateVehicleType = async (id, payload) => {
   }
   if (payload.is_accept_share_ride !== undefined) {
     vehicle.is_accept_share_ride = Number(payload.is_accept_share_ride || 0) ? 1 : 0;
+  }
+  if (payload.airport !== undefined) {
+    vehicle.airport = Boolean(payload.airport);
   }
   if (payload.delivery_category !== undefined || payload.transport_type !== undefined) {
     vehicle.delivery_category = ['delivery', 'both'].includes(vehicle.transport_type)

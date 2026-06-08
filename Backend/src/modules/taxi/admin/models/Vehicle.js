@@ -141,6 +141,10 @@ const vehicleSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    airport: {
+      type: Boolean,
+      default: false,
+    },
     supported_other_vehicle_types: {
       type: [ObjectId],
       ref: 'TaxiVehicle',

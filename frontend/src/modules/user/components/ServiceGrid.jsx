@@ -55,7 +55,7 @@ const ServiceGrid = () => {
   const getPath = (module) => {
     if (module.transport_type === 'delivery') return '/taxi/user/parcel/type';
     if (module.service_type === 'rental') return '/taxi/user/rental';
-    if (module.service_type === 'outstation') return '/taxi/user/intercity';
+    if (module.service_type === 'outstation') return '/taxi/user/cab';
     if (module.service_type === 'bus' || module.name.toLowerCase().includes('bus')) {
       return '/taxi/user/bus';
     }
