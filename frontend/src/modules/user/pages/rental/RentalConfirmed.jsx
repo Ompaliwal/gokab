@@ -293,7 +293,7 @@ const RentalConfirmed = () => {
   }, [completedCharge, isCompletedRentalRide, liveCharge]);
 
   if (!state.vehicle && !activeRentalRide) {
-    navigate('/rental');
+    navigate(`${routePrefix}/rental`);
     return null;
   }
 

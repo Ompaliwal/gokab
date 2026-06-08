@@ -1,11 +1,70 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Fuel, Shield, ChevronRight, Star, Info, Car, Search, X, Bike, Sparkles, Filter, Check } from 'lucide-react';
+import { ArrowLeft, Fuel, Shield, ChevronRight, Star, Info, Car, Search, X, Bike, Sparkles, Filter, Check, MapPin, Navigation } from 'lucide-react';
 import { userService } from '../../services/userService';
 const DURATION_TABS = ['Hourly', 'Half-Day', 'Daily'];
 const RENTAL_SELECTED_VEHICLE_STORAGE_KEY = 'selectedRentalVehicleDetail';
 const RENTAL_PAGE_SIZE = 10;
+
+const toRadians = (value) => (Number(value) * Math.PI) / 180;
+
+const calculateDistanceKm = (from, to) => {
+  if (!from || !to) return null;
+
+  const fromLat = Number(from.latitude);
+  const fromLng = Number(from.longitude);
+  const toLat = Number(to.latitude);
+  const toLng = Number(to.longitude);
+
+  if (
+    !Number.isFinite(fromLat) ||
+    !Number.isFinite(fromLng) ||
+    !Number.isFinite(toLat) ||
+    !Number.isFinite(toLng)
+  ) {
+    return null;
+  }
+
+  const earthRadiusKm = 6371;
+  const latDelta = toRadians(toLat - fromLat);
+  const lngDelta = toRadians(toLng - fromLng);
+  const a =
+    Math.sin(latDelta / 2) ** 2 +
+    Math.cos(toRadians(fromLat)) *
+      Math.cos(toRadians(toLat)) *
+      Math.sin(lngDelta / 2) ** 2;
+
+  return 2 * earthRadiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+const formatDistance = (value) => {
+  if (!Number.isFinite(value)) return null;
+  if (value < 1) return `${Math.max(100, Math.round(value * 1000))} m away`;
+  return `${value.toFixed(value < 10 ? 1 : 0)} km away`;
+};
+
+const getCurrentCoordinates = () =>
+  new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(null);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) =>
+        resolve({
+          latitude: Number(position.coords.latitude),
+          longitude: Number(position.coords.longitude),
+        }),
+      () => resolve(null),
+      {
+        enableHighAccuracy: true,
+        timeout: 8000,
+        maximumAge: 5 * 60 * 1000,
+      },
+    );
+  });
 
 const infoBanner = {
   Hourly: 'Short rentals for quick city use.',
@@ -25,6 +84,14 @@ const gradientPairs = [
 ];
 
 const normalizeSearchValue = (value = '') => String(value || '').trim().toLowerCase();
+
+const toSerializableValue = (value, fallback) => {
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch {
+    return fallback;
+  }
+};
 
 const findPricingBucket = (pricing = [], minHours, maxHours = Infinity) =>
   pricing.find(
@@ -133,6 +200,7 @@ const normalizeRentalVehicle = (item = {}, index = 0) => {
       label: item.advancePayment?.label || 'Advance booking payment',
       notes: item.advancePayment?.notes || '',
     },
+    serviceStoreIds: Array.isArray(item.serviceStoreIds) ? item.serviceStoreIds.map(String) : [],
   };
 };
 
@@ -174,13 +242,25 @@ const RentalSkeleton = () => (
 const BikeRentalHome = () => {
   const [selectedDuration, setSelectedDuration] = useState('Hourly');
   const [vehicles, setVehicles] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [selectedStore, setSelectedStore] = useState(() => {
+    try {
+      const stored = window.sessionStorage.getItem('selectedRentalStore');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [userCoordinates, setUserCoordinates] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedType, setSelectedType] = useState('all'); // 'all' | 'bike' | 'car'
+  const [selectedType, setSelectedType] = useState('bike'); // 'bike' | 'car'
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
 
   const isVehicleBike = (v) => {
     const category = String(v.vehicleCategory || '').toLowerCase();
@@ -206,8 +286,9 @@ const BikeRentalHome = () => {
 
   const openVehicleDetail = (vehicle) => {
     const payload = {
-      vehicle,
+      vehicle: toSerializableValue(vehicle, null),
       duration: selectedDuration,
+      selectedCenter: selectedStore ? toSerializableValue(selectedStore, null) : null,
     };
 
     try {
@@ -216,44 +297,137 @@ const BikeRentalHome = () => {
       // Ignore storage failures and continue with navigation state.
     }
 
-    navigate('/rental/vehicle', { state: payload });
+    navigate(`${routePrefix}/rental/vehicle`, { state: payload });
   };
 
   useEffect(() => {
     let mounted = true;
 
-    const loadVehicles = async () => {
+    const loadData = async () => {
       setLoading(true);
       setErrorMessage('');
       try {
-        const response = await userService.getRentalVehicles();
-        const results = response?.data?.results || response?.results || [];
+        const [vehiclesRes, storesRes, locationsRes, coords] = await Promise.all([
+          userService.getRentalVehicles(),
+          userService.getServiceStores(),
+          userService.getServiceLocations(),
+          getCurrentCoordinates(),
+        ]);
+
+        const rawVehicles = vehiclesRes?.data?.results || vehiclesRes?.results || [];
+        const rawStores = storesRes?.data?.results || storesRes?.results || [];
+        const rawLocations = locationsRes?.data?.results || locationsRes?.results || [];
 
         if (!mounted) return;
 
-        setVehicles(
-          results
-            .map((item, index) => normalizeRentalVehicle(item, index))
-            .filter((item) => Object.values(item.prices).some((price) => Number(price) > 0)),
+        setUserCoordinates(coords);
+
+        const locationMap = new Map(
+          rawLocations
+            .filter((item) => item.active !== false && item.status !== 'inactive')
+            .map((item) => [String(item._id || item.id), item.service_location_name || item.name])
         );
+
+        // Normalize and sort stores/centers
+        const processedStores = rawStores
+          .filter((store) => store.active !== false && store.status === 'active')
+          .map((store) => {
+            const distance = calculateDistanceKm(coords, {
+              latitude: store.latitude,
+              longitude: store.longitude,
+            });
+            const locationId = store.service_location_id || store.zone_id?.service_location_id;
+            const cityName = locationMap.get(String(locationId)) || '';
+
+            return {
+              id: String(store._id || store.id),
+              name: store.name || 'Service Center',
+              address: store.address || '',
+              latitude: Number(store.latitude ?? null),
+              longitude: Number(store.longitude ?? null),
+              cityName,
+              distanceKm: distance,
+              distanceLabel: formatDistance(distance),
+            };
+          })
+          .sort((a, b) => {
+            if (Number.isFinite(a.distanceKm) && Number.isFinite(b.distanceKm)) {
+              return a.distanceKm - b.distanceKm;
+            }
+            if (Number.isFinite(a.distanceKm)) return -1;
+            if (Number.isFinite(b.distanceKm)) return 1;
+            return a.name.localeCompare(b.name);
+          });
+
+        setStores(processedStores);
+
+        // Map and normalize vehicles
+        const normalizedVehicles = rawVehicles
+          .map((item, index) => normalizeRentalVehicle(item, index))
+          .filter((item) => Object.values(item.prices).some((price) => Number(price) > 0));
+
+        setVehicles(normalizedVehicles);
+
+        // Sync selectedStore if details changed
+        if (selectedStore) {
+          const updatedStore = processedStores.find(s => s.id === selectedStore.id);
+          if (updatedStore) {
+            setSelectedStore(updatedStore);
+          }
+        }
       } catch (error) {
         if (mounted) {
-          setErrorMessage(error?.message || 'Could not load rental vehicles.');
+          setErrorMessage(error?.message || 'Could not load rental data.');
         }
       } finally {
         if (mounted) setLoading(false);
       }
     };
 
-    loadVehicles();
+    loadData();
     return () => {
       mounted = false;
     };
   }, []);
 
+  const vehiclesForSelectedStore = useMemo(() => {
+    if (!selectedStore) return vehicles;
+    return vehicles.filter(
+      (v) => v.serviceStoreIds.length === 0 || v.serviceStoreIds.includes(selectedStore.id)
+    );
+  }, [vehicles, selectedStore]);
+
+  const filteredStores = useMemo(() => {
+    if (selectedStore) return [];
+    
+    return stores.filter((store) => {
+      return vehicles.some((vehicle) => {
+        const matchesType = selectedType === 'bike' ? isVehicleBike(vehicle) : !isVehicleBike(vehicle);
+        if (!matchesType) return false;
+        return vehicle.serviceStoreIds.length === 0 || vehicle.serviceStoreIds.includes(store.id);
+      });
+    });
+  }, [stores, vehicles, selectedType, selectedStore]);
+
+  const handleSelectStore = (store) => {
+    setSelectedStore(store);
+    setSearchQuery('');
+    setCurrentPage(1);
+    try {
+      if (store) {
+        window.sessionStorage.setItem('selectedRentalStore', JSON.stringify(store));
+      } else {
+        window.sessionStorage.removeItem('selectedRentalStore');
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  };
+
   const availableCountLabel = useMemo(() => {
-    const bikes = vehicles.filter(isVehicleBike).length;
-    const cars = vehicles.length - bikes;
+    const targetVehicles = vehiclesForSelectedStore;
+    const bikes = targetVehicles.filter(isVehicleBike).length;
+    const cars = targetVehicles.length - bikes;
 
     if (selectedType === 'bike') {
       return `${bikes} bike${bikes === 1 ? '' : 's'}`;
@@ -262,11 +436,11 @@ const BikeRentalHome = () => {
       return `${cars} car${cars === 1 ? '' : 's'}`;
     }
 
-    return `${vehicles.length} vehicle${vehicles.length === 1 ? '' : 's'}`;
-  }, [vehicles, selectedType]);
+    return `${targetVehicles.length} vehicle${targetVehicles.length === 1 ? '' : 's'}`;
+  }, [vehiclesForSelectedStore, selectedType]);
 
   const availableCategories = useMemo(() => {
-    const typeFiltered = vehicles.filter((v) => {
+    const typeFiltered = vehiclesForSelectedStore.filter((v) => {
       if (selectedType === 'all') return true;
       const isBike = isVehicleBike(v);
       return selectedType === 'bike' ? isBike : !isBike;
@@ -279,13 +453,13 @@ const BikeRentalHome = () => {
       if (selectedType === 'car' && lower === 'car') return false;
       return true;
     });
-  }, [vehicles, selectedType]);
+  }, [vehiclesForSelectedStore, selectedType]);
 
   const rentalSuggestions = useMemo(() => {
     const seen = new Set();
     const suggestions = [];
 
-    vehicles.forEach((vehicle) => {
+    vehiclesForSelectedStore.forEach((vehicle) => {
       [vehicle.name, vehicle.vehicleCategory, ...(vehicle.amenities || []), ...(vehicle.features || [])]
         .map((item) => String(item || '').trim())
         .filter(Boolean)
@@ -299,7 +473,7 @@ const BikeRentalHome = () => {
     });
 
     return suggestions;
-  }, [vehicles]);
+  }, [vehiclesForSelectedStore]);
 
   const visibleSuggestions = useMemo(() => {
     const query = normalizeSearchValue(searchQuery);
@@ -314,7 +488,7 @@ const BikeRentalHome = () => {
   }, [rentalSuggestions, searchQuery]);
 
   const filteredVehicles = useMemo(() => {
-    let result = vehicles;
+    let result = vehiclesForSelectedStore;
 
     // 1. Search Query Filter
     const query = normalizeSearchValue(searchQuery);
@@ -350,7 +524,7 @@ const BikeRentalHome = () => {
     }
 
     return result;
-  }, [searchQuery, vehicles, selectedType, selectedCategory]);
+  }, [searchQuery, vehiclesForSelectedStore, selectedType, selectedCategory]);
 
   const filteredCountLabel = `${filteredVehicles.length} result${filteredVehicles.length === 1 ? '' : 's'}`;
   const totalPages = Math.max(1, Math.ceil(filteredVehicles.length / RENTAL_PAGE_SIZE));
@@ -387,42 +561,87 @@ const BikeRentalHome = () => {
               <motion.button
                 whileHover={{ x: -2 }}
                 whileTap={{ scale: 0.92 }}
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  if (selectedStore) {
+                    handleSelectStore(null);
+                  } else {
+                    navigate(-1);
+                  }
+                }}
                 className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-[0_4px_12px_rgba(16,185,129,0.24)] shrink-0 group transition-all"
               >
                 <ArrowLeft size={20} className="text-white group-hover:opacity-80 transition-opacity" strokeWidth={2.5} />
               </motion.button>
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500/60 leading-none mb-1.5">Self-drive rentals</p>
-                <h1 className="text-[24px] font-[900] tracking-tight text-emerald-950 leading-none">Choose Ride</h1>
+                <h1 className="text-[24px] font-[900] tracking-tight text-emerald-950 leading-none">
+                  {selectedStore ? 'Choose Ride' : 'Choose Location'}
+                </h1>
               </div>
             </div>
             <div className="flex flex-col items-end">
               <span className="px-3 py-1 rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-sm uppercase tracking-wider">
-                {availableCountLabel}
+                {selectedStore ? availableCountLabel : `${stores.length} Center${stores.length === 1 ? '' : 's'}`}
               </span>
             </div>
           </div>
 
-          <div className="relative mb-5">
+          {selectedStore && (
+            <div className="relative mb-5">
+              <div className="flex gap-1.5 bg-slate-100/60 p-1.5 rounded-[20px] border border-slate-200/40 shadow-inner">
+                {DURATION_TABS.map((tab) => {
+                  const isActive = selectedDuration === tab;
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => setSelectedDuration(tab)}
+                      className="relative flex-1 py-2.5 rounded-[14px] text-[11px] font-[800] uppercase tracking-wider transition-all duration-300 outline-none"
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute inset-0 bg-white rounded-[14px] shadow-[0_4px_12px_rgba(15,23,42,0.08)] border border-slate-100"
+                          transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
+                        />
+                      )}
+                      <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-900' : 'text-slate-400'}`}>
+                        {tab}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="relative">
             <div className="flex gap-1.5 bg-slate-100/60 p-1.5 rounded-[20px] border border-slate-200/40 shadow-inner">
-              {DURATION_TABS.map((tab) => {
-                const isActive = selectedDuration === tab;
+              {[
+                { id: 'bike', label: 'Bikes', icon: Bike },
+                { id: 'car', label: 'Cars & SUVs', icon: Car },
+              ].map((tab) => {
+                const isActive = selectedType === tab.id;
+                const Icon = tab.icon;
                 return (
                   <button
-                    key={tab}
-                    onClick={() => setSelectedDuration(tab)}
-                    className="relative flex-1 py-2.5 rounded-[14px] text-[11px] font-[800] uppercase tracking-wider transition-all duration-300 outline-none"
+                    key={tab.id}
+                    onClick={() => {
+                      setSelectedType(tab.id);
+                      setSelectedCategory(null);
+                      setCurrentPage(1);
+                    }}
+                    className="relative flex-1 py-3 rounded-[14px] text-[11px] font-[800] uppercase tracking-wider transition-all duration-300 outline-none flex items-center justify-center gap-2"
                   >
                     {isActive && (
                       <motion.div
-                        layoutId="activeTab"
+                        layoutId="activeCategoryTab"
                         className="absolute inset-0 bg-white rounded-[14px] shadow-[0_4px_12px_rgba(15,23,42,0.08)] border border-slate-100"
                         transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
                       />
                     )}
-                    <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-900' : 'text-slate-400'}`}>
-                      {tab}
+                    <Icon size={14} className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
+                    <span className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-950 font-black' : 'text-slate-400 font-bold'}`}>
+                      {tab.label}
                     </span>
                   </button>
                 );
@@ -430,30 +649,7 @@ const BikeRentalHome = () => {
             </div>
           </div>
 
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <Search size={18} className="text-slate-400 group-focus-within:text-emerald-700 transition-colors" strokeWidth={2.5} />
-            </div>
-            <input
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search by vehicle, category or brand..."
-              className="w-full bg-slate-100/50 border border-slate-200/60 focus:border-emerald-200 focus:bg-white rounded-[20px] pl-11 pr-11 py-3.5 text-[14px] font-bold text-emerald-950 placeholder:text-slate-400/80 focus:outline-none focus:shadow-[0_8px_24px_rgba(16,185,129,0.08)] transition-all"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-3 flex items-center pr-1"
-              >
-                <div className="h-7 w-7 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 transition-colors">
-                  <X size={14} strokeWidth={3} />
-                </div>
-              </button>
-            )}
-          </div>
-
-          {visibleSuggestions.length > 0 && !searchQuery && (
+          {selectedStore && visibleSuggestions.length > 0 && !searchQuery && (
             <motion.div
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
@@ -475,150 +671,126 @@ const BikeRentalHome = () => {
       </motion.header>
 
       <div className="px-5 pt-6 space-y-5">
-        {/* <AnimatePresence mode="wait">
+        {selectedStore && (
           <motion.div
-            key={selectedDuration}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="flex items-center gap-3 rounded-[20px] border border-white/80 bg-white/60 backdrop-blur-md px-4 py-3.5 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center justify-between rounded-[24px] border border-white/80 bg-white/60 backdrop-blur-md px-4 py-3.5 shadow-[0_8px_20px_rgba(15,23,42,0.04)]"
           >
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 shadow-sm">
-              <Info size={16} className="text-emerald-500" strokeWidth={2.5} />
+            <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm">
+                <MapPin size={16} className="text-emerald-700" strokeWidth={2.5} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400/80 leading-none mb-1">Selected Store</p>
+                <p className="text-[13px] font-black text-emerald-950 truncate leading-tight">{selectedStore.name}</p>
+                {selectedStore.address && (
+                  <p className="text-[10px] font-bold text-slate-500 truncate mt-0.5">{selectedStore.address}</p>
+                )}
+              </div>
             </div>
-            <p className="text-[13px] font-[700] text-slate-700 tracking-tight leading-tight">
-              {infoBanner[selectedDuration]}
-            </p>
+            <button
+              onClick={() => handleSelectStore(null)}
+              className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-100/80 transition-colors shrink-0"
+            >
+              Change
+            </button>
           </motion.div>
-        </AnimatePresence> */}
+        )}
 
         {/* Premium Filter Hub */}
-        <div className="rounded-[24px] border border-white/80 bg-white/40 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(15,23,42,0.04)] space-y-4 relative overflow-hidden">
-          <div className="absolute -top-12 -left-12 h-24 w-24 rounded-full bg-emerald-500/5 blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-12 -right-12 h-24 w-24 rounded-full bg-lime-500/5 blur-2xl pointer-events-none" />
+        {selectedStore && (
+          <div className="rounded-[24px] border border-white/80 bg-white/40 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(15,23,42,0.04)] space-y-4 relative overflow-hidden">
+            <div className="absolute -top-12 -left-12 h-24 w-24 rounded-full bg-emerald-500/5 blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -right-12 h-24 w-24 rounded-full bg-lime-500/5 blur-2xl pointer-events-none" />
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <Filter size={14} className="text-emerald-700" strokeWidth={2.5} />
-              </div>
-              <span className="text-[12px] font-extrabold uppercase tracking-wider text-slate-700">Filter Fleet</span>
-            </div>
-            {(selectedType !== 'all' || selectedCategory) && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setSelectedType('all');
-                  setSelectedCategory(null);
-                }}
-                className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 hover:bg-emerald-100/70 px-2.5 py-1 rounded-full transition-colors border border-emerald-100"
-              >
-                Reset Filters
-              </motion.button>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 bg-slate-100/50 p-1 rounded-2xl border border-slate-200/30">
-            {[
-              { id: 'all', label: 'All Fleet', icon: Sparkles },
-              { id: 'bike', label: 'Bikes', icon: Bike },
-              { id: 'car', label: 'Cars & SUVs', icon: Car },
-            ].map((type) => {
-              const isActive = selectedType === type.id;
-              const Icon = type.icon;
-              return (
-                <button
-                  key={type.id}
-                  onClick={() => setSelectedType(type.id)}
-                  className="relative py-3 rounded-xl flex flex-col items-center justify-center gap-1 transition-all outline-none"
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeFilterType"
-                      className="absolute inset-0 bg-white rounded-xl shadow-[0_4px_16px_rgba(16,185,129,0.12)] border border-emerald-100/80"
-                      transition={{ type: 'spring', bounce: 0.18, duration: 0.4 }}
-                    />
-                  )}
-                  <Icon
-                    size={16}
-                    className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-emerald-600' : 'text-slate-400'
-                      }`}
-                    strokeWidth={2.5}
-                  />
-                  <span
-                    className={`relative z-10 text-[10px] font-black uppercase tracking-wider transition-colors duration-300 leading-none ${isActive ? 'text-emerald-950' : 'text-slate-400'
-                      }`}
-                  >
-                    {type.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <AnimatePresence>
-            {availableCategories.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden"
-              >
-                <div className="pt-1.5 border-t border-slate-100/80">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400/80 mb-2 leading-none">
-                    Select Category
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    {availableCategories.map((cat) => {
-                      const isActive = selectedCategory === cat;
-                      return (
-                        <button
-                          key={cat}
-                          onClick={() => setSelectedCategory(isActive ? null : cat)}
-                          className={`shrink-0 rounded-full border px-3.5 py-2 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all ${isActive
-                              ? 'border-emerald-200 bg-emerald-50/80 text-emerald-800 shadow-[0_2px_8px_rgba(16,185,129,0.08)]'
-                              : 'border-slate-200/70 bg-white/60 text-slate-500 hover:border-slate-300 hover:bg-white'
-                            }`}
-                        >
-                          {isActive && (
-                            <motion.span
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                              className="inline-block"
-                            >
-                              <Check size={10} strokeWidth={3} className="text-emerald-600" />
-                            </motion.span>
-                          )}
-                          {cat}
-                        </button>
-                      );
-                    })}
-                  </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <Filter size={14} className="text-emerald-700" strokeWidth={2.5} />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                <span className="text-[12px] font-extrabold uppercase tracking-wider text-slate-700">Filter Fleet</span>
+              </div>
+              {selectedCategory && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setSelectedCategory(null);
+                  }}
+                  className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 hover:bg-emerald-100/70 px-2.5 py-1 rounded-full transition-colors border border-emerald-100"
+                >
+                  Reset Filters
+                </motion.button>
+              )}
+            </div>
+
+            <AnimatePresence>
+              {availableCategories.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-1.5 border-t border-slate-100/80">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400/80 mb-2 leading-none">
+                      Select Category
+                    </p>
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                      {availableCategories.map((cat) => {
+                        const isActive = selectedCategory === cat;
+                        return (
+                          <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(isActive ? null : cat)}
+                            className={`shrink-0 rounded-full border px-3.5 py-2 text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all ${isActive
+                                ? 'border-emerald-200 bg-emerald-50/80 text-emerald-800 shadow-[0_2px_8px_rgba(16,185,129,0.08)]'
+                                : 'border-slate-200/70 bg-white/60 text-slate-500 hover:border-slate-300 hover:bg-white'
+                              }`}
+                          >
+                            {isActive && (
+                              <motion.span
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                                className="inline-block"
+                              >
+                                <Check size={10} strokeWidth={3} className="text-emerald-600" />
+                              </motion.span>
+                            )}
+                            {cat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
         <div className="relative pt-2">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[10px] font-[800] uppercase tracking-[0.2em] text-slate-400">Available Near You</p>
+            <p className="text-[10px] font-[800] uppercase tracking-[0.2em] text-slate-400">
+              {selectedStore ? 'Available Near You' : 'Available Locations'}
+            </p>
             {searchQuery && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-[10px] font-[800] uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md"
               >
-                {filteredCountLabel}
+                {selectedStore ? filteredCountLabel : `${filteredStores.length} result${filteredStores.length === 1 ? '' : 's'}`}
               </motion.span>
             )}
           </div>
-          <h2 className="text-[20px] font-[900] tracking-tight text-emerald-950">Explore Fleet</h2>
+          <h2 className="text-[20px] font-[900] tracking-tight text-emerald-950">
+            {selectedStore ? 'Explore Fleet' : 'Explore Service Centers'}
+          </h2>
         </div>
       </div>
 
@@ -644,20 +816,68 @@ const BikeRentalHome = () => {
             >
               {errorMessage}
             </motion.div>
-          ) : vehicles.length === 0 ? (
-            <motion.div
-              key="empty-all"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="rounded-[24px] border border-white/80 bg-white/90 p-6 text-center shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
-            >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] bg-slate-100 text-slate-400">
-                <Car size={22} />
-              </div>
-              <p className="mt-4 text-[15px] font-black text-emerald-950">No rental vehicles available</p>
-              <p className="mt-1 text-[12px] font-bold text-slate-400">Admin has not published any active rental vehicles yet.</p>
-            </motion.div>
+          ) : !selectedStore ? (
+            filteredStores.length === 0 ? (
+              <motion.div
+                key="empty-stores"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="rounded-[24px] border border-white/80 bg-white/90 p-6 text-center shadow-[0_8px_24px_rgba(15,23,42,0.06)]"
+              >
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[16px] bg-slate-100 text-slate-400">
+                  <MapPin size={22} />
+                </div>
+                <p className="mt-4 text-[15px] font-black text-emerald-950">No service centers found</p>
+                <p className="mt-1 text-[12px] font-bold text-slate-400">Try another hub or city name.</p>
+              </motion.div>
+            ) : (
+              filteredStores.map((store, idx) => (
+                <motion.div
+                  key={store.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.38, delay: idx * 0.05, ease: 'easeOut' }}
+                  onClick={() => handleSelectStore(store)}
+                  className="rounded-[24px] border border-white/80 bg-white/90 shadow-[0_8px_24px_rgba(15,23,42,0.06)] overflow-hidden cursor-pointer hover:border-emerald-300 transition-all p-4.5 flex items-center justify-between gap-4"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100 bg-emerald-50 text-emerald-700">
+                        {store.cityName || "Hub"}
+                      </span>
+                      {store.distanceLabel && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-100 bg-slate-50 text-slate-500">
+                          {store.distanceLabel}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-[16px] font-extrabold text-emerald-950 leading-tight mt-2">{store.name}</h3>
+                    <div className="flex items-start gap-1.5 mt-2">
+                      <MapPin size={13} className="text-slate-400 shrink-0 mt-0.5" />
+                      <p className="text-[12px] font-semibold text-slate-500 leading-normal line-clamp-2">{store.address}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 shrink-0">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}`, '_blank');
+                      }}
+                      title="Navigate to store"
+                      className="w-10 h-10 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 flex items-center justify-center text-emerald-700 transition-all"
+                    >
+                      <Navigation size={18} strokeWidth={2.5} />
+                    </motion.button>
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                      <ChevronRight size={18} strokeWidth={3} />
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )
           ) : filteredVehicles.length === 0 ? (
             <motion.div
               key="empty-search"
@@ -744,7 +964,7 @@ const BikeRentalHome = () => {
           )}
         </AnimatePresence>
 
-        {!loading && !errorMessage && filteredVehicles.length > RENTAL_PAGE_SIZE ? (
+        {selectedStore && !loading && !errorMessage && filteredVehicles.length > RENTAL_PAGE_SIZE ? (
           <div className="flex items-center justify-between gap-3 rounded-[20px] border border-white/80 bg-white/90 px-4 py-3.5 shadow-[0_4px_14px_rgba(15,23,42,0.04)]">
             <button
               type="button"

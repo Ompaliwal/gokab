@@ -10,6 +10,12 @@ const generateIntercityBookingId = () =>
 const generateSearchNonce = () =>
   `intercity-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
+const toCoords = (value) => (
+  Array.isArray(value) && value.length >= 2
+    ? [Number(value[0]), Number(value[1])]
+    : null
+);
+
 const IntercityConfirm = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,35 +35,72 @@ const IntercityConfirm = () => {
 
     if (!isScheduled || isBiddingRide) {
       const bookingId = state.bookingId || generateIntercityBookingId();
+      const nextState = {
+        bookingId,
+        fromCity: state.fromCity || '',
+        toCity: state.toCity || '',
+        tripType: state.tripType || 'One Way',
+        rideMode: state.rideMode || 'ride_now',
+        date: state.date || 'Ride Now',
+        travelDate: state.travelDate || '',
+        scheduledAt: state.scheduledAt || null,
+        pickupAddress: state.pickupAddress || state.pickup || '',
+        dropAddress: state.dropAddress || state.drop || '',
+        pickup: state.pickup || '',
+        drop: state.drop || '',
+        pickupCoords: toCoords(state.pickupCoords),
+        dropCoords: toCoords(state.dropCoords),
+        serviceLocationId: state.serviceLocationId || '',
+        distance: Number(state.distance || 0),
+        estimatedDistanceMeters: Number(state.estimatedDistanceMeters || 0),
+        estimatedDurationMinutes: Number(state.estimatedDurationMinutes || 0),
+        passengers: Number(state.passengers || 1),
+        fare: Number(state.fare || 0),
+        baseFare: Number(state.baseFare || state.fare || 0),
+        vehicle: state.vehicle ? {
+          id: state.vehicle.id || '',
+          vehicleTypeId: state.vehicle.vehicleTypeId || '',
+          transportType: state.vehicle.transportType || '',
+          iconType: state.vehicle.iconType || '',
+          icon: state.vehicle.icon || '',
+          vehicleIconUrl: state.vehicle.vehicleIconUrl || state.vehicle.icon || '',
+          name: state.vehicle.name || '',
+          seats: Number(state.vehicle.seats || 0),
+          desc: state.vehicle.desc || '',
+          dispatchType: state.vehicle.dispatchType || '',
+          supportsBidding: Boolean(state.vehicle.supportsBidding),
+          estimatedFare: Number(state.vehicle.estimatedFare || 0),
+          baseFare: Number(state.vehicle.baseFare || state.baseFare || state.fare || 0),
+          fare: Number(state.vehicle.fare || state.fare || 0),
+        } : null,
+        searchNonce: state.searchNonce || generateSearchNonce(),
+        vehicleTypeId: state.vehicleTypeId || state.vehicle?.vehicleTypeId || '',
+        vehicleIconType: state.vehicleIconType || state.vehicle?.iconType || state.vehicle?.name || 'car',
+        vehicleIconUrl: state.vehicleIconUrl || state.vehicle?.vehicleIconUrl || state.vehicle?.icon || '',
+        paymentMethod: state.paymentMethod || 'Cash',
+        serviceType: 'intercity',
+        transport_type: 'intercity',
+        bookingMode: isBiddingRide ? 'bidding' : (state.bookingMode || 'normal'),
+        bidStepAmount: Number(state.bidStepAmount || 10),
+        userMaxBidFare: Number(state.userMaxBidFare || state.fare || 0),
+        intercity: {
+          bookingId,
+          fromCity: state.fromCity || '',
+          toCity: state.toCity || '',
+          tripType: state.tripType || 'One Way',
+          travelDate: state.date || 'Ride Now',
+          passengers: state.passengers || 1,
+          distance: Number(state.distance || 0),
+          vehicleName: state.vehicle?.name || state.vehicle?.id || 'Intercity Cab',
+          packageId: state.vehicle?.packageId || '',
+          packageTypeName: state.vehicle?.packageTypeName || 'Intercity',
+        },
+        driverAvailability: state.driverAvailability || null,
+      };
 
       navigate(`${routePrefix}/ride/searching`, {
         replace: true,
-        state: {
-          ...state,
-          bookingId,
-          searchNonce: state.searchNonce || generateSearchNonce(),
-          vehicleTypeId: state.vehicleTypeId || state.vehicle?.vehicleTypeId || '',
-          vehicleIconType: state.vehicleIconType || state.vehicle?.iconType || state.vehicle?.name || 'car',
-          vehicleIconUrl: state.vehicleIconUrl || state.vehicle?.vehicleIconUrl || state.vehicle?.icon || '',
-          paymentMethod: state.paymentMethod || 'Cash',
-          serviceType: 'intercity',
-          transport_type: 'intercity',
-          bookingMode: isBiddingRide ? 'bidding' : (state.bookingMode || 'normal'),
-          bidStepAmount: Number(state.bidStepAmount || 10),
-          userMaxBidFare: Number(state.userMaxBidFare || state.fare || 0),
-          intercity: {
-            bookingId,
-            fromCity: state.fromCity || '',
-            toCity: state.toCity || '',
-            tripType: state.tripType || 'One Way',
-            travelDate: state.date || 'Ride Now',
-            passengers: state.passengers || 1,
-            distance: Number(state.distance || 0),
-            vehicleName: state.vehicle?.name || state.vehicle?.id || 'Intercity Cab',
-            packageId: state.vehicle?.packageId || '',
-            packageTypeName: state.vehicle?.packageTypeName || 'Intercity',
-          },
-        },
+        state: nextState,
       });
       return;
     }

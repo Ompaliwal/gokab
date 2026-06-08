@@ -453,6 +453,7 @@ const readStoredUserInfo = () => {
 const RentalVehicleDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const { settings } = useSettings();
   const appName = settings.general?.app_name || 'App';
   const storedDetail = useMemo(() => readStoredRentalVehicleDetail(), []);
@@ -569,7 +570,7 @@ const RentalVehicleDetail = () => {
   }, [duration, vehicle]);
 
   if (!vehicle) {
-    navigate('/rental');
+    navigate(`${routePrefix}/rental`);
     return null;
   }
 
@@ -911,7 +912,26 @@ const RentalVehicleDetail = () => {
                 });
 
         setServiceLocations(options);
-        setSelectedServiceLocationId(options[0]?.id || '');
+
+        const preSelectedCenterId = String(
+          location.state?.selectedCenter?.id ||
+          location.state?.selectedCenter?._id ||
+          storedDetail?.selectedCenter?.id ||
+          storedDetail?.selectedCenter?._id ||
+          ''
+        );
+
+        let autoSelectedId = options[0]?.id || '';
+        if (preSelectedCenterId) {
+          const matchedOption = options.find((opt) =>
+            String(opt.id) === preSelectedCenterId ||
+            (opt.pickupPoints && opt.pickupPoints.some((p) => String(p.id) === preSelectedCenterId))
+          );
+          if (matchedOption) {
+            autoSelectedId = matchedOption.id;
+          }
+        }
+        setSelectedServiceLocationId(autoSelectedId);
       } catch (error) {
         if (!mounted) return;
         setIsLocatingUser(false);
@@ -1061,7 +1081,7 @@ const RentalVehicleDetail = () => {
       return;
     }
 
-    navigate('/rental/schedule', {
+    navigate(`${routePrefix}/rental/schedule`, {
       state: {
         vehicle,
         duration,

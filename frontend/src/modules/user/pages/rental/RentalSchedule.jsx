@@ -210,10 +210,11 @@ const DateTimePickerCard = ({
 const RentalSchedule = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const { vehicle, duration, selectedPackage, serviceLocation } = location.state || {};
 
   if (!vehicle) {
-    navigate('/rental');
+    navigate(`${routePrefix}/rental`);
     return null;
   }
 
@@ -476,7 +477,7 @@ const RentalSchedule = () => {
           whileTap={{ scale: 0.98 }}
           disabled={!isValid}
           onClick={() =>
-            navigate('/rental/kyc', {
+            navigate(`${routePrefix}/rental/kyc`, {
               state: {
                 vehicle,
                 duration,

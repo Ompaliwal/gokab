@@ -31,6 +31,12 @@ const generateIntercityBookingId = () =>
 const generateSearchNonce = () =>
   `intercity-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
+const toCoords = (value) => (
+  Array.isArray(value) && value.length >= 2
+    ? [Number(value[0]), Number(value[1])]
+    : null
+);
+
 const IntercityDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -146,7 +152,7 @@ const IntercityDetails = () => {
     const nextDropCoords = dropCoords || getCityCoords(toCity);
     const bookingId = state.bookingId || generateIntercityBookingId();
     let availabilitySnapshot = {
-      totalDrivers: liveDriverCount,
+      totalDrivers: Number(liveDriverCount || 0),
       fetchedAt: new Date().toISOString(),
     };
 
@@ -167,7 +173,6 @@ const IntercityDetails = () => {
         const availability = unwrapApiPayload(response);
 
         availabilitySnapshot = {
-          ...availability,
           totalDrivers: Number(availability?.totalDrivers || 0),
           fetchedAt: new Date().toISOString(),
         };
@@ -180,12 +185,43 @@ const IntercityDetails = () => {
     }
 
     const nextState = {
-      ...state,
       bookingId,
+      fromCity,
+      toCity,
+      tripType: state.tripType || 'One Way',
+      rideMode: state.rideMode || 'ride_now',
+      date: state.date || 'Ride Now',
+      travelDate: state.travelDate || '',
+      scheduledAt: state.scheduledAt || null,
+      pickupAddress: state.pickupAddress || pickup,
+      dropAddress: state.dropAddress || drop,
       pickup,
       drop,
-      pickupCoords: nextPickupCoords,
-      dropCoords: nextDropCoords,
+      pickupCoords: toCoords(nextPickupCoords),
+      dropCoords: toCoords(nextDropCoords),
+      serviceLocationId,
+      distance: Number(state.distance || 0),
+      estimatedDistanceMeters: Number(state.estimatedDistanceMeters || 0),
+      estimatedDurationMinutes: Number(state.estimatedDurationMinutes || 0),
+      passengers: Number(state.passengers || 1),
+      fare: Number(state.fare || 0),
+      baseFare: Number(state.baseFare || state.fare || 0),
+      vehicle: vehicle ? {
+        id: vehicle.id || '',
+        vehicleTypeId: vehicle.vehicleTypeId || '',
+        transportType: vehicle.transportType || '',
+        iconType: vehicle.iconType || '',
+        icon: vehicle.icon || '',
+        vehicleIconUrl: vehicle.vehicleIconUrl || vehicle.icon || '',
+        name: vehicle.name || '',
+        seats: Number(vehicle.seats || 0),
+        desc: vehicle.desc || '',
+        dispatchType: vehicle.dispatchType || '',
+        supportsBidding: Boolean(vehicle.supportsBidding),
+        estimatedFare: Number(vehicle.estimatedFare || 0),
+        baseFare: Number(vehicle.baseFare || state.baseFare || state.fare || 0),
+        fare: Number(vehicle.fare || state.fare || 0),
+      } : null,
       searchNonce: generateSearchNonce(),
       vehicleTypeId: vehicle.vehicleTypeId || '',
       vehicleIconType: vehicle.iconType || vehicle.name || 'car',
@@ -221,9 +257,7 @@ const IntercityDetails = () => {
     }
 
     navigate(`${routePrefix}/ride/searching`, {
-      state: {
-        ...nextState,
-      }
+      state: nextState,
     });
   };
 

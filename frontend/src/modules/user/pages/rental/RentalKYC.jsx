@@ -17,8 +17,9 @@ const fileToDataUrl = (file) =>
 const RentalKYC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const state = location.state || {};
-  if (!state.vehicle) { navigate('/rental'); return null; }
+  if (!state.vehicle) { navigate(`${routePrefix}/rental`); return null; }
 
   const existingKycDocuments = useMemo(() => state.rentalKyc?.documents || {}, [state.rentalKyc]);
 
@@ -245,7 +246,7 @@ const RentalKYC = () => {
 
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-6 pt-3 bg-gradient-to-t from-[#EEF2F7] via-[#F3F4F6]/95 to-transparent pointer-events-none z-30">
         <motion.button whileTap={{ scale: 0.98 }} disabled={!done}
-          onClick={() => navigate('/rental/deposit', {
+          onClick={() => navigate(`${routePrefix}/rental/deposit`, {
             state: {
               ...state,
               rentalKyc: {

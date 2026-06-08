@@ -581,6 +581,23 @@ const IntercityVehicle = () => {
 
     setScheduleError('');
 
+    const vehicleState = {
+      id: selectedVehicle.id,
+      vehicleTypeId: selectedVehicle.vehicleTypeId,
+      transportType: selectedVehicle.transportType,
+      iconType: selectedVehicle.iconType,
+      icon: selectedVehicle.icon,
+      vehicleIconUrl: selectedVehicle.vehicleIconUrl,
+      name: selectedVehicle.name,
+      seats: selectedVehicle.seats,
+      desc: selectedVehicle.desc,
+      dispatchType: selectedVehicle.dispatchType,
+      supportsBidding: selectedVehicle.supportsBidding,
+      estimatedFare: selectedVehicle.estimatedFare,
+      baseFare: finalFare,
+      fare: finalFare,
+    };
+
     navigate(`${routePrefix}/intercity/details`, {
       state: {
         ...routeState,
@@ -599,11 +616,7 @@ const IntercityVehicle = () => {
         distance: tripDistanceKm,
         estimatedDistanceMeters: tripMetrics.distanceMeters * (tripType === 'Round Trip' ? 2 : 1),
         estimatedDurationMinutes: tripMetrics.durationMinutes * (tripType === 'Round Trip' ? 2 : 1),
-        vehicle: {
-          ...selectedVehicle,
-          baseFare: finalFare,
-          fare: finalFare,
-        },
+        vehicle: vehicleState,
         passengers,
         fare: finalFare,
         baseFare: finalFare,
