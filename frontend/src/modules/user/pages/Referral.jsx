@@ -595,7 +595,7 @@ const Referral = () => {
             <p className="text-sm font-semibold text-gray-800 mt-4">Successful Referrals</p>
             <p className="text-4xl font-extrabold text-[#4076ea] mt-2">{profile.referralCount}</p>
             <p className="text-xs text-gray-400 mt-4 max-w-[240px] mx-auto leading-relaxed">
-              Your direct rewards are credited directly to your wallet balance. Invite more friends to earn more!
+              Your rewards are credited to the referral wallet first. Once approved, they move into your main wallet.
             </p>
           </div>
         )}

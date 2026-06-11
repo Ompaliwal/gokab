@@ -24,6 +24,9 @@ const UserReferralSettings = () => {
     type: 'instant_referrer',
     amount: 0,
     ride_count: 0,
+    minimum_redeem_amount: 100,
+    referral_hold_days: 0,
+    admin_approval_required: true,
   });
 
   const referralTypes = [
@@ -44,6 +47,9 @@ const UserReferralSettings = () => {
             type: payload.type || 'instant_referrer',
             amount: payload.amount || 0,
             ride_count: payload.ride_count || 0,
+            minimum_redeem_amount: payload.minimum_redeem_amount || 100,
+            referral_hold_days: payload.referral_hold_days || 0,
+            admin_approval_required: payload.admin_approval_required !== false,
           });
         }
       } catch (err) {
@@ -63,6 +69,8 @@ const UserReferralSettings = () => {
         ...settings,
         amount: Number(settings.amount || 0),
         ride_count: Number(settings.ride_count || 0),
+        minimum_redeem_amount: Number(settings.minimum_redeem_amount || 0),
+        referral_hold_days: Number(settings.referral_hold_days || 0),
       });
       if (unwrap(res)) {
         setShowSuccess(true);
@@ -213,6 +221,46 @@ const UserReferralSettings = () => {
                     />
                   </div>
                   <p className="text-[11px] text-gray-400 font-medium">Enter the amount Users earn for each referral.</p>
+                </div>
+
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                  <label className={labelClass}>Minimum Redeem Amount</label>
+                  <input
+                    type="number"
+                    value={settings.minimum_redeem_amount}
+                    onChange={(e) => setSettings({ ...settings, minimum_redeem_amount: e.target.value })}
+                    className={inputClass}
+                    placeholder="100"
+                  />
+                  <p className="text-[11px] text-gray-400 font-medium">Minimum referral wallet amount required before user can request redemption.</p>
+                </div>
+
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                  <label className={labelClass}>Referral Hold Days</label>
+                  <input
+                    type="number"
+                    value={settings.referral_hold_days}
+                    onChange={(e) => setSettings({ ...settings, referral_hold_days: e.target.value })}
+                    className={inputClass}
+                    placeholder="0"
+                  />
+                  <p className="text-[11px] text-gray-400 font-medium">Optional hold period before referral rewards are eligible for redemption.</p>
+                </div>
+
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <label className={labelClass}>Admin Approval Required</label>
+                      <p className="text-[11px] text-gray-400 font-medium">Keep redemption manual so admin approves transfer from referral wallet to main wallet.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSettings({ ...settings, admin_approval_required: !settings.admin_approval_required })}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.admin_approval_required ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.admin_approval_required ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

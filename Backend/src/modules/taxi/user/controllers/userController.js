@@ -4,6 +4,7 @@ import { Env, StandardCheckoutClient, StandardCheckoutPayRequest, PrefillUserLog
 import { ApiError } from '../../../../utils/ApiError.js';
 import { User } from '../models/User.js';
 import { UserWallet } from '../models/UserWallet.js';
+import { UserReferralRedemptionRequest } from '../models/UserReferralRedemptionRequest.js';
 import { AdminBusinessSetting } from '../../admin/models/AdminBusinessSetting.js';
 import { Notification } from '../../admin/promotions/models/Notification.js';
 import { BusService } from '../../admin/models/BusService.js';
@@ -90,21 +91,44 @@ const normalizeMoneyAmount = (value) => {
   return Math.round(amount * 100) / 100;
 };
 
+const roundMoney = (value) => Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
+
 const ensureUserWallet = async (userId) => {
   if (!userId) return;
   await UserWallet.updateOne(
     { userId },
-    { $setOnInsert: { userId, balance: 0, refundWallet: 0, transactions: [] } },
+    {
+      $setOnInsert: {
+        userId,
+        balance: 0,
+        refundWallet: 0,
+        referralWallet: 0,
+        lockedReferralAmount: 0,
+        transactions: [],
+      },
+    },
     { upsert: true },
   );
 };
 
 const serializeUserWalletTransaction = (entry = {}) => ({
   id: entry._id,
+  walletType: entry.walletType || 'main',
   kind: entry.kind,
   amount: Number(entry.amount || 0),
   title: entry.title || '',
   counterpartyPhone: entry.counterpartyPhone || '',
+  status: entry.status || 'completed',
+  createdAt: entry.createdAt || null,
+});
+
+const serializeReferralRedemptionRequest = (entry = {}) => ({
+  id: entry._id,
+  amount: Number(entry.amount || 0),
+  status: String(entry.status || 'pending'),
+  adminNote: entry.adminNote || '',
+  requestedAt: entry.requestedAt || entry.createdAt || null,
+  reviewedAt: entry.reviewedAt || null,
   createdAt: entry.createdAt || null,
 });
 
@@ -114,6 +138,12 @@ const buildUserWalletPayload = (wallet) => {
   return {
     balance: Number(wallet?.balance || 0),
     refundWallet: Number(wallet?.refundWallet || 0),
+    referralWallet: Number(wallet?.referralWallet || 0),
+    lockedReferralAmount: Number(wallet?.lockedReferralAmount || 0),
+    availableReferralWallet: Math.max(
+      0,
+      Number(wallet?.referralWallet || 0) - Number(wallet?.lockedReferralAmount || 0),
+    ),
     currency: 'INR',
     recentTransactions: transactions
       .slice()
@@ -1412,6 +1442,9 @@ const getUserReferralProgramSettings = async () => {
     type: String(userReferral.type || 'instant_referrer').trim().toLowerCase(),
     amount: Math.max(0, Number(userReferral.amount || 0) || 0),
     rideCount: Math.max(0, Number(userReferral.ride_count || 0) || 0),
+    minimumRedeemAmount: Math.max(0, Number(userReferral.minimum_redeem_amount || 100) || 0),
+    holdDays: Math.max(0, Number(userReferral.referral_hold_days || 0) || 0),
+    adminApprovalRequired: userReferral.admin_approval_required !== false,
   };
 };
 
@@ -1425,9 +1458,17 @@ const findUserByReferralCode = async (referralCode) => {
   return User.findOne({ referralCode: normalizedCode });
 };
 
-const creditUserWalletByReference = async ({ userId, amount, title, referenceKey }) => {
+const creditUserWalletByReference = async ({
+  userId,
+  amount,
+  title,
+  referenceKey,
+  walletType = 'main',
+}) => {
   const normalizedAmount = Math.max(0, Number(amount || 0) || 0);
   const normalizedReferenceKey = toCleanString(referenceKey);
+  const normalizedWalletType = walletType === 'referral' ? 'referral' : 'main';
+  const balanceField = normalizedWalletType === 'referral' ? 'referralWallet' : 'balance';
 
   if (!userId || normalizedAmount <= 0 || !normalizedReferenceKey) {
     return 'skipped';
@@ -1449,11 +1490,12 @@ const creditUserWalletByReference = async ({ userId, amount, title, referenceKey
   await UserWallet.updateOne(
     { userId },
     {
-      $inc: { balance: normalizedAmount },
+      $inc: { [balanceField]: normalizedAmount },
       $push: {
         transactions: {
           $each: [
             {
+              walletType: normalizedWalletType,
               kind: 'credit',
               amount: normalizedAmount,
               title: toCleanString(title) || 'Referral Reward',
@@ -1488,6 +1530,7 @@ const processSignupReferralRewards = async ({ user, referrer }) => {
       amount: settings.amount,
       title: `Referral reward for inviting ${user.phone}`,
       referenceKey: `${rewardBaseKey}:referrer`,
+      walletType: 'referral',
     });
   }
 
@@ -1497,11 +1540,18 @@ const processSignupReferralRewards = async ({ user, referrer }) => {
       amount: settings.amount,
       title: 'Welcome referral reward',
       referenceKey: `${rewardBaseKey}:new-user`,
+      walletType: 'referral',
     });
     user.referralRewardGrantedAt = user.referralRewardGrantedAt || new Date();
     await user.save();
   }
 };
+
+const listUserReferralRedemptionHistory = async (userId, limit = 10) =>
+  UserReferralRedemptionRequest.find({ userId })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
 
 export const registerUser = async (req, res) => {
   const name = toCleanString(req.body.name);
@@ -1953,12 +2003,27 @@ export const getUserWallet = async (req, res) => {
   }
 
   await ensureUserWallet(userId);
-  const wallet = await UserWallet.findOne({ userId }).select('balance refundWallet transactions').slice('transactions', -10).lean();
+  const [wallet, redemptionHistory, referralSettings] = await Promise.all([
+    UserWallet.findOne({ userId })
+      .select('balance refundWallet referralWallet lockedReferralAmount transactions')
+      .slice('transactions', -20)
+      .lean(),
+    listUserReferralRedemptionHistory(userId, 10),
+    getUserReferralProgramSettings(),
+  ]);
   const transactions = Array.isArray(wallet?.transactions) ? wallet.transactions : [];
 
   res.json({
     success: true,
-    data: buildUserWalletPayload({ ...wallet, transactions }),
+    data: {
+      ...buildUserWalletPayload({ ...wallet, transactions }),
+      referralRedemptionHistory: redemptionHistory.map(serializeReferralRedemptionRequest),
+      referralProgram: {
+        minimumRedeemAmount: referralSettings.minimumRedeemAmount,
+        adminApprovalRequired: referralSettings.adminApprovalRequired,
+        holdDays: referralSettings.holdDays,
+      },
+    },
   });
 };
 
@@ -1984,11 +2049,14 @@ export const topupUserWallet = async (req, res) => {
     { userId },
     {
       $inc: { balance: amount },
-      $push: { transactions: { $each: [tx], $slice: -50 } },
+      $push: { transactions: { $each: [{ ...tx, walletType: 'main' }], $slice: -50 } },
     },
   );
 
-  const updatedWallet = await UserWallet.findOne({ userId }).select('balance transactions').slice('transactions', -10).lean();
+  const updatedWallet = await UserWallet.findOne({ userId })
+    .select('balance refundWallet referralWallet lockedReferralAmount transactions')
+    .slice('transactions', -20)
+    .lean();
   const updatedWalletWithRefund = updatedWallet
     ? { ...updatedWallet, refundWallet: Number(updatedWallet.refundWallet || 0) }
     : updatedWallet;
@@ -1997,6 +2065,105 @@ export const topupUserWallet = async (req, res) => {
   res.status(201).json({
     success: true,
     data: buildUserWalletPayload({ ...updatedWalletWithRefund, transactions }),
+  });
+};
+
+export const listMyReferralRedemptionRequests = async (req, res) => {
+  const userId = req.auth?.sub;
+  const results = await listUserReferralRedemptionHistory(userId, 50);
+
+  res.json({
+    success: true,
+    data: {
+      results: results.map(serializeReferralRedemptionRequest),
+    },
+  });
+};
+
+export const requestReferralWalletRedemption = async (req, res) => {
+  const userId = req.auth?.sub;
+  const amount = normalizeMoneyAmount(req.body?.amount);
+  const settings = await getUserReferralProgramSettings();
+
+  if (!settings.enabled) {
+    throw new ApiError(400, 'Referral program is disabled');
+  }
+
+  if (amount < settings.minimumRedeemAmount) {
+    throw new ApiError(400, `Minimum redeem amount is Rs ${settings.minimumRedeemAmount}`);
+  }
+
+  await ensureUserWallet(userId);
+
+  const user = await User.findById(userId).select('_id').lean();
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  const existingPending = await UserReferralRedemptionRequest.findOne({ userId, status: 'pending' })
+    .select('_id')
+    .lean();
+  if (existingPending) {
+    throw new ApiError(400, 'A referral redemption request is already pending');
+  }
+
+  const session = await mongoose.startSession();
+  let responsePayload = null;
+
+  try {
+    await session.withTransaction(async () => {
+      const wallet = await UserWallet.findOne({ userId }).session(session);
+      if (!wallet) {
+        throw new ApiError(404, 'User wallet not found');
+      }
+
+      const availableReferralWallet = roundMoney(
+        Number(wallet.referralWallet || 0) - Number(wallet.lockedReferralAmount || 0),
+      );
+
+      if (availableReferralWallet < amount) {
+        throw new ApiError(400, 'Insufficient referral wallet balance');
+      }
+
+      const referenceKey = `user-referral-redeem:${String(userId)}:${Date.now()}`;
+      const request = await UserReferralRedemptionRequest.create(
+        [
+          {
+            userId,
+            amount,
+            status: 'pending',
+            referenceKey,
+            requestedAt: new Date(),
+          },
+        ],
+        { session },
+      );
+
+      wallet.lockedReferralAmount = roundMoney(Number(wallet.lockedReferralAmount || 0) + amount);
+      wallet.transactions.push({
+        walletType: 'referral',
+        kind: 'debit',
+        amount,
+        title: 'Referral redemption requested',
+        referenceKey,
+        status: 'pending',
+      });
+      wallet.transactions = wallet.transactions.slice(-50);
+      await wallet.save({ session });
+
+      responsePayload = {
+        wallet: buildUserWalletPayload(wallet),
+        request: serializeReferralRedemptionRequest(request[0]),
+      };
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  res.status(201).json({
+    success: true,
+    message: 'Referral redemption request submitted',
+    data: responsePayload,
   });
 };
 

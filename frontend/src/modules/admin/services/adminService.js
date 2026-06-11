@@ -71,6 +71,11 @@ export const adminService = {
 
   adjustUserWallet: (id, data) => api.post(`/admin/wallet/users/${id}/adjust`, data),
   getUserWalletHistory: (id) => api.get(`/admin/wallet/users/${id}/history`),
+  getUserReferralRedemptionRequests: (params = {}) => api.get('/admin/wallet/users/referral-redemptions', { params }),
+  approveUserReferralRedemptionRequest: (requestId) =>
+    api.patch(`/admin/wallet/users/referral-redemptions/${requestId}/approve`),
+  rejectUserReferralRedemptionRequest: (requestId, adminNote = '') =>
+    api.patch(`/admin/wallet/users/referral-redemptions/${requestId}/reject`, { adminNote }),
 
   adjustDriverWallet: (id, data) => api.post(`/admin/wallet/drivers/${id}/adjust`, data),
   getDriverWalletHistory: (id) => api.get(`/admin/wallet/drivers/${id}/history`),

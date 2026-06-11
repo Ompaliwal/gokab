@@ -946,6 +946,7 @@ const AdminLayout = () => {
             subItems: [
               { label: 'Referral Dashboard', path: '/admin/referrals/dashboard', permission: 'referrals.view' },
               { label: 'User Referral Settings', path: '/admin/referrals/user-settings', permission: 'referrals.view' },
+              { label: 'User Referral Redemptions', path: '/admin/referrals/user-redemptions', permission: 'referrals.view' },
               { label: 'Driver Referral Settings', path: '/admin/referrals/driver-settings', permission: 'referrals.view' },
               { label: 'Referral Translation', path: '/admin/referrals/translation', permission: 'referrals.view' },
             ],

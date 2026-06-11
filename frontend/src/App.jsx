@@ -213,6 +213,7 @@ const AdminReferralDashboard = lazy(() => import('./modules/admin/pages/referral
 const AdminUserReferralSettings = lazy(() => import('./modules/admin/pages/referrals/UserReferralSettings'));
 const AdminDriverReferralSettings = lazy(() => import('./modules/admin/pages/referrals/DriverReferralSettings'));
 const AdminReferralTranslation = lazy(() => import('./modules/admin/pages/referrals/ReferralTranslation'));
+const AdminUserReferralRedemptions = lazy(() => import('./modules/admin/pages/referrals/UserReferralRedemptions'));
 
 const AdminPromoCodes = lazy(() => import('./modules/admin/pages/promotions/PromoCodes'));
 const AdminSendNotification = lazy(() => import('./modules/admin/pages/promotions/SendNotification'));
@@ -1236,6 +1237,10 @@ function App() {
                 <Route
                   path="referrals/user-settings"
                   element={<AdminUserReferralSettings />}
+                />
+                <Route
+                  path="referrals/user-redemptions"
+                  element={<AdminUserReferralRedemptions />}
                 />
                 <Route
                   path="referrals/driver-settings"

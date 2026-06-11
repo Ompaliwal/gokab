@@ -4,6 +4,7 @@ import { createDefaultAdminState } from '../data/defaultAdminState.js';
 import { Admin } from '../models/Admin.js';
 import { User } from '../../user/models/User.js';
 import { UserWallet } from '../../user/models/UserWallet.js';
+import { UserReferralRedemptionRequest } from '../../user/models/UserReferralRedemptionRequest.js';
 import { WalletTransaction } from '../../driver/models/WalletTransaction.js';
 import { AdminBusinessSetting } from '../models/AdminBusinessSetting.js';
 import { AdminAppSetting } from '../models/AdminAppSetting.js';
@@ -108,6 +109,7 @@ const buildPaginator = (items, page = 1, limit = 50) => {
 };
 
 const nextId = () => new mongoose.Types.ObjectId().toString();
+const roundMoney = (value) => Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
 const toObjectId = (value) => {
   if (value === null || value === undefined) return null;
 
@@ -3853,10 +3855,14 @@ export const listUserWalletHistory = async (id) => {
   return {
     balance: wallet?.balance || 0,
     refundWallet: wallet?.refundWallet || 0,
+    referralWallet: wallet?.referralWallet || 0,
+    lockedReferralAmount: wallet?.lockedReferralAmount || 0,
     results: (wallet?.transactions || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(t => ({
       _id: String(t._id),
       amount: t.amount,
       type: t.kind,
+      walletType: t.walletType || 'main',
+      status: t.status || 'completed',
       description: t.title,
       createdAt: t.createdAt,
     })),
@@ -3881,7 +3887,14 @@ export const adjustUserWallet = async (id, payload = {}) => {
 
   let wallet = await UserWallet.findOne({ userId: id });
   if (!wallet) {
-    wallet = new UserWallet({ userId: id, balance: 0, refundWallet: 0, transactions: [] });
+    wallet = new UserWallet({
+      userId: id,
+      balance: 0,
+      refundWallet: 0,
+      referralWallet: 0,
+      lockedReferralAmount: 0,
+      transactions: [],
+    });
   }
 
   const currentBalance = wallet.balance || 0;
@@ -3889,6 +3902,7 @@ export const adjustUserWallet = async (id, payload = {}) => {
 
   wallet.balance = nextBalance;
   wallet.transactions.push({
+    walletType: 'main',
     kind: operation,
     amount,
     title: payload.description || `Admin adjustment (${operation})`,
@@ -5070,7 +5084,17 @@ export const updateSubscriptionSettings = async (payload) => {
 
 export const getReferralSettings = async (type) => {
   const setting = await AdminBusinessSetting.findOne({ scope: 'default' }).lean();
-  const referral = setting?.referral || { driver: { enabled: false, type: 'instant_referrer', amount: 0 }, user: { enabled: false, type: 'instant_referrer', amount: 0 } };
+  const referral = setting?.referral || {
+    driver: { enabled: false, type: 'instant_referrer', amount: 0 },
+    user: {
+      enabled: false,
+      type: 'instant_referrer',
+      amount: 0,
+      minimum_redeem_amount: 100,
+      referral_hold_days: 0,
+      admin_approval_required: true,
+    },
+  };
   return type ? referral[type] : referral;
 };
 
@@ -5116,6 +5140,18 @@ export const updateReferralSettings = async (type, payload) => {
     updateData.ride_count = Math.max(0, Number(payload.ride_count || 0) || 0);
   }
 
+  if (type === 'user') {
+    if (payload.minimum_redeem_amount !== undefined) {
+      updateData.minimum_redeem_amount = Math.max(0, Number(payload.minimum_redeem_amount || 0) || 0);
+    }
+    if (payload.referral_hold_days !== undefined) {
+      updateData.referral_hold_days = Math.max(0, Number(payload.referral_hold_days || 0) || 0);
+    }
+    if (payload.admin_approval_required !== undefined) {
+      updateData.admin_approval_required = Boolean(payload.admin_approval_required);
+    }
+  }
+
   if (type === 'driver') {
     updateData.milestone_program_enabled = Boolean(payload.milestone_program_enabled);
     updateData.milestone_programs = sanitizeReferralMilestones(payload.milestone_programs);
@@ -5129,6 +5165,202 @@ export const updateReferralSettings = async (type, payload) => {
   );
 
   return setting.referral[type];
+};
+
+const serializeUserReferralRedemptionRequest = (request = {}) => ({
+  _id: String(request._id),
+  user_id: request.userId?._id ? String(request.userId._id) : String(request.userId || ''),
+  user_name: request.userId?.name || '',
+  user_phone: request.userId?.phone || '',
+  amount: Number(request.amount || 0),
+  status: String(request.status || 'pending'),
+  referenceKey: request.referenceKey || '',
+  requestedAt: request.requestedAt || request.createdAt || null,
+  reviewedAt: request.reviewedAt || null,
+  adminNote: request.adminNote || '',
+  createdAt: request.createdAt || null,
+});
+
+export const listUserReferralRedemptionRequests = async ({ page = 1, limit = 50, status = '', search = '' } = {}) => {
+  const safePage = Math.max(1, Number(page) || 1);
+  const safeLimit = Math.max(1, Number(limit) || 50);
+  const skip = (safePage - 1) * safeLimit;
+  const query = {};
+  const normalizedStatus = String(status || '').trim().toLowerCase();
+  const normalizedSearch = String(search || '').trim();
+
+  if (normalizedStatus) {
+    query.status = normalizedStatus;
+  }
+
+  let userIds = null;
+  if (normalizedSearch) {
+    const regex = new RegExp(normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    const users = await User.find({
+      $or: [{ name: regex }, { phone: regex }, { email: regex }],
+    })
+      .select('_id')
+      .lean();
+    userIds = users.map((item) => item._id);
+    query.userId = userIds.length ? { $in: userIds } : { $in: [] };
+  }
+
+  const [results, total] = await Promise.all([
+    UserReferralRedemptionRequest.find(query)
+      .populate('userId', 'name phone email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(safeLimit)
+      .lean(),
+    UserReferralRedemptionRequest.countDocuments(query),
+  ]);
+
+  return {
+    results: results.map(serializeUserReferralRedemptionRequest),
+    paginator: {
+      current_page: safePage,
+      per_page: safeLimit,
+      total,
+      last_page: Math.max(1, Math.ceil(total / safeLimit)),
+    },
+  };
+};
+
+export const approveUserReferralRedemptionRequest = async (requestId, adminId = null) => {
+  const session = await mongoose.startSession();
+  let responsePayload = null;
+
+  try {
+    await session.withTransaction(async () => {
+      const request = await UserReferralRedemptionRequest.findById(requestId).session(session);
+      if (!request) {
+        throw new ApiError(404, 'Referral redemption request not found');
+      }
+      if (request.status !== 'pending') {
+        throw new ApiError(400, 'Only pending referral redemption requests can be approved');
+      }
+
+      const wallet = await UserWallet.findOne({ userId: request.userId }).session(session);
+      if (!wallet) {
+        throw new ApiError(404, 'User wallet not found');
+      }
+
+      const amount = roundMoney(request.amount || 0);
+      if (amount <= 0) {
+        throw new ApiError(400, 'Referral redemption amount is invalid');
+      }
+
+      if (Number(wallet.lockedReferralAmount || 0) < amount || Number(wallet.referralWallet || 0) < amount) {
+        throw new ApiError(400, 'Referral wallet balance is not enough for this redemption');
+      }
+
+      wallet.referralWallet = roundMoney(Number(wallet.referralWallet || 0) - amount);
+      wallet.lockedReferralAmount = roundMoney(Number(wallet.lockedReferralAmount || 0) - amount);
+      wallet.balance = roundMoney(Number(wallet.balance || 0) + amount);
+      wallet.transactions.push(
+        {
+          walletType: 'referral',
+          kind: 'debit',
+          amount,
+          title: 'Referral redemption approved',
+          referenceKey: request.referenceKey,
+          status: 'completed',
+        },
+        {
+          walletType: 'main',
+          kind: 'credit',
+          amount,
+          title: 'Referral redemption added to main wallet',
+          referenceKey: request.referenceKey,
+          status: 'completed',
+        },
+      );
+      wallet.transactions = wallet.transactions.slice(-50);
+      await wallet.save({ session });
+
+      request.status = 'approved';
+      request.reviewedAt = new Date();
+      request.reviewedBy = adminId || null;
+      await request.save({ session });
+
+      responsePayload = {
+        request: serializeUserReferralRedemptionRequest(
+          await UserReferralRedemptionRequest.findById(request._id)
+            .populate('userId', 'name phone email')
+            .session(session)
+            .lean(),
+        ),
+        wallet: {
+          balance: Number(wallet.balance || 0),
+          referralWallet: Number(wallet.referralWallet || 0),
+          lockedReferralAmount: Number(wallet.lockedReferralAmount || 0),
+        },
+      };
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  return responsePayload;
+};
+
+export const rejectUserReferralRedemptionRequest = async (requestId, payload = {}, adminId = null) => {
+  const session = await mongoose.startSession();
+  let responsePayload = null;
+
+  try {
+    await session.withTransaction(async () => {
+      const request = await UserReferralRedemptionRequest.findById(requestId).session(session);
+      if (!request) {
+        throw new ApiError(404, 'Referral redemption request not found');
+      }
+      if (request.status !== 'pending') {
+        throw new ApiError(400, 'Only pending referral redemption requests can be rejected');
+      }
+
+      const wallet = await UserWallet.findOne({ userId: request.userId }).session(session);
+      if (!wallet) {
+        throw new ApiError(404, 'User wallet not found');
+      }
+
+      const amount = roundMoney(request.amount || 0);
+      wallet.lockedReferralAmount = Math.max(0, roundMoney(Number(wallet.lockedReferralAmount || 0) - amount));
+      wallet.transactions.push({
+        walletType: 'referral',
+        kind: 'credit',
+        amount,
+        title: 'Referral redemption rejected',
+        referenceKey: request.referenceKey,
+        status: 'rejected',
+      });
+      wallet.transactions = wallet.transactions.slice(-50);
+      await wallet.save({ session });
+
+      request.status = 'rejected';
+      request.adminNote = String(payload.adminNote || '').trim();
+      request.reviewedAt = new Date();
+      request.reviewedBy = adminId || null;
+      await request.save({ session });
+
+      responsePayload = {
+        request: serializeUserReferralRedemptionRequest(
+          await UserReferralRedemptionRequest.findById(request._id)
+            .populate('userId', 'name phone email')
+            .session(session)
+            .lean(),
+        ),
+        wallet: {
+          balance: Number(wallet.balance || 0),
+          referralWallet: Number(wallet.referralWallet || 0),
+          lockedReferralAmount: Number(wallet.lockedReferralAmount || 0),
+        },
+      };
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  return responsePayload;
 };
 
 export const getReferralDashboard = async () => {

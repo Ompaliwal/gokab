@@ -2,6 +2,12 @@ import mongoose from 'mongoose';
 
 const walletTransactionSchema = new mongoose.Schema(
   {
+    walletType: {
+      type: String,
+      enum: ['main', 'refund', 'referral'],
+      default: 'main',
+      index: true,
+    },
     kind: {
       type: String,
       enum: ['credit', 'debit'],
@@ -42,6 +48,11 @@ const walletTransactionSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    status: {
+      type: String,
+      enum: ['completed', 'pending', 'rejected'],
+      default: 'completed',
+    },
   },
   { _id: true, timestamps: true },
 );
@@ -60,6 +71,16 @@ const userWalletSchema = new mongoose.Schema(
       index: true,
     },
     refundWallet: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    referralWallet: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lockedReferralAmount: {
       type: Number,
       default: 0,
       min: 0,

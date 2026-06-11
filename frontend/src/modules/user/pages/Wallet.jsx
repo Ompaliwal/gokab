@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, History, Gift } from 'lucide-react';
+import { ArrowLeft, Plus, History, Gift, Coins, Clock3 } from 'lucide-react';
 import { userAuthService } from '../services/authService';
 import { useSettings } from '../../../shared/context/SettingsContext';
 import { openExternalCheckout } from '../../../shared/utils/externalNavigation';
@@ -16,12 +16,25 @@ const Wallet = () => {
   const activePaymentGateway = settings.paymentGateway || null;
 
   const [showAddMoney, setShowAddMoney] = React.useState(false);
+  const [showRedeemReferral, setShowRedeemReferral] = React.useState(false);
   const [amount, setAmount] = React.useState('');
+  const [redeemAmount, setRedeemAmount] = React.useState('');
   const [isAdding, setIsAdding] = React.useState(false);
+  const [isRedeeming, setIsRedeeming] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [walletLoading, setWalletLoading] = React.useState(true);
   const [walletError, setWalletError] = React.useState('');
-  const [wallet, setWallet] = React.useState({ balance: 0, currency: 'INR', recentTransactions: [] });
+  const [wallet, setWallet] = React.useState({
+    balance: 0,
+    refundWallet: 0,
+    referralWallet: 0,
+    lockedReferralAmount: 0,
+    availableReferralWallet: 0,
+    currency: 'INR',
+    recentTransactions: [],
+    referralRedemptionHistory: [],
+    referralProgram: { minimumRedeemAmount: 100, adminApprovalRequired: true, holdDays: 0 },
+  });
 
   const basePath = useMemo(
     () => (window.location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''),
@@ -57,8 +70,14 @@ const Wallet = () => {
       const data = response?.data || {};
       setWallet({
         balance: Number(data.balance || 0),
+        refundWallet: Number(data.refundWallet || 0),
+        referralWallet: Number(data.referralWallet || 0),
+        lockedReferralAmount: Number(data.lockedReferralAmount || 0),
+        availableReferralWallet: Number(data.availableReferralWallet || 0),
         currency: data.currency || 'INR',
         recentTransactions: Array.isArray(data.recentTransactions) ? data.recentTransactions : [],
+        referralRedemptionHistory: Array.isArray(data.referralRedemptionHistory) ? data.referralRedemptionHistory : [],
+        referralProgram: data.referralProgram || { minimumRedeemAmount: 100, adminApprovalRequired: true, holdDays: 0 },
       });
     } catch (err) {
       setWalletError(err?.message || 'Failed to load wallet');
@@ -177,8 +196,14 @@ const Wallet = () => {
             const data = verifyResponse?.data || {};
             setWallet({
               balance: Number(data.balance || 0),
+              refundWallet: Number(data.refundWallet || 0),
+              referralWallet: Number(data.referralWallet || 0),
+              lockedReferralAmount: Number(data.lockedReferralAmount || 0),
+              availableReferralWallet: Number(data.availableReferralWallet || 0),
               currency: data.currency || 'INR',
               recentTransactions: Array.isArray(data.recentTransactions) ? data.recentTransactions : [],
+              referralRedemptionHistory: Array.isArray(data.referralRedemptionHistory) ? data.referralRedemptionHistory : [],
+              referralProgram: data.referralProgram || wallet.referralProgram,
             });
             setIsSuccess(true);
             setTimeout(() => {
@@ -207,6 +232,40 @@ const Wallet = () => {
     } catch (err) {
       setWalletError(err?.message || 'Topup failed');
       setIsAdding(false);
+    }
+  };
+
+  const handleRedeemReferral = async () => {
+    const amountValue = Number(redeemAmount);
+    if (!Number.isFinite(amountValue) || amountValue <= 0) return;
+
+    setIsRedeeming(true);
+    setWalletError('');
+
+    try {
+      const response = await userAuthService.requestReferralRedemption(amountValue);
+      const data = response?.data || {};
+      setWallet((current) => ({
+        ...current,
+        balance: Number(data.wallet?.balance ?? current.balance),
+        refundWallet: Number(data.wallet?.refundWallet ?? current.refundWallet),
+        referralWallet: Number(data.wallet?.referralWallet ?? current.referralWallet),
+        lockedReferralAmount: Number(data.wallet?.lockedReferralAmount ?? current.lockedReferralAmount),
+        availableReferralWallet: Math.max(
+          0,
+          Number(data.wallet?.referralWallet ?? current.referralWallet)
+            - Number(data.wallet?.lockedReferralAmount ?? current.lockedReferralAmount),
+        ),
+        referralRedemptionHistory: data.request
+          ? [data.request, ...(current.referralRedemptionHistory || [])].slice(0, 10)
+          : current.referralRedemptionHistory,
+      }));
+      setShowRedeemReferral(false);
+      setRedeemAmount('');
+    } catch (err) {
+      setWalletError(err?.message || 'Referral redeem request failed');
+    } finally {
+      setIsRedeeming(false);
     }
   };
 
@@ -287,6 +346,56 @@ const Wallet = () => {
             </Motion.div>
           </div>
         )}
+        {showRedeemReferral && (
+          <div className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/40 backdrop-blur-sm p-4">
+            <Motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white w-full max-w-md rounded-3xl p-8 pb-10 space-y-6 shadow-2xl relative"
+            >
+              <button
+                onClick={() => setShowRedeemReferral(false)}
+                className="absolute top-6 right-6 w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 active:scale-90 transition-colors"
+              >
+                <Plus size={20} className="rotate-45" />
+              </button>
+
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-slate-900">Redeem Referral Wallet</h3>
+                <p className="text-[11px] font-bold text-slate-400 tracking-wide uppercase">
+                  Moves to main wallet after admin approval
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 text-sm text-slate-600 space-y-1">
+                <p>Available referral balance: <span className="font-bold text-slate-900">Rs {formatInr(wallet.availableReferralWallet)}</span></p>
+                <p>Minimum redeem amount: <span className="font-bold text-slate-900">Rs {formatInr(wallet.referralProgram?.minimumRedeemAmount || 0)}</span></p>
+              </div>
+
+              <div className="relative">
+                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl font-bold text-slate-400">Rs</span>
+                <input
+                  type="number"
+                  value={redeemAmount}
+                  onChange={(e) => setRedeemAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full h-16 bg-slate-50 border border-slate-100 rounded-2xl pl-16 pr-6 text-2xl font-bold text-slate-900 focus:outline-none focus:border-slate-300 transition-all text-center placeholder:text-slate-200"
+                />
+              </div>
+
+              <button
+                onClick={handleRedeemReferral}
+                disabled={isRedeeming || !redeemAmount}
+                className={`w-full h-14 rounded-2xl font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 ${
+                  isRedeeming || !redeemAmount ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed' : 'bg-emerald-600 text-white shadow-emerald-100'
+                }`}
+              >
+                {isRedeeming ? 'Submitting...' : 'Request Redemption'}
+              </button>
+            </Motion.div>
+          </div>
+        )}
       </AnimatePresence>
 
       <header className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm">
@@ -343,6 +452,48 @@ const Wallet = () => {
         </Motion.div>
       </div>
 
+      <div className="px-5 mt-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Coins size={18} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referral Wallet</p>
+                <p className="text-lg font-bold text-slate-900">Rs {formatInr(wallet.referralWallet)}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-[11px] font-semibold text-slate-500">
+              Available Rs {formatInr(wallet.availableReferralWallet)}
+            </p>
+          </div>
+
+          <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <Clock3 size={18} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Locked Review</p>
+                <p className="text-lg font-bold text-slate-900">Rs {formatInr(wallet.lockedReferralAmount)}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setWalletError('');
+                setShowRedeemReferral(true);
+              }}
+              disabled={wallet.availableReferralWallet < Number(wallet.referralProgram?.minimumRedeemAmount || 0)}
+              className="mt-3 w-full h-11 rounded-2xl bg-slate-900 text-white text-sm font-bold disabled:bg-slate-100 disabled:text-slate-400"
+            >
+              Redeem to Main Wallet
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="px-5 mt-6">
         <button
           onClick={() => navigate(`${basePath}/referral`)}
@@ -359,6 +510,40 @@ const Wallet = () => {
         </button>
       </div>
 
+      <div className="px-5 mt-8">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referral Redemption Requests</h3>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+          {wallet.referralRedemptionHistory?.length ? (
+            wallet.referralRedemptionHistory.map((item) => (
+              <div key={item.id} className="flex items-center gap-4 p-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 text-amber-600">
+                  <Coins size={16} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-bold text-slate-900 truncate">Referral redemption request</h4>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">
+                    {item.requestedAt ? new Date(item.requestedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <h4 className="text-base font-bold text-slate-900">Rs {formatInr(item.amount)}</h4>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider ${
+                    item.status === 'approved' ? 'text-emerald-500' : item.status === 'rejected' ? 'text-rose-500' : 'text-amber-500'
+                  }`}>
+                    {item.status}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center text-xs font-bold text-slate-400">No referral redemption requests yet</div>
+          )}
+        </div>
+      </div>
+
       <div className="px-5 mt-10">
         <div className="flex items-center justify-between mb-4 px-1">
           <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Transaction History</h3>
@@ -372,6 +557,7 @@ const Wallet = () => {
             wallet.recentTransactions.map((tx) => {
               const isDebit = tx.kind === 'debit';
               const title = tx.title || (isDebit ? 'Debit' : 'Credit');
+              const walletTypeLabel = tx.walletType === 'referral' ? 'Referral wallet' : tx.walletType === 'refund' ? 'Refund wallet' : 'Main wallet';
               const sign = isDebit ? '-' : '+';
               const amountText = formatInr(tx.amount);
               const whenText = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
@@ -387,7 +573,7 @@ const Wallet = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-bold text-slate-900 truncate">{title}</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{whenText}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{walletTypeLabel} • {whenText}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <h4 className={`text-base font-bold ${isDebit ? 'text-slate-900' : 'text-emerald-600'}`}>

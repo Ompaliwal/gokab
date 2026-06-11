@@ -87,6 +87,9 @@ import {
   getDriverWithdrawalContextByRequestId,
   approveDriverWithdrawalRequest,
   rejectDriverWithdrawalRequest,
+  getUserReferralRedemptionRequests,
+  approveUserReferralRedemptionRequest,
+  rejectUserReferralRedemptionRequest,
   getDeletedDrivers,
   getDriverDeletionRequests,
   getFirebaseSettings,
@@ -285,6 +288,9 @@ adminRouter.get('/admin/wallet/drivers/withdrawals/request/:requestId', authenti
 adminRouter.get('/admin/wallet/drivers/:id/withdrawals', authenticate(['admin']), getDriverWithdrawals);
 adminRouter.patch('/admin/wallet/drivers/withdrawals/:requestId/approve', authenticate(['admin']), approveDriverWithdrawalRequest);
 adminRouter.patch('/admin/wallet/drivers/withdrawals/:requestId/reject', authenticate(['admin']), rejectDriverWithdrawalRequest);
+adminRouter.get('/admin/wallet/users/referral-redemptions', authenticate(['admin']), getUserReferralRedemptionRequests);
+adminRouter.patch('/admin/wallet/users/referral-redemptions/:requestId/approve', authenticate(['admin']), approveUserReferralRedemptionRequest);
+adminRouter.patch('/admin/wallet/users/referral-redemptions/:requestId/reject', authenticate(['admin']), rejectUserReferralRedemptionRequest);
 adminRouter.get('/admin/driver-ratings', authenticate(['admin']), getDriverRatings);
 adminRouter.get('/admin/driver-ratings/:id', authenticate(['admin']), getDriverRatingDetail);
 

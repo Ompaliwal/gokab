@@ -488,6 +488,21 @@ export const rejectDriverWithdrawalRequest = asyncHandler(async (req, res) =>
   ok(res, await adminService.rejectDriverWithdrawalRequest(req.params.requestId)),
 );
 
+export const getUserReferralRedemptionRequests = asyncHandler(async (req, res) =>
+  ok(res, await adminService.listUserReferralRedemptionRequests(req.query)),
+);
+
+export const approveUserReferralRedemptionRequest = asyncHandler(async (req, res) =>
+  ok(res, await adminService.approveUserReferralRedemptionRequest(req.params.requestId, req.auth?.sub)),
+);
+
+export const rejectUserReferralRedemptionRequest = asyncHandler(async (req, res) =>
+  ok(
+    res,
+    await adminService.rejectUserReferralRedemptionRequest(req.params.requestId, req.body, req.auth?.sub),
+  ),
+);
+
 
 export const getDeletedDrivers = asyncHandler(async (req, res) =>
   ok(res, await adminService.listDeletedDrivers(req.query)),

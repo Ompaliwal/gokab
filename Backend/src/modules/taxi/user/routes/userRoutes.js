@@ -30,12 +30,14 @@ import {
   loginUser,
   registerUser,
   requestAccountDeletion,
+  requestReferralWalletRedemption,
   saveUserFcmToken,
   searchBuses,
   signupUser,
   startUserOtpRequest,
   submitMyBusBookingReview,
   topupUserWallet,
+  listMyReferralRedemptionRequests,
   transferUserWalletToDriver,
   transferUserWallet,
   updateMyActiveRentalLocation,
@@ -100,6 +102,8 @@ userRouter.delete('/notifications', authenticateOrResolveUser(['user']), asyncHa
 userRouter.post('/sos', authenticateOrResolveUser(['user']), asyncHandler(triggerUserSosAlert));
 userRouter.get('/wallet', authenticateOrResolveUser(['user']), asyncHandler(getUserWallet));
 userRouter.post('/wallet/topup', authenticateOrResolveUser(['user']), asyncHandler(topupUserWallet));
+userRouter.get('/wallet/referral-redemptions', authenticateOrResolveUser(['user']), asyncHandler(listMyReferralRedemptionRequests));
+userRouter.post('/wallet/referral-redemptions', authenticateOrResolveUser(['user']), asyncHandler(requestReferralWalletRedemption));
 userRouter.post('/wallet/transfer', authenticateOrResolveUser(['user']), asyncHandler(transferUserWallet));
 userRouter.post('/wallet/transfer/driver', authenticateOrResolveUser(['user']), asyncHandler(transferUserWalletToDriver));
 userRouter.post('/wallet/razorpay/order', authenticateOrResolveUser(['user']), asyncHandler(createRazorpayWalletTopupOrder));

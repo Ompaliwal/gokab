@@ -71,6 +71,10 @@ const Profile = () => {
     phone: '',
     profileImage: '',
     loyaltyPoints: 0,
+    referralWallet: 0,
+    lockedReferralAmount: 0,
+    availableReferralWallet: 0,
+    minimumRedeemAmount: 100,
     stats: {
       trips: 0,
       rating: 4.9,
@@ -153,10 +157,33 @@ const Profile = () => {
           4.9,
         );
         const dynamicLoyaltyPoints = pickNumber(
+          walletData.referralWallet,
+          walletData.availableReferralWallet,
           user.loyaltyPoints,
           user.loyalty_points,
           stored?.loyaltyPoints,
-          150,
+          0,
+        );
+        const dynamicReferralWallet = pickNumber(
+          walletData.referralWallet,
+          stored?.referralWallet,
+          0,
+        );
+        const dynamicLockedReferralAmount = pickNumber(
+          walletData.lockedReferralAmount,
+          stored?.lockedReferralAmount,
+          0,
+        );
+        const dynamicAvailableReferralWallet = pickNumber(
+          walletData.availableReferralWallet,
+          dynamicReferralWallet - dynamicLockedReferralAmount,
+          stored?.availableReferralWallet,
+          0,
+        );
+        const dynamicMinimumRedeemAmount = pickNumber(
+          walletData.referralProgram?.minimumRedeemAmount,
+          stored?.minimumRedeemAmount,
+          100,
         );
         
         setProfile({
@@ -164,6 +191,10 @@ const Profile = () => {
           phone: user.phone || stored?.phone || '',
           profileImage: user.profileImage || user.profile_image || stored?.profileImage || '',
           loyaltyPoints: dynamicLoyaltyPoints,
+          referralWallet: dynamicReferralWallet,
+          lockedReferralAmount: dynamicLockedReferralAmount,
+          availableReferralWallet: dynamicAvailableReferralWallet,
+          minimumRedeemAmount: dynamicMinimumRedeemAmount,
           stats: {
             trips: dynamicTripCount,
             rating: dynamicRating,
@@ -177,6 +208,10 @@ const Profile = () => {
           totalRides: dynamicTripCount,
           rating: dynamicRating,
           loyaltyPoints: dynamicLoyaltyPoints,
+          referralWallet: dynamicReferralWallet,
+          lockedReferralAmount: dynamicLockedReferralAmount,
+          availableReferralWallet: dynamicAvailableReferralWallet,
+          minimumRedeemAmount: dynamicMinimumRedeemAmount,
         }));
       } catch (err) {
         console.error('Failed to load profile', err);
@@ -199,6 +234,11 @@ const Profile = () => {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() || '')
     .join('');
+
+  const safeAvailableReferralWallet = Math.max(0, Number(profile.availableReferralWallet || 0));
+  const safeMinimumRedeemAmount = Math.max(1, Number(profile.minimumRedeemAmount || 100));
+  const referralProgress = Math.min(100, Math.round((safeAvailableReferralWallet / safeMinimumRedeemAmount) * 100));
+  const referralShortfall = Math.max(0, safeMinimumRedeemAmount - safeAvailableReferralWallet);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -316,23 +356,27 @@ const Profile = () => {
               <div className="absolute top-[-20%] right-[-10%] h-32 w-32 bg-white/10 rounded-full blur-xl" />
               <div className="absolute bottom-[-20%] left-[-10%] h-24 w-24 bg-white/5 rounded-full blur-lg" />
               
-              <div className="relative z-10 flex items-center justify-between">
+              <div className="relative z-10 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0">
                     <Award size={28} className="text-white" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <p className="text-[12px] font-bold tracking-wider text-emerald-100 uppercase opacity-90">RediGo Emerald Member</p>
+                    <p className="text-[12px] font-bold tracking-wider text-emerald-100 uppercase opacity-90">Referral Wallet</p>
                     <h4 className="font-sans text-[26px] font-extrabold tracking-tight mt-0.5">
-                      {profile.loyaltyPoints} <span className="text-sm font-bold text-emerald-100">Points</span>
+                      ₹{safeAvailableReferralWallet.toFixed(0)} <span className="text-sm font-bold text-emerald-100">Available</span>
                     </h4>
+                    <p className="mt-1 text-[11px] font-semibold text-emerald-100/90">
+                      Total ₹{Number(profile.referralWallet || 0).toFixed(0)}
+                      {Number(profile.lockedReferralAmount || 0) > 0 ? ` • Locked ₹${Number(profile.lockedReferralAmount || 0).toFixed(0)}` : ''}
+                    </p>
                   </div>
                 </div>
                 
                 <MotionButton
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/taxi/user/referral')}
+                  onClick={() => navigate('/taxi/user/wallet')}
                   className="px-4 py-2 rounded-xl bg-white text-emerald-600 font-extrabold text-[13px] shadow-md hover:bg-emerald-50 transition-all"
                 >
                   Redeem
@@ -344,12 +388,14 @@ const Profile = () => {
                 <div className="flex justify-between items-center text-[12px] font-semibold text-white/90">
                   <span className="flex items-center gap-1">
                     <Sparkles size={12} className="text-emerald-200 fill-emerald-200 animate-pulse" />
-                    50 points to next reward
+                    {referralShortfall > 0
+                      ? `₹${referralShortfall.toFixed(0)} to minimum redeem`
+                      : 'Ready to redeem'}
                   </span>
-                  <span>75% complete</span>
+                  <span>{referralProgress}% complete</span>
                 </div>
                 <div className="w-full h-2 bg-white/20 rounded-full mt-2.5 overflow-hidden">
-                  <div className="h-full bg-white rounded-full" style={{ width: '75%' }} />
+                  <div className="h-full bg-white rounded-full" style={{ width: `${referralProgress}%` }} />
                 </div>
               </div>
             </div>
