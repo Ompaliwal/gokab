@@ -1490,6 +1490,67 @@ const getUserReferralProgramSettings = async () => {
   };
 };
 
+const resolveRentalAdvanceComputation = ({
+  vehicle,
+  pickupDateTime,
+  returnDateTime,
+  selectedPackage = {},
+} = {}) => {
+  const requestedHours = Math.max(
+    0,
+    Math.round((((returnDateTime.getTime() - pickupDateTime.getTime()) / 3600000) + Number.EPSILON) * 100) / 100,
+  );
+  const normalizedPackageId = toCleanString(selectedPackage.id || selectedPackage.packageId || '');
+  const normalizedPackageLabel = toCleanString(selectedPackage.label);
+  const pricingCatalog = Array.isArray(vehicle?.pricing) ? vehicle.pricing : [];
+  const matchedPackage = pricingCatalog.find((entry) => (
+    entry?.active !== false &&
+    (
+      String(entry?.id || entry?.packageId || '').trim() === normalizedPackageId ||
+      (!normalizedPackageId && normalizedPackageLabel && String(entry?.label || '').trim() === normalizedPackageLabel)
+    )
+  ));
+
+  const durationHours = Math.max(
+    Number(matchedPackage?.durationHours || selectedPackage.durationHours || 0),
+    1,
+  );
+  const price = Math.max(Number(matchedPackage?.price || selectedPackage.price || 0), 0);
+  const extraHourPrice = Math.max(Number(matchedPackage?.extraHourPrice || selectedPackage.extraHourPrice || 0), 0);
+  const extraHours = Math.max(0, Math.ceil(Math.max(0, requestedHours - durationHours)));
+  const totalCost = Math.round(((price + extraHours * extraHourPrice) + Number.EPSILON) * 100) / 100;
+  const advancePayment = vehicle?.advancePayment || {};
+  const advanceEnabled = advancePayment?.enabled === true;
+
+  let payableNow = 0;
+  if (advanceEnabled) {
+    const paymentMode = String(advancePayment.paymentMode || 'percentage').trim().toLowerCase();
+    const configuredAmount = Math.max(0, Number(advancePayment.amount || 0));
+
+    if (paymentMode === 'full') {
+      payableNow = totalCost;
+    } else if (paymentMode === 'fixed') {
+      payableNow = Math.min(totalCost, configuredAmount);
+    } else {
+      payableNow = (totalCost * configuredAmount) / 100;
+    }
+  }
+
+  return {
+    requestedHours,
+    totalCost,
+    payableNow: Math.round((Math.max(0, payableNow) + Number.EPSILON) * 100) / 100,
+    advancePaymentLabel: toCleanString(advancePayment?.label) || 'Advance booking payment',
+    selectedPackage: {
+      packageId: toCleanString(matchedPackage?.id || matchedPackage?.packageId || normalizedPackageId),
+      label: toCleanString(matchedPackage?.label || normalizedPackageLabel),
+      durationHours,
+      price,
+      extraHourPrice,
+    },
+  };
+};
+
 const findUserByReferralCode = async (referralCode) => {
   const normalizedCode = normalizeReferralCode(referralCode);
 
@@ -1596,6 +1657,8 @@ const listUserReferralRedemptionHistory = async (userId, limit = 10) =>
     .lean();
 
 export const registerUser = async (req, res) => {
+  throw new ApiError(410, 'Legacy register endpoint is disabled. Use OTP signup.');
+
   const name = toCleanString(req.body.name);
   const phone = normalizePhone(req.body.phone);
   const email = normalizeEmail(req.body.email);
@@ -1678,6 +1741,9 @@ export const getUserNotifications = async (req, res) => {
   const query = {
     status: 'sent',
     send_to: { $in: ['all', 'users'] },
+    ...(Array.isArray(user.hiddenNotificationIds) && user.hiddenNotificationIds.length > 0
+      ? { _id: { $nin: user.hiddenNotificationIds } }
+      : {}),
   };
 
   const notifications = await Notification.find(query)
@@ -1694,11 +1760,17 @@ export const getUserNotifications = async (req, res) => {
 };
 
 export const deleteUserNotification = async (req, res) => {
-  // In a real multi-tenant app, you'd mark it as read/deleted for THIS user in a pivot table.
-  // However, the current driver implementation seems to imply a simpler model or global clear for the demo.
-  // For consistency with the user's request for "single clear", we'll just return success 
-  // as the frontend is already filtering its local state.
-  // If we wanted to persist this per user, we'd need a UserNotification model.
+  const notificationId = String(req.params?.id || '').trim();
+
+  if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+    throw new ApiError(400, 'Valid notification id is required');
+  }
+
+  await User.updateOne(
+    { _id: req.auth?.sub },
+    { $addToSet: { hiddenNotificationIds: new mongoose.Types.ObjectId(notificationId) } },
+  );
+
   res.json({
     success: true,
     message: 'Notification removed',
@@ -1706,6 +1778,24 @@ export const deleteUserNotification = async (req, res) => {
 };
 
 export const clearAllUserNotifications = async (req, res) => {
+  const notificationIds = await Notification.find({
+    status: 'sent',
+    send_to: { $in: ['all', 'users'] },
+  })
+    .select('_id')
+    .lean();
+
+  await User.updateOne(
+    { _id: req.auth?.sub },
+    {
+      $addToSet: {
+        hiddenNotificationIds: {
+          $each: notificationIds.map((item) => item._id),
+        },
+      },
+    },
+  );
+
   res.json({
     success: true,
     message: 'All notifications cleared',
@@ -1813,31 +1903,7 @@ export const loginUser = async (req, res) => {
 };
 
 export const verifyUserPhoneForOtpLogin = async (req, res) => {
-  const phone = normalizePhone(req.body.phone);
-  validatePhone(phone);
-
-  const user = await User.findOne({ phone }).lean();
-
-  if (!user || user.deletedAt) {
-    res.json({
-      success: true,
-      data: {
-        exists: false,
-        user: null,
-      },
-    });
-    return;
-  }
-
-  ensureUserCanLogin(user);
-
-  res.json({
-    success: true,
-    data: {
-      exists: true,
-      ...createUserSession(user),
-    },
-  });
+  throw new ApiError(410, 'OTP login requires OTP verification. Use /users/auth/send-otp and /users/auth/verify-otp.');
 };
 
 export const saveUserFcmToken = async (req, res) => {
@@ -1893,10 +1959,26 @@ export const getCurrentUser = async (req, res) => {
 
 export const uploadUserProfileImage = async (req, res) => {
   const dataUrl = String(req.body?.dataUrl || '');
+  const phone = normalizePhone(req.body?.phone);
+  const purpose = toCleanString(req.body?.purpose || 'profile').toLowerCase();
 
   if (!dataUrl) {
     throw new ApiError(400, 'dataUrl is required');
   }
+
+  validatePhone(phone);
+
+  const folderByPurpose = {
+    profile: 'user-profile',
+    government_id: 'user-government-id',
+  };
+  const targetFolder = folderByPurpose[purpose];
+
+  if (!targetFolder) {
+    throw new ApiError(400, 'Invalid upload purpose');
+  }
+
+  await requireVerifiedUserSignupSession(phone);
 
   if (dataUrl.length > 12_000_000) {
     throw new ApiError(413, 'Image is too large');
@@ -1904,8 +1986,8 @@ export const uploadUserProfileImage = async (req, res) => {
 
   const uploadResult = await uploadDataUrlToCloudinary({
     dataUrl,
-    folder: `${env.cloudinary.folder}/user-profile`,
-    publicIdPrefix: 'user-profile',
+    folder: `${env.cloudinary.folder}/${targetFolder}`,
+    publicIdPrefix: targetFolder,
   });
 
   res.status(201).json({
@@ -2625,8 +2707,8 @@ export const createPhonePeRentalAdvancePaymentOrder = async (req, res) => {
         message: 'Rental advance payment',
       },
       metaInfo: {
-        udf1: vehicleId || 'rental',
-        udf2: vehicleName.slice(0, 120) || 'Rental booking',
+        udf1: userId || 'user',
+        udf2: vehicleId || 'rental',
         udf3: bookingReference,
       },
       prefillUserLoginDetails: normalizePhone(user?.phone || '')
@@ -2821,6 +2903,123 @@ export const payRentalAdvanceWithWallet = async (req, res) => {
     },
     message: 'Rental advance payment collected from wallet successfully',
   });
+};
+
+const verifyRazorpayRentalAdvanceGatewayPayment = async ({
+  orderId,
+  paymentId,
+  signature,
+  userId,
+  expectedAmount = null,
+} = {}) => {
+  const normalizedOrderId = String(orderId || '').trim();
+  const normalizedPaymentId = String(paymentId || '').trim();
+  const normalizedSignature = String(signature || '').trim();
+
+  if (!normalizedOrderId || !normalizedPaymentId || !normalizedSignature) {
+    throw new ApiError(400, 'Payment verification fields are required');
+  }
+
+  const { keyId, keySecret } = await resolveRazorpayCredentials();
+  const expectedSignature = crypto
+    .createHmac('sha256', keySecret)
+    .update(`${normalizedOrderId}|${normalizedPaymentId}`)
+    .digest('hex');
+
+  if (expectedSignature !== normalizedSignature) {
+    throw new ApiError(400, 'Invalid payment signature');
+  }
+
+  const order = await razorpayRequest({
+    method: 'GET',
+    path: `/orders/${encodeURIComponent(normalizedOrderId)}`,
+    keyId,
+    keySecret,
+  });
+
+  const amount = Math.round(Number(order?.amount || 0)) / 100;
+  const orderUserId = String(order?.notes?.userId || '').trim();
+
+  if (!amount || amount <= 0) {
+    throw new ApiError(400, 'Invalid order amount');
+  }
+
+  if (!orderUserId || String(userId || '').trim() !== orderUserId) {
+    throw new ApiError(403, 'This Razorpay rental payment does not belong to the authenticated user');
+  }
+
+  if (Number.isFinite(Number(expectedAmount)) && Math.abs(amount - Number(expectedAmount)) > 0.01) {
+    throw new ApiError(400, 'Rental advance amount does not match the verified payment');
+  }
+
+  return {
+    provider: 'razorpay',
+    status: 'paid',
+    amount,
+    currency: order.currency || 'INR',
+    orderId: normalizedOrderId,
+    paymentId: normalizedPaymentId,
+    signature: normalizedSignature,
+    notes: order?.notes || {},
+  };
+};
+
+const verifyPhonePeRentalAdvanceGatewayPayment = async ({
+  merchantTransactionId,
+  userId,
+  expectedAmount = null,
+  expectedBookingReference = '',
+} = {}) => {
+  const normalizedMerchantTransactionId = toCleanString(merchantTransactionId);
+
+  if (!normalizedMerchantTransactionId) {
+    throw new ApiError(400, 'merchantTransactionId is required');
+  }
+
+  const { clientId, clientSecret, clientVersion, environment } = await resolvePhonePeCredentials();
+  const payload = await phonePeRequest({
+    method: 'GET',
+    path: `/checkout/v2/order/${encodeURIComponent(normalizedMerchantTransactionId)}/status?details=false`,
+    clientId,
+    clientSecret,
+    clientVersion,
+    environment,
+  });
+
+  const paymentDetails = Array.isArray(payload?.paymentDetails) ? payload.paymentDetails : [];
+  const latestPayment = paymentDetails[0] || {};
+  const paymentState = String(payload?.state || latestPayment?.state || '').trim().toUpperCase();
+  const amount = Math.round(Number(payload?.amount || latestPayment?.amount || 0)) / 100;
+  const bookingReference = toCleanString(payload?.metaInfo?.udf3 || latestPayment?.metaInfo?.udf3);
+  const paymentUserId = toCleanString(payload?.metaInfo?.udf1 || latestPayment?.metaInfo?.udf1);
+  const paymentId = toCleanString(latestPayment?.transactionId || latestPayment?.paymentTransactionId || normalizedMerchantTransactionId);
+
+  if (paymentState !== 'COMPLETED') {
+    throw new ApiError(400, 'PhonePe payment is not completed');
+  }
+
+  if (!paymentUserId || String(userId || '').trim() !== paymentUserId) {
+    throw new ApiError(403, 'This PhonePe rental payment does not belong to the authenticated user');
+  }
+
+  if (expectedBookingReference && bookingReference && bookingReference !== expectedBookingReference) {
+    throw new ApiError(400, 'Rental booking reference does not match the verified payment');
+  }
+
+  if (Number.isFinite(Number(expectedAmount)) && Math.abs(amount - Number(expectedAmount)) > 0.01) {
+    throw new ApiError(400, 'Rental advance amount does not match the verified payment');
+  }
+
+  return {
+    provider: 'phonepe',
+    gateway: 'phonepe',
+    status: 'paid',
+    amount,
+    currency: payload?.currency || 'INR',
+    merchantTransactionId: normalizedMerchantTransactionId,
+    transactionId: paymentId,
+    bookingReference,
+  };
 };
 
 export const verifyRazorpayWalletTopup = async (req, res) => {
@@ -3051,49 +3250,16 @@ export const verifyPhonePeWalletTopup = async (req, res) => {
 };
 
 export const verifyRentalAdvancePayment = async (req, res) => {
-  const orderId = String(req.body?.razorpay_order_id || '').trim();
-  const paymentId = String(req.body?.razorpay_payment_id || '').trim();
-  const signature = String(req.body?.razorpay_signature || '').trim();
-
-  if (!orderId || !paymentId || !signature) {
-    throw new ApiError(400, 'Payment verification fields are required');
-  }
-
-  const { keyId, keySecret } = await resolveRazorpayCredentials();
-
-  const expectedSignature = crypto
-    .createHmac('sha256', keySecret)
-    .update(`${orderId}|${paymentId}`)
-    .digest('hex');
-
-  if (expectedSignature !== signature) {
-    throw new ApiError(400, 'Invalid payment signature');
-  }
-
-  const order = await razorpayRequest({
-    method: 'GET',
-    path: `/orders/${encodeURIComponent(orderId)}`,
-    keyId,
-    keySecret,
+  const payment = await verifyRazorpayRentalAdvanceGatewayPayment({
+    orderId: req.body?.razorpay_order_id,
+    paymentId: req.body?.razorpay_payment_id,
+    signature: req.body?.razorpay_signature,
+    userId: req.auth?.sub,
   });
-
-  const amountPaise = Number(order?.amount);
-  if (!Number.isFinite(amountPaise) || amountPaise <= 0) {
-    throw new ApiError(400, 'Invalid order amount');
-  }
 
   res.status(201).json({
     success: true,
-    data: {
-      provider: 'razorpay',
-      status: 'paid',
-      amount: Math.round(amountPaise) / 100,
-      currency: order.currency || 'INR',
-      orderId,
-      paymentId,
-      signature,
-      notes: order?.notes || {},
-    },
+    data: payment,
     message: 'Rental advance payment verified successfully',
   });
 };
@@ -3128,16 +3294,17 @@ export const verifyPhonePeRentalAdvancePayment = async (req, res) => {
   const paymentDetails = Array.isArray(payload?.paymentDetails) ? payload.paymentDetails : [];
   const latestPayment = paymentDetails[0] || {};
   const paymentState = String(payload?.state || latestPayment?.state || '').trim().toUpperCase();
-  const paymentId = toCleanString(latestPayment?.transactionId || latestPayment?.paymentTransactionId || merchantTransactionId);
+  const paymentId = toCleanString(
+    latestPayment?.transactionId || latestPayment?.paymentTransactionId || merchantTransactionId,
+  );
   const amount = Math.round(Number(payload?.amount || latestPayment?.amount || 0)) / 100;
-  const bookingReference = toCleanString(payload?.metaInfo?.udf3 || latestPayment?.metaInfo?.udf3);
 
   logPaymentDiagnostic({
     provider: 'phonepe',
     scope: 'user-rental',
     stage: 'verify-response',
     merchantTransactionId,
-    bookingReference,
+    userId: req.auth?.sub,
     paymentState,
     paymentId,
     amountRupees: amount,
@@ -3145,27 +3312,23 @@ export const verifyPhonePeRentalAdvancePayment = async (req, res) => {
   });
 
   if (paymentState === 'COMPLETED') {
+    const payment = await verifyPhonePeRentalAdvanceGatewayPayment({
+      merchantTransactionId,
+      userId: req.auth?.sub,
+    });
+
     logPaymentDiagnostic({
       provider: 'phonepe',
       scope: 'user-rental',
       stage: 'verify-paid',
       merchantTransactionId,
-      bookingReference,
-      paymentId,
-      amountRupees: amount,
+      bookingReference: payment.bookingReference,
+      paymentId: payment.transactionId,
+      amountRupees: payment.amount,
     });
     res.json({
       success: true,
-      data: {
-        provider: 'phonepe',
-        gateway: 'phonepe',
-        status: 'paid',
-        amount,
-        currency: payload?.currency || 'INR',
-        merchantTransactionId,
-        transactionId: paymentId,
-        bookingReference,
-      },
+      data: payment,
       message: 'Rental advance payment verified successfully',
     });
     return;
@@ -3177,7 +3340,7 @@ export const verifyPhonePeRentalAdvancePayment = async (req, res) => {
       scope: 'user-rental',
       stage: 'verify-pending',
       merchantTransactionId,
-      bookingReference,
+      userId: req.auth?.sub,
       paymentId,
       amountRupees: amount,
     });
@@ -3189,12 +3352,18 @@ export const verifyPhonePeRentalAdvancePayment = async (req, res) => {
         status: 'pending',
         merchantTransactionId,
         transactionId: paymentId,
-        bookingReference,
       },
       message: payload?.message || 'PhonePe payment is still pending',
     });
     return;
   }
+
+  const providerCode = payload?.code || latestPayment?.responseCode || '';
+  const providerMessage =
+    payload?.message ||
+    latestPayment?.responseCodeDescription ||
+    latestPayment?.detailedErrorCode ||
+    'PhonePe payment was not completed';
 
   logPaymentDiagnostic({
     provider: 'phonepe',
@@ -3202,24 +3371,15 @@ export const verifyPhonePeRentalAdvancePayment = async (req, res) => {
     stage: 'verify-failed',
     level: 'warn',
     merchantTransactionId,
-    bookingReference,
+    userId: req.auth?.sub,
     paymentId,
     paymentState,
     amountRupees: amount,
-    code: payload?.code || latestPayment?.responseCode || '',
-    providerMessage:
-      payload?.message ||
-      latestPayment?.responseCodeDescription ||
-      latestPayment?.detailedErrorCode ||
-      '',
+    code: providerCode,
+    providerMessage,
     response: summarizePhonePePayload(payload || {}),
   });
-  const rentalProviderCode = payload?.code || latestPayment?.responseCode || '';
-  const rentalProviderMessage =
-    payload?.message ||
-    latestPayment?.responseCodeDescription ||
-    latestPayment?.detailedErrorCode ||
-    'PhonePe payment was not completed';
+
   res.json({
     success: true,
     data: {
@@ -3228,12 +3388,11 @@ export const verifyPhonePeRentalAdvancePayment = async (req, res) => {
       status: 'failed',
       merchantTransactionId,
       transactionId: paymentId,
-      bookingReference,
-      code: rentalProviderCode,
+      code: providerCode,
       state: paymentState,
-      providerMessage: rentalProviderMessage,
+      providerMessage,
     },
-    message: rentalProviderMessage,
+    message: providerMessage,
   });
 };
 
@@ -3998,19 +4157,16 @@ export const createRentalBookingRequest = async (req, res) => {
   const payload = req.body || {};
   const vehicleTypeId = String(payload.vehicleTypeId || payload.vehicleId || '').trim();
   const bookingReference = toCleanString(payload.bookingReference) || `RNT-${Date.now().toString(36).slice(-6).toUpperCase()}`;
-  const paymentStatus = toCleanString(payload.paymentStatus).toLowerCase() || 'pending';
+  const requestedPaymentStatus = toCleanString(payload.paymentStatus).toLowerCase() || 'pending';
   const paymentMethod = toCleanString(payload.paymentMethod).toLowerCase();
   const paymentMethodLabel = toCleanString(payload.paymentMethodLabel);
-  const advancePaymentLabel = toCleanString(payload.advancePaymentLabel) || 'Advance booking payment';
-  const totalCost = Math.max(0, Number(payload.totalCost || 0));
-  const payableNow = Math.max(0, Number(payload.payableNow || payload.deposit || 0));
   const kycCompleted = Boolean(payload.kycCompleted);
 
   if (!mongoose.Types.ObjectId.isValid(vehicleTypeId)) {
     throw new ApiError(400, 'Valid rental vehicle is required');
   }
 
-  if (!['pending', 'paid', 'not_required', 'failed'].includes(paymentStatus)) {
+  if (!['pending', 'paid', 'not_required', 'failed'].includes(requestedPaymentStatus)) {
     throw new ApiError(400, 'Invalid rental payment status');
   }
 
@@ -4042,15 +4198,103 @@ export const createRentalBookingRequest = async (req, res) => {
     throw new ApiError(404, 'User not found');
   }
 
-  const requestedHours = Math.max(
-    0,
-    Math.round((((returnDateTime.getTime() - pickupDateTime.getTime()) / 3600000) + Number.EPSILON) * 100) / 100,
-  );
-
   const selectedPackage = payload.selectedPackage || {};
   const serviceLocation = payload.serviceLocation || {};
   const paymentPayload = payload.payment || {};
   const kycDocumentsPayload = payload.kycDocuments || {};
+  const pricing = resolveRentalAdvanceComputation({
+    vehicle,
+    pickupDateTime,
+    returnDateTime,
+    selectedPackage,
+  });
+  const totalCost = pricing.totalCost;
+  const payableNow = pricing.payableNow;
+  const advancePaymentLabel = pricing.advancePaymentLabel;
+  let paymentStatus = payableNow <= 0 ? 'not_required' : 'pending';
+  let verifiedPayment = {
+    provider: toCleanString(paymentPayload.provider),
+    status: paymentStatus,
+    amount: payableNow,
+    currency: toCleanString(paymentPayload.currency) || 'INR',
+    orderId: '',
+    paymentId: '',
+    signature: '',
+    merchantTransactionId: '',
+  };
+
+  if (payableNow <= 0) {
+    paymentStatus = 'not_required';
+    verifiedPayment = {
+      ...verifiedPayment,
+      provider: 'manual',
+      status: 'not_required',
+      amount: 0,
+    };
+  } else if (requestedPaymentStatus === 'paid') {
+    if (paymentMethod === 'wallet') {
+      await ensureUserWallet(req.auth?.sub);
+      const wallet = await UserWallet.findOne({ userId: req.auth?.sub }).lean();
+      const referenceKey = `rental_advance_${bookingReference}`;
+      const walletTransaction = Array.isArray(wallet?.transactions)
+        ? wallet.transactions.find((item) => (
+          item?.kind === 'debit' &&
+          String(item?.referenceKey || '') === referenceKey &&
+          Math.abs(Number(item?.amount || 0) - payableNow) <= 0.01
+        ))
+        : null;
+
+      if (!walletTransaction) {
+        throw new ApiError(400, 'Verified wallet rental advance payment was not found');
+      }
+
+      paymentStatus = 'paid';
+      verifiedPayment = {
+        ...verifiedPayment,
+        provider: 'wallet',
+        status: 'paid',
+        amount: payableNow,
+        paymentId: toCleanString(walletTransaction.providerPaymentId || bookingReference),
+      };
+    } else if (toCleanString(paymentPayload.merchantTransactionId || paymentPayload.transactionId)) {
+      const payment = await verifyPhonePeRentalAdvanceGatewayPayment({
+        merchantTransactionId: paymentPayload.merchantTransactionId || paymentPayload.transactionId,
+        userId: req.auth?.sub,
+        expectedAmount: payableNow,
+        expectedBookingReference: bookingReference,
+      });
+      paymentStatus = 'paid';
+      verifiedPayment = {
+        ...verifiedPayment,
+        provider: payment.provider,
+        status: payment.status,
+        amount: payment.amount,
+        currency: payment.currency,
+        merchantTransactionId: payment.merchantTransactionId,
+        paymentId: payment.transactionId,
+      };
+    } else {
+      const payment = await verifyRazorpayRentalAdvanceGatewayPayment({
+        orderId: paymentPayload.orderId || paymentPayload.razorpay_order_id,
+        paymentId: paymentPayload.paymentId || paymentPayload.razorpay_payment_id,
+        signature: paymentPayload.signature || paymentPayload.razorpay_signature,
+        userId: req.auth?.sub,
+        expectedAmount: payableNow,
+      });
+      paymentStatus = 'paid';
+      verifiedPayment = {
+        ...verifiedPayment,
+        provider: payment.provider,
+        status: payment.status,
+        amount: payment.amount,
+        currency: payment.currency,
+        orderId: payment.orderId,
+        paymentId: payment.paymentId,
+        signature: payment.signature,
+      };
+    }
+  }
+
   const normalizedDrivingLicenseUrl = toCleanString(
     kycDocumentsPayload.drivingLicense?.imageUrl ||
       kycDocumentsPayload.drivingLicense?.secureUrl ||
@@ -4085,11 +4329,11 @@ export const createRentalBookingRequest = async (req, res) => {
     vehicleImage: vehicle.image || '',
     serviceCenterIds: matchingServiceCenters.map((item) => item._id),
     selectedPackage: {
-      packageId: toCleanString(selectedPackage.id || selectedPackage.packageId || ''),
-      label: toCleanString(selectedPackage.label),
-      durationHours: Math.max(0, Number(selectedPackage.durationHours || 0)),
-      price: Math.max(0, Number(selectedPackage.price || 0)),
-      extraHourPrice: Math.max(0, Number(selectedPackage.extraHourPrice || 0)),
+      packageId: pricing.selectedPackage.packageId,
+      label: pricing.selectedPackage.label,
+      durationHours: pricing.selectedPackage.durationHours,
+      price: pricing.selectedPackage.price,
+      extraHourPrice: pricing.selectedPackage.extraHourPrice,
     },
     serviceLocation: {
       locationId: toCleanString(serviceLocation.id || serviceLocation._id || serviceLocation.locationId || ''),
@@ -4102,7 +4346,7 @@ export const createRentalBookingRequest = async (req, res) => {
     },
     pickupDateTime,
     returnDateTime,
-    requestedHours,
+    requestedHours: pricing.requestedHours,
     totalCost,
     payableNow,
     advancePaymentLabel,
@@ -4110,13 +4354,13 @@ export const createRentalBookingRequest = async (req, res) => {
     paymentMethod,
     paymentMethodLabel,
     payment: {
-      provider: toCleanString(paymentPayload.provider),
-      status: toCleanString(paymentPayload.status) || paymentStatus,
-      amount: Math.max(0, Number(paymentPayload.amount || payableNow || 0)),
-      currency: toCleanString(paymentPayload.currency) || 'INR',
-      orderId: toCleanString(paymentPayload.orderId || paymentPayload.razorpay_order_id),
-      paymentId: toCleanString(paymentPayload.paymentId || paymentPayload.razorpay_payment_id),
-      signature: toCleanString(paymentPayload.signature || paymentPayload.razorpay_signature),
+      provider: verifiedPayment.provider,
+      status: verifiedPayment.status,
+      amount: Math.max(0, Number(verifiedPayment.amount || 0)),
+      currency: verifiedPayment.currency,
+      orderId: verifiedPayment.orderId,
+      paymentId: verifiedPayment.paymentId,
+      signature: verifiedPayment.signature,
     },
     contactName: toCleanString(user.name),
     contactPhone: toCleanString(user.phone),

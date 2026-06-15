@@ -31,6 +31,7 @@ import { uploadDataUrlToCloudinary } from "../../../../utils/cloudinaryUpload.js
 import {
   completePoolingDriverOnboarding,
   getPoolingDriverOnboardingSession,
+  requireVerifiedPoolingDriverOnboardingSession,
   savePoolingDriverOnboardingDetails,
   startPoolingDriverOnboarding,
   verifyPoolingDriverOnboardingOtp,
@@ -2578,6 +2579,8 @@ const serializeDriverScheduledRide = (ride = {}, currentDriverId = "") => ({
 });
 
 export const registerDriver = async (req, res) => {
+  throw new ApiError(410, "Legacy driver register endpoint is disabled. Use the OTP onboarding flow.");
+
   const { name, phone, password, vehicleType, location } = req.body;
 
   if (!name || !phone || !password || !vehicleType || !location) {
@@ -8706,10 +8709,14 @@ export const completePoolingOnboardingRequest = async (req, res) => {
 
 export const uploadPoolingOnboardingImageRequest = async (req, res) => {
   const image = String(req.body?.image || "").trim();
+  const registrationId = String(req.body?.registrationId || "").trim();
+  const phone = String(req.body?.phone || "").trim();
 
   if (!image) {
     throw new ApiError(400, "Image data is required");
   }
+
+  await requireVerifiedPoolingDriverOnboardingSession({ registrationId, phone });
 
   const result = await uploadDataUrlToCloudinary({
     dataUrl: image,

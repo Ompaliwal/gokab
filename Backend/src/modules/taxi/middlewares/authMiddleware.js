@@ -39,27 +39,6 @@ const attachResolvedAuth = (req, payload) => {
   };
 };
 
-const resolveOpenUserIdentity = async (req) => {
-  const explicitUserId =
-    req.headers['x-user-id'] ||
-    req.body?.userId ||
-    req.query?.userId ||
-    req.params?.userId ||
-    null;
-
-  const query = explicitUserId ? { _id: explicitUserId } : {};
-  const user = await User.findOne(query).sort({ createdAt: 1 });
-
-  if (!user) {
-    throw new ApiError(404, 'No user account is available for open user access');
-  }
-
-  attachResolvedAuth(req, {
-    sub: String(user._id),
-    role: 'user',
-  });
-};
-
 export const authenticate = (allowedRoles = [], options = {}) => async (req, _res, next) => {
   try {
     const allowPending = options?.allowPending === true;
@@ -171,22 +150,5 @@ export const authenticate = (allowedRoles = [], options = {}) => async (req, _re
   }
 };
 
-export const authenticateOrResolveUser = (allowedRoles = ['user']) => async (req, res, next) => {
-  const authorization = req.headers.authorization || '';
-  const [, token] = authorization.split(' ');
-
-  if (token) {
-    return authenticate(allowedRoles)(req, res, next);
-  }
-
-  try {
-    if (!allowedRoles.includes('user')) {
-      throw new ApiError(401, 'Authorization token is required');
-    }
-
-    await resolveOpenUserIdentity(req);
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
+export const authenticateOrResolveUser = (allowedRoles = ['user'], options = {}) =>
+  authenticate(allowedRoles, options);

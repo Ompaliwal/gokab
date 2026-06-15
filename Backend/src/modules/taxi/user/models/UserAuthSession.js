@@ -23,6 +23,20 @@ const userAuthSessionSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    lastOtpSentAt: {
+      type: Date,
+      default: null,
+    },
+    otpSendCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    otpAttemptCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     expiresAt: {
       type: Date,
       required: true,

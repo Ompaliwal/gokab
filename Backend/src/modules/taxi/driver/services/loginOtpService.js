@@ -11,6 +11,8 @@ import { signAccessToken } from './authService.js';
 import { sendOtpSms } from '../../services/smsService.js';
 
 const LOGIN_OTP_TTL_MS = 10 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
+const MAX_OTP_ATTEMPTS = 5;
 
 const normalizePhone = (phone) => {
   const digits = String(phone || '').replace(/\D/g, '').trim();
@@ -264,6 +266,14 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
 
   const { otp, isStatic } = resolveDriverLoginOtpForPhone(normalizedPhone);
   const now = Date.now();
+  const existingSession = await DriverLoginSession.findOne({ phone: normalizedPhone }).lean();
+
+  if (
+    existingSession?.lastOtpSentAt &&
+    now - new Date(existingSession.lastOtpSentAt).getTime() < OTP_RESEND_COOLDOWN_MS
+  ) {
+    throw new ApiError(429, 'Please wait before requesting another OTP');
+  }
 
   const session = await DriverLoginSession.findOneAndUpdate(
     { phone: normalizedPhone },
@@ -274,6 +284,9 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
       otpHash: hashOtp(otp),
       otpExpiresAt: new Date(now + LOGIN_OTP_TTL_MS),
       verifiedAt: null,
+      lastOtpSentAt: new Date(now),
+      otpSendCount: Number(existingSession?.otpSendCount || 0) + 1,
+      otpAttemptCount: 0,
       expiresAt: new Date(now + LOGIN_OTP_TTL_MS),
     },
     { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
@@ -313,9 +326,17 @@ export const verifyDriverLoginOtp = async ({ phone, otp }) => {
     throw new ApiError(410, 'OTP has expired');
   }
 
+  if (Number(session.otpAttemptCount || 0) >= MAX_OTP_ATTEMPTS) {
+    throw new ApiError(429, 'Too many invalid OTP attempts. Request a new OTP.');
+  }
+
   if (session.otpHash !== hashOtp(otp)) {
+    session.otpAttemptCount = Number(session.otpAttemptCount || 0) + 1;
+    await session.save();
     throw new ApiError(401, 'Invalid OTP');
   }
+
+  session.otpAttemptCount = 0;
 
   const account =
     normalizedRole === 'owner'

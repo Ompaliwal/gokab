@@ -5,7 +5,6 @@ import AuthLayout from '../../components/AuthLayout';
 import { User, Mail, Camera, Smartphone, ImagePlus, LifeBuoy, FileText, ShieldCheck } from 'lucide-react';
 import { clearLocalUserSession, userAuthService } from '../../services/authService';
 import { useSettings } from '../../../../shared/context/SettingsContext';
-import { uploadService } from '../../../../shared/services/uploadService';
 
 const fieldShellClassName =
   'rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all flex items-center gap-3 focus-within:border-slate-900 focus-within:ring-4 focus-within:ring-slate-900/5';
@@ -135,7 +134,7 @@ const Signup = () => {
 
     try {
       const dataUrl = await imageFileToUploadDataUrl(file, { maxSize: 900, quality: 0.84 });
-      const uploadPayload = await uploadService.uploadImage(dataUrl, 'user-profile');
+      const uploadPayload = await userAuthService.uploadProfileImage(dataUrl, formData.phone, 'profile');
       const secureUrl = extractUploadUrl(uploadPayload);
 
       if (!secureUrl) {
@@ -161,7 +160,7 @@ const Signup = () => {
 
     try {
       const dataUrl = await imageFileToUploadDataUrl(file, { maxSize: 1500, quality: 0.86 });
-      const uploadPayload = await uploadService.uploadImage(dataUrl, 'user-government-id');
+      const uploadPayload = await userAuthService.uploadProfileImage(dataUrl, formData.phone, 'government_id');
       const imageUrl = extractUploadUrl(uploadPayload);
 
       if (!imageUrl) {

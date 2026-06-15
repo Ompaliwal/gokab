@@ -8,13 +8,27 @@ import { taxiRouter } from './modules/taxi/routes/index.js';
 export const createApp = () => {
   const app = express();
 
-app.use(
-  cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+  const configuredOrigins = String(env.corsOrigin || '')
+    .split(',')
+    .map((value) => value.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+  const allowAllOrigins = configuredOrigins.length === 0 || configuredOrigins.includes('*');
+
+  app.use(
+    cors({
+      origin(origin, callback) {
+        if (allowAllOrigins || !origin) {
+          callback(null, true);
+          return;
+        }
+
+        const normalizedOrigin = String(origin).trim().replace(/\/+$/, '');
+        callback(null, configuredOrigins.includes(normalizedOrigin));
+      },
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+  );
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));

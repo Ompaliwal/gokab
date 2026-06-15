@@ -241,6 +241,11 @@ const userSchema = new mongoose.Schema(
       ref: 'TaxiRide',
       default: null,
     },
+    hiddenNotificationIds: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'TaxiNotification',
+      default: [],
+    },
   },
   {
     timestamps: true,

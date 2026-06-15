@@ -8,6 +8,8 @@ import { PoolingDriverOnboardingSession } from '../models/PoolingDriverOnboardin
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
+const MAX_OTP_ATTEMPTS = 5;
 const TEST_LOGIN_OTP_PHONE = '6268423925';
 const TEST_LOGIN_OTP_CODE = '0000';
 
@@ -200,6 +202,13 @@ export const startPoolingDriverOnboarding = async ({ phone }) => {
   const { otp, isStatic } = resolveDriverLoginOtpForPhone(normalizedPhone);
   const now = Date.now();
 
+  if (
+    existingSession?.lastOtpSentAt &&
+    now - new Date(existingSession.lastOtpSentAt).getTime() < OTP_RESEND_COOLDOWN_MS
+  ) {
+    throw new ApiError(429, 'Please wait before requesting another OTP');
+  }
+
   const session = await PoolingDriverOnboardingSession.findOneAndUpdate(
     { phone: normalizedPhone },
     {
@@ -210,6 +219,9 @@ export const startPoolingDriverOnboarding = async ({ phone }) => {
       otpExpiresAt: new Date(now + OTP_TTL_MS),
       expiresAt: new Date(now + SESSION_TTL_MS),
       verifiedAt: null,
+      lastOtpSentAt: new Date(now),
+      otpSendCount: Number(existingSession?.otpSendCount || 0) + 1,
+      otpAttemptCount: 0,
       status: 'otp_sent',
     },
     {
@@ -243,12 +255,19 @@ export const verifyPoolingDriverOnboardingOtp = async ({ registrationId, phone, 
     throw new ApiError(410, 'OTP has expired');
   }
 
+  if (Number(session.otpAttemptCount || 0) >= MAX_OTP_ATTEMPTS) {
+    throw new ApiError(429, 'Too many invalid OTP attempts. Request a new OTP.');
+  }
+
   if (session.otpHash !== hashOtp(otp)) {
+    session.otpAttemptCount = Number(session.otpAttemptCount || 0) + 1;
+    await session.save();
     throw new ApiError(401, 'Invalid OTP');
   }
 
   session.verifiedAt = new Date();
   session.status = 'otp_verified';
+  session.otpAttemptCount = 0;
   session.expiresAt = new Date(Date.now() + SESSION_TTL_MS);
   await session.save();
 
@@ -346,4 +365,14 @@ export const completePoolingDriverOnboarding = async ({ registrationId, phone })
     token: signAccessToken({ sub: String(vehicle._id), role: 'pooling_driver' }),
     driver: publicPoolingDriverPayload(vehicle),
   };
+};
+
+export const requireVerifiedPoolingDriverOnboardingSession = async ({ registrationId, phone }) => {
+  const session = await getSession({ registrationId, phone });
+
+  if (!session.verifiedAt) {
+    throw new ApiError(403, 'Verify OTP before uploading onboarding images');
+  }
+
+  return session;
 };

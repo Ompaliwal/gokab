@@ -25,6 +25,8 @@ import { applyDriverWalletAdjustment } from './walletService.js';
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
+const MAX_OTP_ATTEMPTS = 5;
 const DRIVER_NAME_REGEX = /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const VEHICLE_NUMBER_PATTERNS = [
@@ -528,6 +530,14 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
   const { otp, isStatic } = resolveDriverOnboardingOtpForPhone(normalizedPhone);
   const now = Date.now();
   const registrationId = crypto.randomUUID();
+  const existingSession = await DriverRegistrationSession.findOne({ phone: normalizedPhone }).lean();
+
+  if (
+    existingSession?.lastOtpSentAt &&
+    now - new Date(existingSession.lastOtpSentAt).getTime() < OTP_RESEND_COOLDOWN_MS
+  ) {
+    throw new ApiError(429, 'Please wait before requesting another OTP');
+  }
 
   const session = await DriverRegistrationSession.findOneAndUpdate(
     { phone: normalizedPhone },
@@ -539,6 +549,9 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
       otpHash: hashOtp(otp),
       otpExpiresAt: new Date(now + OTP_TTL_MS),
       otpVerifiedAt: null,
+      lastOtpSentAt: new Date(now),
+      otpSendCount: Number(existingSession?.otpSendCount || 0) + 1,
+      otpAttemptCount: 0,
       expiresAt: new Date(now + SESSION_TTL_MS),
     },
     { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true },
@@ -577,12 +590,19 @@ export const verifyDriverOtp = async ({ registrationId, phone, otp }) => {
     throw new ApiError(410, 'OTP has expired');
   }
 
+  if (Number(session.otpAttemptCount || 0) >= MAX_OTP_ATTEMPTS) {
+    throw new ApiError(429, 'Too many invalid OTP attempts. Request a new OTP.');
+  }
+
   if (session.otpHash !== hashOtp(otp)) {
+    session.otpAttemptCount = Number(session.otpAttemptCount || 0) + 1;
+    await session.save();
     throw new ApiError(401, 'Invalid OTP');
   }
 
   session.status = 'otp_verified';
   session.otpVerifiedAt = new Date();
+  session.otpAttemptCount = 0;
   await session.save();
 
   return {
