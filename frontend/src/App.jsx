@@ -2,12 +2,10 @@ import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { MapPin, FileText } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
-import toast from 'react-hot-toast';
 import api from './shared/api/axiosInstance';
 import { socketService } from './shared/api/socket';
 import { SettingsProvider } from './shared/context/SettingsContext';
 import AppAutoUpdater from './modules/shared/components/AppAutoUpdater';
-import { addRealtimeNotification } from './modules/user/utils/realtimeNotificationStore';
 import { clearLocalUserSession, getLocalUserToken } from './modules/user/services/authService';
 import { clearCurrentRide } from './modules/user/services/currentRideService';
 import RentalLocationTracker from './modules/user/components/RentalLocationTracker';
@@ -175,6 +173,7 @@ const AdminDashboard = lazy(() => import('./modules/admin/pages/dashboard/MainDa
 const AdminEarnings = lazy(() => import('./modules/admin/pages/dashboard/AdminEarnings'));
 const AdminChat = lazy(() => import('./modules/admin/pages/operations/Chat'));
 const AdminTrips = lazy(() => import('./modules/admin/pages/operations/Trips'));
+const AdminAirportRequests = lazy(() => import('./modules/admin/pages/operations/AirportRequests'));
 const AdminOutstation = lazy(() => import('./modules/admin/pages/operations/Outstation'));
 const AdminDeliveries = lazy(() => import('./modules/admin/pages/operations/Deliveries'));
 const AdminOngoing = lazy(() => import('./modules/admin/pages/operations/Ongoing'));
@@ -446,45 +445,7 @@ const UserAccountInvalidationListener = () => {
       socketService.disconnect();
       navigate('/taxi/user/login', { replace: true, state: loginState });
     };
-
-    const handleAdminChatMessage = (payload = {}) => {
-      const senderRole = String(payload.senderRole || payload.sender?.role || '').toLowerCase();
-      const receiverRole = String(payload.receiverRole || payload.receiver?.role || '').toLowerCase();
-      const messageBody = String(payload.message || payload.body || '').trim();
-
-      if (senderRole !== 'admin' || !messageBody) {
-        return;
-      }
-
-      if (receiverRole && receiverRole !== 'user') {
-        return;
-      }
-
-      const notificationWasAdded = addRealtimeNotification({
-        id: `support-chat:${payload.id || payload._id || `${Date.now()}-${messageBody}`}`,
-        title: 'Support message',
-        body: messageBody,
-        sentAt: payload.createdAt || new Date().toISOString(),
-        type: 'support',
-        source: 'support-chat',
-      });
-
-      if (!notificationWasAdded) {
-        return;
-      }
-
-      toast(messageBody, {
-        duration: 4500,
-        className: 'font-bold text-[13px] rounded-2xl shadow-xl border border-sky-50 bg-white',
-      });
-    };
-
-    let socket = null;
-    if (getLocalUserToken()) {
-        socket = socketService.connect({ role: 'user' });
-        socketService.on('account:deleted', handleLogout);
-        socketService.on('chat:message', handleAdminChatMessage);
-    }
+    socketService.on('account:deleted', handleLogout);
 
     const handleAuthStale = (event) => {
       const staleToken = event.detail?.token || '';
@@ -506,12 +467,7 @@ const UserAccountInvalidationListener = () => {
 
     return () => {
       socketService.off('account:deleted', handleLogout);
-      socketService.off('chat:message', handleAdminChatMessage);
       window.removeEventListener('app:auth-stale', handleAuthStale);
-
-      if (socket) {
-        socketService.disconnect();
-      }
     };
   }, [location.pathname, navigate]);
 
@@ -1110,6 +1066,7 @@ function App() {
                 <Route path="outstation" element={<AdminOutstation />} />
                 <Route path="deliveries" element={<AdminDeliveries />} />
                 <Route path="ongoing" element={<AdminOngoing />} />
+                <Route path="airport/requests" element={<AdminAirportRequests />} />
                 <Route path="bus-service" element={<AdminBusServiceManager />} />
                 <Route path="bus-service/create" element={<AdminBusServiceManager mode="create" />} />
                 <Route path="bus-service/edit/:id" element={<AdminBusServiceManager mode="edit" />} />

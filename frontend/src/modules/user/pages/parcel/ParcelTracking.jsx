@@ -44,6 +44,33 @@ const toLatLng = (coords, fallback = DEFAULT_CENTER) => {
   return fallback;
 };
 
+const readCoordinatePair = (...sources) => {
+  for (const source of sources) {
+    if (Array.isArray(source) && source.length >= 2) {
+      const [lng, lat] = source;
+      if (Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+        return [Number(lng), Number(lat)];
+      }
+    }
+
+    const nestedCoords = source?.coordinates;
+    if (Array.isArray(nestedCoords) && nestedCoords.length >= 2) {
+      const [lng, lat] = nestedCoords;
+      if (Number.isFinite(Number(lat)) && Number.isFinite(Number(lng))) {
+        return [Number(lng), Number(lat)];
+      }
+    }
+
+    const lat = Number(source?.lat ?? source?.latitude);
+    const lng = Number(source?.lng ?? source?.longitude ?? source?.lon);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      return [Number(lng), Number(lat)];
+    }
+  }
+
+  return null;
+};
+
 const arePositionsNearlyEqual = (first, second, threshold = 0.0002) => (
   Math.abs(Number(first?.lat ?? 0) - Number(second?.lat ?? 0)) < threshold &&
   Math.abs(Number(first?.lng ?? 0) - Number(second?.lng ?? 0)) < threshold
@@ -178,13 +205,32 @@ const ParcelTracking = () => {
   
   const pickupPosition = useMemo(() => toLatLng(rideRealtime?.pickup?.coordinates || state.pickupCoords || [75.9048, 22.7039]), [rideRealtime?.pickup?.coordinates, state.pickupCoords]);
   const dropPosition = useMemo(() => toLatLng(rideRealtime?.drop?.coordinates || state.dropCoords || [75.8937, 22.7533], pickupPosition), [pickupPosition, rideRealtime?.drop?.coordinates, state.dropCoords]);
-  const driverPosition = useMemo(() => toLatLng(rideRealtime?.driverLocation?.coordinates, pickupPosition), [pickupPosition, rideRealtime?.driverLocation?.coordinates]);
   const activeDestination = useMemo(
     () => (['started', 'ongoing', 'arrived', 'completed', 'delivered'].includes(tripStatus) ? dropPosition : pickupPosition),
     [dropPosition, pickupPosition, tripStatus],
   );
 
   const driver = useMemo(() => mergeDriverSnapshot(state.driver || {}, rideRealtime?.driver || {}), [state.driver, rideRealtime?.driver]);
+  const resolvedDriverCoords = useMemo(
+    () => readCoordinatePair(
+      rideRealtime?.driverLocation?.coordinates,
+      rideRealtime?.driver?.location,
+      rideRealtime?.driver?.currentLocation,
+      state.currentDriverCoords,
+      state.driverLocation,
+      state.driver?.location,
+      state.driver?.currentLocation,
+    ),
+    [
+      rideRealtime?.driver?.currentLocation,
+      rideRealtime?.driver?.location,
+      rideRealtime?.driverLocation?.coordinates,
+      state.currentDriverCoords,
+      state.driver,
+      state.driverLocation,
+    ],
+  );
+  const driverPosition = useMemo(() => toLatLng(resolvedDriverCoords, pickupPosition), [pickupPosition, resolvedDriverCoords]);
   const vehicleIcon = getTrackingVehicleIcon(state, driver);
   const displayDriverHeading = useMemo(() => {
     if (Number.isFinite(Number(rideRealtime?.driverLocation?.heading))) {

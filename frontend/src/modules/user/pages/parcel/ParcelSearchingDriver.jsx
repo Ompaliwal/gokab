@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShieldCheck, Phone, MessageCircle, CheckCircle2, AlertTriangle, Star } from 'lucide-react';
-import { GoogleMap, Marker, OverlayView, Polyline } from '@react-google-maps/api';
+import { GoogleMap, OverlayView, Polyline } from '@react-google-maps/api';
 import api from '../../../../shared/api/axiosInstance';
 import { socketService } from '../../../../shared/api/socket';
 import { getLocalUserToken, userAuthService } from '../../services/authService';
 import { getCurrentRide, isActiveCurrentRide, saveCurrentRide } from '../../services/currentRideService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../../admin/utils/googleMaps';
+import AdvancedMapMarker from '../../../../shared/components/AdvancedMapMarker';
 import LuxuryIcon from '@/assets/icons/Luxury.png';
 import PremiumIcon from '@/assets/icons/Premium.png';
 import SuvIcon from '@/assets/icons/SUV.png';
@@ -736,7 +737,7 @@ const ParcelSearchingDriver = () => {
             zoom={15}
             options={MAP_OPTIONS}
           >
-            <Marker
+            <AdvancedMapMarker
               position={pickupPos}
               zIndex={100}
               icon={{
@@ -748,10 +749,11 @@ const ParcelSearchingDriver = () => {
                 scale: 1.6,
                 anchor: new window.google.maps.Point(12, 22),
               }}
+              title="Pickup"
             />
 
             {dropPos && (
-              <Marker
+              <AdvancedMapMarker
                 position={dropPos}
                 icon={{
                   path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',
@@ -762,6 +764,7 @@ const ParcelSearchingDriver = () => {
                   scale: 1.6,
                   anchor: new window.google.maps.Point(12, 22),
                 }}
+                title="Drop"
               />
             )}
 

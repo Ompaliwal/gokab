@@ -178,15 +178,23 @@ const BusHome = () => {
     routeSuggestions.length > 0 &&
     !matchingRoute;
 
-  const quickDates = useMemo(
-    () => [
+  const quickDates = useMemo(() => {
+    const seenValues = new Set();
+
+    return [
       { label: 'Today', value: getTodayDate() },
       { label: 'Tomorrow', value: getDateOffset(1) },
       { label: 'Day After', value: getDateOffset(2) },
       { label: 'This Weekend', value: getNextWeekendDate() },
-    ],
-    [],
-  );
+    ].filter((item) => {
+      if (seenValues.has(item.value)) {
+        return false;
+      }
+
+      seenValues.add(item.value);
+      return true;
+    });
+  }, []);
 
   const filteredFromCities = useMemo(() => {
     const source = normalizeCity(fromCity);

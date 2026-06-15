@@ -179,10 +179,18 @@ export const adminService = {
   resolveSafetyAlert: (id, note = '') => api.patch(`/admin/safety/alerts/${id}/resolve`, { note }),
   getOngoingRides: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>
     api.get(`/admin/ongoing-rides?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
-  getRideRequests: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>
-    api.get(`/admin/ride-requests?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
-  listRideRequests: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>
-    api.get(`/admin/ride-requests?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
+  getRideRequests: ({ page = 1, limit = 10, tab = 'all', search = '', is_airport = '' } = {}) => {
+    const params = new URLSearchParams({ page, limit, tab });
+    if (search) params.set('search', search);
+    if (is_airport) params.set('is_airport', is_airport);
+    return api.get(`/admin/ride-requests?${params.toString()}`);
+  },
+  listRideRequests: ({ page = 1, limit = 10, tab = 'all', search = '', is_airport = '' } = {}) => {
+    const params = new URLSearchParams({ page, limit, tab });
+    if (search) params.set('search', search);
+    if (is_airport) params.set('is_airport', is_airport);
+    return api.get(`/admin/ride-requests?${params.toString()}`);
+  },
   getDeliveries: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>
     api.get(`/admin/deliveries?page=${page}&limit=${limit}&tab=${encodeURIComponent(tab)}&search=${encodeURIComponent(search)}`),
   getTrips: ({ page = 1, limit = 10, tab = 'all', search = '' } = {}) =>

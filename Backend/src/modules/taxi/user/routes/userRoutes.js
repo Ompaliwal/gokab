@@ -25,6 +25,7 @@ import {
   clearAllUserNotifications,
   getMyActiveRentalBooking,
   listPublicServiceLocations,
+  listPublicAirports,
   listPublicServiceStores,
   listMyRentalBookings,
   loginUser,
@@ -75,6 +76,7 @@ userRouter.get('/goods-types', asyncHandler(getGoodsTypes));
 userRouter.get('/vehicle-types', asyncHandler(getPublicVehicleTypeCatalog));
 userRouter.get('/rental-vehicles', asyncHandler(getPublicRentalVehicleCatalog));
 userRouter.get('/service-locations', asyncHandler(listPublicServiceLocations));
+userRouter.get('/airports', asyncHandler(listPublicAirports));
 userRouter.get('/service-stores', asyncHandler(listPublicServiceStores));
 userRouter.post('/rental-quote-requests', asyncHandler(createRentalQuoteRequest));
 userRouter.post('/rental-bookings', authenticateOrResolveUser(['user']), asyncHandler(createRentalBookingRequest));

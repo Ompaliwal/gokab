@@ -16,6 +16,24 @@ const VAPID_KEY = String(import.meta.env.VITE_FIREBASE_VAPID_KEY || '').trim();
 
 let messagingSupportPromise = null;
 
+const getActiveAppScope = () => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  const pathname = String(window.location.pathname || '').toLowerCase();
+
+  if (pathname.startsWith('/taxi/driver') || pathname.startsWith('/taxi/owner')) {
+    return 'driver';
+  }
+
+  if (pathname.startsWith('/taxi/user') || pathname === '/user') {
+    return 'user';
+  }
+
+  return '';
+};
+
 const isDriverPendingApprovalScreen = () => {
   if (typeof window === 'undefined') {
     return false;
@@ -66,13 +84,14 @@ const getMessagingSupport = async () => {
 };
 
 const getAuthenticatedRoles = () => {
+  const activeScope = getActiveAppScope();
   const roles = [];
 
-  if (getLocalUserToken()) {
+  if ((!activeScope || activeScope === 'user') && getLocalUserToken()) {
     roles.push('user');
   }
 
-  if (getLocalDriverToken() && !isDriverPendingApprovalScreen()) {
+  if ((!activeScope || activeScope === 'driver') && getLocalDriverToken() && !isDriverPendingApprovalScreen()) {
     roles.push('driver');
   }
 

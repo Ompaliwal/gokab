@@ -4,6 +4,20 @@ import { userAuthService, getLocalUserToken } from '../../modules/user/services/
 const PENDING_NATIVE_FCM_KEY = 'pendingNativeFcmRegistration';
 const LAST_NATIVE_FCM_KEY = 'lastNativeFcmRegistration';
 
+const getActiveAppScope = () => {
+  const pathname = String(window.location.pathname || '').toLowerCase();
+
+  if (pathname.startsWith('/taxi/driver') || pathname.startsWith('/taxi/owner')) {
+    return 'driver';
+  }
+
+  if (pathname.startsWith('/taxi/user') || pathname === '/user') {
+    return 'user';
+  }
+
+  return '';
+};
+
 const isDriverPendingApprovalScreen = () => {
   const pathname = String(window.location.pathname || '').toLowerCase();
   return pathname === '/taxi/driver/registration-status' || pathname === '/taxi/driver/status';
@@ -102,6 +116,7 @@ const clearPendingRegistration = () => {
 
 const submitFcmToken = async ({ token, role, platform = 'mobile' }) => {
   const normalizedRole = inferRole(role);
+  const activeScope = getActiveAppScope();
   const normalizedPlatform = String(platform || 'mobile').trim().toLowerCase() || 'mobile';
   const normalizedToken = String(token || '').trim();
 
@@ -112,6 +127,11 @@ const submitFcmToken = async ({ token, role, platform = 'mobile' }) => {
   if (!normalizedRole) {
     savePendingRegistration({ token: normalizedToken, role: '', platform: normalizedPlatform });
     return { ok: false, reason: 'missing-role' };
+  }
+
+  if (activeScope && normalizedRole !== activeScope) {
+    savePendingRegistration({ token: normalizedToken, role: normalizedRole, platform: normalizedPlatform });
+    return { ok: false, reason: 'role-scope-mismatch' };
   }
 
   if (!hasRoleSession(normalizedRole)) {

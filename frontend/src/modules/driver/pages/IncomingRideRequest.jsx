@@ -175,7 +175,7 @@ const IncomingRideRequest = ({
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/55 px-3 pb-4 sm:pb-8 backdrop-blur-[2px]"
       >
-        <Motion.div
+        <Motion.div   
           initial={{ y: 80, scale: 0.96 }}
           animate={{ y: 0, scale: 1 }}
           exit={{ y: 80, scale: 0.96 }}
@@ -203,6 +203,7 @@ const IncomingRideRequest = ({
                       Scheduled for {formatScheduledDateTime(scheduledAt)}
                     </p>
                   ) : isScheduledRequest ? (
+                    
                     <p className="mt-1 truncate text-[10px] font-black uppercase tracking-[0.14em] text-emerald-300">
                       Scheduled for {formatScheduledDateTime(scheduledAt)}
                     </p>

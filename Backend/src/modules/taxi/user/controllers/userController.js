@@ -28,6 +28,7 @@ import { RentalQuoteRequest } from '../../admin/models/RentalQuoteRequest.js';
 import { RentalVehicleType } from '../../admin/models/RentalVehicleType.js';
 import { ServiceStore } from '../../admin/models/ServiceStore.js';
 import { SetPrice } from '../../admin/models/SetPrice.js';
+import { Airport } from '../../admin/models/Airport.js';
 import { applyDriverWalletAdjustment } from '../../driver/services/walletService.js';
 import { emitToDriver } from '../../services/dispatchService.js';
 import { sendPushNotificationToEntities } from '../../services/pushNotificationService.js';
@@ -203,6 +204,47 @@ export const listPublicServiceStores = async (_req, res) => {
     success: true,
     data: {
       results,
+    },
+  });
+};
+
+export const listPublicAirports = async (req, res) => {
+  const requestedServiceLocationId = String(req.query?.service_location_id || '').trim();
+  const query = {
+    active: { $ne: false },
+    status: 'active',
+  };
+
+  if (requestedServiceLocationId && mongoose.Types.ObjectId.isValid(requestedServiceLocationId)) {
+    query.service_location_id = new mongoose.Types.ObjectId(requestedServiceLocationId);
+  }
+
+  const results = await Airport.find(query)
+    .populate('service_location_id', 'name service_location_name country')
+    .populate('zone_id', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json({
+    success: true,
+    data: {
+      results: results.map((airport) => ({
+        _id: airport._id,
+        id: airport.id || airport._id,
+        name: airport.name || '',
+        code: airport.code || '',
+        terminal: airport.terminal || '',
+        address: airport.address || '',
+        contact_number: airport.contact_number || '',
+        latitude: airport.latitude ?? null,
+        longitude: airport.longitude ?? null,
+        airport_surge: Number(airport.airport_surge || 0),
+        support_airport_fee: Number(airport.support_airport_fee || 0),
+        service_location_id: airport.service_location_id || null,
+        zone_id: airport.zone_id || null,
+        status: airport.status || 'active',
+        active: airport.active !== false,
+      })),
     },
   });
 };

@@ -23,7 +23,7 @@ import {
     BarChart2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleMap, Marker } from '@react-google-maps/api';
+import { GoogleMap } from '@react-google-maps/api';
 import toast from 'react-hot-toast';
 
 
@@ -50,6 +50,7 @@ import SuvIcon from '@/assets/icons/SUV.png';
 
 import { socketService } from '../../../shared/api/socket';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../admin/utils/googleMaps';
+import AdvancedMapMarker from '../../../shared/components/AdvancedMapMarker';
 import { cancelDriverScheduledRide, getCurrentDriver, getDriverDocumentTemplates, getDriverNotifications, getDriverScheduledRides, getLocalDriverToken } from '../services/registrationService';
 import { addLocalDriverNotification, getUnreadDriverNotificationCount, getVisibleDriverNotifications } from '../utils/notificationState';
 import { getScheduledRideCountdown } from '../utils/scheduledRideTime';
@@ -257,6 +258,54 @@ const formatScheduledDateTime = (value) => {
         hour: '2-digit',
         minute: '2-digit',
     });
+};
+
+const toStructuredCloneSafe = (value, seen = new WeakSet()) => {
+    if (value == null) {
+        return value;
+    }
+
+    const valueType = typeof value;
+    if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
+        return value;
+    }
+
+    if (valueType === 'bigint') {
+        return String(value);
+    }
+
+    if (valueType === 'function' || valueType === 'symbol') {
+        return undefined;
+    }
+
+    if (value instanceof Date) {
+        return value.toISOString();
+    }
+
+    if (Array.isArray(value)) {
+        return value.map((item) => toStructuredCloneSafe(item, seen));
+    }
+
+    if (valueType !== 'object') {
+        return undefined;
+    }
+
+    if (seen.has(value)) {
+        return undefined;
+    }
+
+    seen.add(value);
+
+    const nextValue = {};
+    Object.entries(value).forEach(([key, entryValue]) => {
+        const safeValue = toStructuredCloneSafe(entryValue, seen);
+        if (safeValue !== undefined) {
+            nextValue[key] = safeValue;
+        }
+    });
+
+    seen.delete(value);
+    return nextValue;
 };
 
 const formatDistanceLabel = (meters) => {
@@ -833,28 +882,29 @@ const DriverHome = () => {
         }
 
         const currentType = normalizeJobType(job);
+        const nextRouteState = toStructuredCloneSafe({
+            type: currentType,
+            rideId: job.rideId,
+            otp: job.otp || '',
+            request: {
+                type: currentType,
+                title: getJobTitle(currentType),
+                fare: `Rs ${job.fare || 0}`,
+                payment: job.paymentMethod || 'Cash',
+                pickup: job.pickupAddress || formatPoint(job.pickupLocation, 'Pickup Location'),
+                drop: job.dropAddress || formatPoint(job.dropLocation, 'Drop Location'),
+                distance: formatTripDistance(job),
+                requestId: job.rideId,
+                rideId: job.rideId,
+                otp: job.otp || '',
+                raw: job,
+            },
+            currentDriverCoords: driverCoordsRef.current || job.lastDriverLocation?.coordinates || null,
+        });
 
         navigate('/taxi/driver/active-trip', {
             replace: true,
-            state: {
-                type: currentType,
-                rideId: job.rideId,
-                otp: job.otp || '',
-                request: {
-                    type: currentType,
-                    title: getJobTitle(currentType),
-                    fare: `Rs ${job.fare || 0}`,
-                    payment: job.paymentMethod || 'Cash',
-                    pickup: job.pickupAddress || formatPoint(job.pickupLocation, 'Pickup Location'),
-                    drop: job.dropAddress || formatPoint(job.dropLocation, 'Drop Location'),
-                    distance: formatTripDistance(job),
-                    requestId: job.rideId,
-                    rideId: job.rideId,
-                    otp: job.otp || '',
-                    raw: job,
-                },
-                currentDriverCoords: driverCoordsRef.current || job.lastDriverLocation?.coordinates || null,
-            },
+            state: nextRouteState,
         });
 
         return true;
@@ -1676,25 +1726,27 @@ const DriverHome = () => {
                     return;
                 }
 
-                navigate('/taxi/driver/active-trip', {
-                    state: {
-                        type: nextType,
+                const nextRouteState = toStructuredCloneSafe({
+                    type: nextType,
+                    rideId: currentJob?.rideId || payload.rideId,
+                    otp: currentJob?.otp || payload?.otp || activeRequest?.raw?.otp || '',
+                    request: {
+                        ...activeRequest,
                         rideId: currentJob?.rideId || payload.rideId,
                         otp: currentJob?.otp || payload?.otp || activeRequest?.raw?.otp || '',
-                        request: {
-                            ...activeRequest,
-                            rideId: currentJob?.rideId || payload.rideId,
-                            otp: currentJob?.otp || payload?.otp || activeRequest?.raw?.otp || '',
-                            raw: currentJob || {
-                                ...(activeRequest?.raw || {}),
-                                otp: payload?.otp || activeRequest?.raw?.otp || '',
-                                status: payload.status,
-                                liveStatus: payload.liveStatus,
-                                acceptedAt: payload.acceptedAt,
-                            },
+                        raw: currentJob || {
+                            ...(activeRequest?.raw || {}),
+                            otp: payload?.otp || activeRequest?.raw?.otp || '',
+                            status: payload.status,
+                            liveStatus: payload.liveStatus,
+                            acceptedAt: payload.acceptedAt,
                         },
-                        currentDriverCoords: driverCoordsRef.current || readStoredDriverCoords() || null,
                     },
+                    currentDriverCoords: driverCoordsRef.current || readStoredDriverCoords() || null,
+                });
+
+                navigate('/taxi/driver/active-trip', {
+                    state: nextRouteState,
                 });
             };
 
@@ -2278,13 +2330,14 @@ const DriverHome = () => {
                         onUnmount={onUnmount} 
                         options={mapOptions}
                     >
-                        <Marker 
+                        <AdvancedMapMarker
                             position={driverPosition} 
                             icon={{ 
                                 url: mapVehicleIcon, 
                                 scaledSize: new window.google.maps.Size(40, 40), 
                                 anchor: new window.google.maps.Point(20, 20)
-                            }} 
+                            }}
+                            title="Driver location"
                         />
                     </GoogleMap>
                 ) : (

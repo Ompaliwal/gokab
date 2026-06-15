@@ -9,6 +9,7 @@ const AirportCabConfirm = () => {
   const state = location.state || {};
   const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const [mounted, setMounted] = useState(false);
+  const airportName = state.airport?.name || 'Airport';
 
   useEffect(() => {
     setMounted(true);
@@ -20,17 +21,17 @@ const AirportCabConfirm = () => {
   if (!state.pickup) return null;
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
-      <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
-      <div className="absolute top-40 left-[-60px] h-40 w-40 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F0FDF4_0%,#F3F4F6_38%,#EEF2F7_100%)] max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
+      <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-emerald-100/60 blur-3xl pointer-events-none" />
+      <div className="absolute top-40 left-[-60px] h-40 w-40 rounded-full bg-green-100/40 blur-3xl pointer-events-none" />
 
       <header className="bg-white/90 backdrop-blur-md px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-white/80 shadow-[0_4px_20px_rgba(15,23,42,0.05)]">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="w-9 h-9 rounded-[12px] border border-white/80 bg-white/90 flex items-center justify-center shadow-sm active:scale-95 transition-all">
+          <button onClick={() => navigate(routePrefix || '/')} className="w-9 h-9 rounded-[12px] border border-slate-100 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all">
             <ArrowLeft size={18} className="text-slate-900" strokeWidth={2.5} />
           </button>
           <div className="flex-1">
-            <p className="text-[9px] font-black uppercase tracking-[0.26em] text-slate-400">Booking Status</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.26em] text-emerald-600">Booking Status</p>
             <h1 className="text-[19px] font-black tracking-tight text-slate-900">Success</h1>
           </div>
         </div>
@@ -60,14 +61,14 @@ const AirportCabConfirm = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="w-full bg-white/90 backdrop-blur-md rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-white/80 p-5 space-y-4 relative overflow-hidden"
+          className="w-full bg-white/95 backdrop-blur-md rounded-[20px] shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-white/80 p-5 space-y-4 relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-bl-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full pointer-events-none" />
 
           <div className="flex justify-between items-center pb-4 border-b border-slate-100">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Service</p>
-              <h3 className="text-[16px] font-black text-blue-600 flex items-center gap-1.5">
+              <h3 className="text-[16px] font-black text-emerald-600 flex items-center gap-1.5">
                 <Plane size={16} strokeWidth={2.5} /> Airport Drop
               </h3>
             </div>
@@ -79,9 +80,9 @@ const AirportCabConfirm = () => {
 
           <div className="flex gap-4">
             <div className="flex flex-col items-center gap-1 mt-1 shrink-0">
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
               <div className="w-0.5 h-10 bg-slate-200" />
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
             </div>
             <div className="flex-1 space-y-4">
               <div>
@@ -90,7 +91,9 @@ const AirportCabConfirm = () => {
               </div>
               <div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</p>
-                <p className="text-[14px] font-bold text-slate-900 leading-snug tracking-tight">Indore Airport - Terminal {state.terminal}</p>
+                <p className="text-[14px] font-bold text-slate-900 leading-snug tracking-tight">
+                  {airportName}{state.terminal ? ` - Terminal ${state.terminal}` : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -121,13 +124,13 @@ const AirportCabConfirm = () => {
         transition={{ delay: 0.4 }}
         className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-6 pt-3 bg-gradient-to-t from-[#EEF2F7] via-[#F3F4F6]/95 to-transparent pointer-events-none z-30"
       >
-        <div className="pointer-events-auto bg-white/90 rounded-[20px] border border-white/80 shadow-[0_4px_14px_rgba(15,23,42,0.06)] px-5 py-4 flex items-center justify-between mb-3">
+        <div className="pointer-events-auto bg-white rounded-[20px] border border-white shadow-[0_4px_14px_rgba(15,23,42,0.06)] px-5 py-4 flex items-center justify-between mb-3">
           <p className="text-[13px] font-black text-slate-700">Fixed Fare</p>
           <p className="text-[22px] font-black text-slate-900 tracking-tight">Rs {state.fare}</p>
         </div>
         <motion.button
           onClick={() => navigate(routePrefix || '/')}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95"
+          className="pointer-events-auto w-full bg-emerald-600 hover:bg-emerald-700 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2 transition-all active:scale-95"
         >
           <Home size={16} strokeWidth={2.5} /> Go to Home Dashboard
         </motion.button>

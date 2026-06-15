@@ -5825,10 +5825,19 @@ export const listRideRequests = async (query = {}) => {
   const limit = Number(query.limit || 10);
   const tab = String(query.tab || 'all').toLowerCase();
   const search = String(query.search || '').trim().toLowerCase();
+  const isAirport = query.is_airport === 'true' || query.is_airport === true;
 
-  const rides = await Ride.find({
+  const filter = {
     serviceType: { $nin: ['parcel', 'intercity'] },
-  })
+  };
+
+  if (isAirport) {
+    const airportVehicles = await Vehicle.find({ airport: true }).select('_id').lean();
+    const airportVehicleIds = airportVehicles.map(v => v._id);
+    filter.vehicleTypeId = { $in: airportVehicleIds };
+  }
+
+  const rides = await Ride.find(filter)
     .sort({ createdAt: -1 })
     .populate('userId', 'name phone')
     .populate('driverId', 'name phone vehicleType vehicleNumber')

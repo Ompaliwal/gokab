@@ -16,6 +16,7 @@ export const decodeJwtPayload = (token) => {
     }
 
     return JSON.parse(atob(decodeBase64Url(payload)));
+    
   } catch (_error) {
     return null;
   }
