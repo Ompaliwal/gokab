@@ -172,7 +172,6 @@ const SelectLocation = () => {
   const lastCenterRef = useRef(INDIA_CENTER);
   const geocoderRef = useRef(null);
   const autocompleteServiceRef = useRef(null);
-  const placesServiceRef = useRef(null);
   const autocompleteSessionTokenRef = useRef(null);
   const searchCacheRef = useRef(new Map());
   const latestSearchRef = useRef(0);
@@ -259,7 +258,6 @@ const SelectLocation = () => {
     }
 
     autocompleteServiceRef.current = autocompleteServiceRef.current || new window.google.maps.places.AutocompleteService();
-    placesServiceRef.current = placesServiceRef.current || new window.google.maps.places.PlacesService(document.createElement('div'));
     autocompleteSessionTokenRef.current = autocompleteSessionTokenRef.current
       || new window.google.maps.places.AutocompleteSessionToken();
   }, [isLoaded]);
@@ -283,18 +281,6 @@ const SelectLocation = () => {
     }
 
     autocompleteSessionTokenRef.current = new window.google.maps.places.AutocompleteSessionToken();
-  };
-
-  const getPlacesService = () => {
-    if (!window.google?.maps?.places?.PlacesService) {
-      return null;
-    }
-
-    if (!placesServiceRef.current) {
-      placesServiceRef.current = new window.google.maps.places.PlacesService(document.createElement('div'));
-    }
-
-    return placesServiceRef.current;
   };
 
   const getGeocoder = () => {
@@ -351,58 +337,28 @@ const SelectLocation = () => {
     }
 
     const geocoder = getGeocoder();
-    const placesService = getPlacesService();
 
-    if (result?.placeId && placesService) {
+    if (result?.placeId && geocoder) {
       return new Promise((resolve) => {
-        placesService.getDetails(
-          {
-            placeId: result.placeId,
-            sessionToken: getAutocompleteSessionToken(),
-            fields: ['formatted_address', 'geometry.location', 'name'],
-          },
-          (place, status) => {
-            const location = place?.geometry?.location;
+        geocoder.geocode({ placeId: result.placeId }, (results, geocodeStatus) => {
+          const geocodedPlace = results?.[0];
+          const geocodedLocation = geocodedPlace?.geometry?.location;
 
-            if (status === 'OK' && location) {
-              resolve({
-                title: result.title || place.name || place.formatted_address,
-                address: place.formatted_address || result.address || result.title || '',
-                coords: [location.lng(), location.lat()],
-              });
-              return;
-            }
-
-            if (geocoder) {
-              geocoder.geocode({ placeId: result.placeId }, (results, geocodeStatus) => {
-                const geocodedPlace = results?.[0];
-                const geocodedLocation = geocodedPlace?.geometry?.location;
-
-                if (geocodeStatus === 'OK' && geocodedLocation) {
-                  resolve({
-                    title: result.title || geocodedPlace.formatted_address,
-                    address: geocodedPlace.formatted_address || result.address || result.title || '',
-                    coords: [geocodedLocation.lng(), geocodedLocation.lat()],
-                  });
-                  return;
-                }
-
-                resolve({
-                  title: result?.title || '',
-                  address: result?.address || result?.title || '',
-                  coords: DEFAULT_COORDS,
-                });
-              });
-              return;
-            }
-
+          if (geocodeStatus === 'OK' && geocodedLocation) {
             resolve({
-              title: result?.title || '',
-              address: result?.address || result?.title || '',
-              coords: DEFAULT_COORDS,
+              title: result.title || geocodedPlace.formatted_address,
+              address: geocodedPlace.formatted_address || result.address || result.title || '',
+              coords: [geocodedLocation.lng(), geocodedLocation.lat()],
             });
-          },
-        );
+            return;
+          }
+
+          resolve({
+            title: result?.title || '',
+            address: result?.address || result?.title || '',
+            coords: DEFAULT_COORDS,
+          });
+        });
       });
     }
 

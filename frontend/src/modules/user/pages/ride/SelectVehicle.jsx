@@ -1199,10 +1199,16 @@ const SelectVehicle = () => {
   const isFarePending = isResolvingTripMetrics || isLoadingPricingRules;
 
   const hasAvailabilityResults = Object.keys(availabilityByVehicleId).length > 0;
+  const isAwaitingInitialAvailability =
+    rideMode !== 'schedule'
+    && !isLoadingVehicles
+    && vehicles.length > 0
+    && !hasAvailabilityResults
+    && isLoadingDrivers;
 
   const displayedVehicles = useMemo(() => {
     if (!hasAvailabilityResults) {
-      return pricedVehicles;
+      return rideMode === 'schedule' ? pricedVehicles : [];
     }
 
     const rankedVehicles = pricedVehicles
@@ -1836,14 +1842,21 @@ const SelectVehicle = () => {
               </div>
             )}
 
-            {!isLoadingVehicles && !vehicleLoadError && displayedVehicles.length === 0 && (
+            {isAwaitingInitialAvailability && (
+              <div className="min-h-[180px] flex flex-col items-center justify-center gap-3 text-slate-400">
+                <LoaderCircle size={24} className="animate-spin" />
+                <p className="text-[11px] font-bold uppercase tracking-widest">Checking online drivers</p>
+              </div>
+            )}
+
+            {!isLoadingVehicles && !vehicleLoadError && !isAwaitingInitialAvailability && displayedVehicles.length === 0 && (
               <div className="rounded-[18px] border border-slate-100 bg-white px-4 py-5 text-center">
                 <p className="text-[13px] font-bold text-slate-900">No vehicles available</p>
                 <p className="mt-1 text-[11px] font-bold text-slate-400">Try changing your location or method.</p>
               </div>
             )}
 
-            {!isLoadingVehicles && !vehicleLoadError && displayedVehicles.map((v, i) => {
+            {!isLoadingVehicles && !vehicleLoadError && !isAwaitingInitialAvailability && displayedVehicles.map((v, i) => {
               const isSelected = selected === v.id;
               const availability = availabilityByVehicleId[v.id] || DEFAULT_AVAILABILITY;
               const isUnavailable = !availability.totalDrivers;

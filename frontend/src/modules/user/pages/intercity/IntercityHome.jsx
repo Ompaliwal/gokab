@@ -120,7 +120,6 @@ const IntercityHome = () => {
   const lastCenterRef = useRef(INDIA_CENTER);
   const geocoderRef = useRef(null);
   const autocompleteServiceRef = useRef(null);
-  const placesServiceRef = useRef(null);
   const autocompleteSessionTokenRef = useRef(null);
   const latestSearchRef = useRef(0);
   const searchCacheRef = useRef(new Map());
@@ -163,7 +162,6 @@ const IntercityHome = () => {
     }
 
     autocompleteServiceRef.current = autocompleteServiceRef.current || new window.google.maps.places.AutocompleteService();
-    placesServiceRef.current = placesServiceRef.current || new window.google.maps.places.PlacesService(document.createElement('div'));
     autocompleteSessionTokenRef.current = autocompleteSessionTokenRef.current
       || new window.google.maps.places.AutocompleteSessionToken();
   }, [isLoaded]);
@@ -429,49 +427,30 @@ const IntercityHome = () => {
   const handleDestinationSelect = async (result) => {
     if (!result) return;
 
-    const placesService = placesServiceRef.current;
     const geocoder = getGeocoder();
 
-    if (result.placeId && placesService) {
-      placesService.getDetails(
-        {
-          placeId: result.placeId,
-          sessionToken: getAutocompleteSessionToken(),
-          fields: ['formatted_address', 'geometry.location', 'name'],
-        },
-        (place, status) => {
-          if (status === 'OK' && place?.geometry?.location) {
-            const nextDestination = {
-              title: result.title || place.name || place.formatted_address || '',
-              address: place.formatted_address || result.address || result.title || '',
-              coords: [place.geometry.location.lng(), place.geometry.location.lat()],
-            };
+    if (result.placeId && geocoder) {
+      geocoder.geocode({ placeId: result.placeId }, (results, status) => {
+        if (status === 'OK' && results?.[0]?.geometry?.location) {
+          const bestMatch = results[0];
+          const nextDestination = {
+            title: result.title || bestMatch.formatted_address || '',
+            address: bestMatch.formatted_address || result.address || result.title || '',
+            coords: [bestMatch.geometry.location.lng(), bestMatch.geometry.location.lat()],
+          };
 
-            setSelectedDestination(nextDestination);
-            setToCitySearch(nextDestination.address);
-            setIsToFocused(false);
-            resetAutocompleteSessionToken();
-            return;
-          }
+          setSelectedDestination(nextDestination);
+          setToCitySearch(nextDestination.address);
+          setIsToFocused(false);
+          resetAutocompleteSessionToken();
+          return;
+        }
 
-          if (result.placeId && geocoder) {
-            geocoder.geocode({ placeId: result.placeId }, (results, geocodeStatus) => {
-              if (geocodeStatus === 'OK' && results?.[0]?.geometry?.location) {
-                const nextDestination = {
-                  title: result.title || results[0].formatted_address || '',
-                  address: results[0].formatted_address || result.address || result.title || '',
-                  coords: [results[0].geometry.location.lng(), results[0].geometry.location.lat()],
-                };
-
-                setSelectedDestination(nextDestination);
-                setToCitySearch(nextDestination.address);
-                setIsToFocused(false);
-                resetAutocompleteSessionToken();
-              }
-            });
-          }
-        },
-      );
+        setSelectedDestination(result);
+        setToCitySearch(result.address || result.title || '');
+        setIsToFocused(false);
+        resetAutocompleteSessionToken();
+      });
       return;
     }
 
