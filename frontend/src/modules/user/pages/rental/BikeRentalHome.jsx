@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toHistorySafeState } from '../../../../shared/utils/historyState';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Fuel, Shield, ChevronRight, Star, Info, Car, Search, X, Bike, Sparkles, Filter, Check, MapPin, Navigation } from 'lucide-react';
 import { userService } from '../../services/userService';
@@ -297,7 +298,7 @@ const BikeRentalHome = () => {
       // Ignore storage failures and continue with navigation state.
     }
 
-    navigate(`${routePrefix}/rental/vehicle`, { state: payload });
+    navigate(`${routePrefix}/rental/vehicle`, { state: toHistorySafeState(payload) });
   };
 
   useEffect(() => {

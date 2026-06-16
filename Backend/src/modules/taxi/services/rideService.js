@@ -532,6 +532,21 @@ const normalizeVehicleKeys = (vehicles = []) => {
   return [...new Set(keys.map(normalizeVehicleKey).filter(Boolean))];
 };
 
+const buildDriverWalletEligibilityQuery = () => ({
+  $or: [
+    { owner_id: { $ne: null } },
+    { 'wallet.isBlocked': { $ne: true } },
+  ],
+});
+
+const combineDriverEligibilityFilters = (...filters) => {
+  const normalizedFilters = filters.filter((filter) => filter && Object.keys(filter).length > 0);
+  if (normalizedFilters.length === 1) {
+    return normalizedFilters[0];
+  }
+  return { $and: normalizedFilters };
+};
+
 const normalizeBidStepAmount = (value) => {
   const amount = Number(value);
   return Number.isFinite(amount) && amount > 0 ? Math.round(amount) : DEFAULT_BID_STEP_AMOUNT;
@@ -1510,13 +1525,15 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
       }
 
       const driverVehicleFilter = await buildDriverVehicleAcceptFilter(ride);
-      const driver = await Driver.findOne({
-        _id: driverId,
-        isOnline: true,
-        isOnRide: false,
-        'wallet.isBlocked': { $ne: true },
-        ...driverVehicleFilter,
-      }).session(session);
+      const driver = await Driver.findOne(combineDriverEligibilityFilters(
+        {
+          _id: driverId,
+          isOnline: true,
+          isOnRide: false,
+        },
+        buildDriverWalletEligibilityQuery(),
+        driverVehicleFilter,
+      )).session(session);
 
       if (!driver) {
         throw new ApiError(409, 'Driver is unavailable to accept this ride');
@@ -1772,13 +1789,15 @@ export const submitRideBid = async ({ rideId, driverId, bidFare }) => {
   }
 
   const driverVehicleFilter = await buildDriverVehicleAcceptFilter(ride);
-  const driver = await Driver.findOne({
-    _id: driverId,
-    isOnline: true,
-    isOnRide: false,
-    'wallet.isBlocked': { $ne: true },
-    ...driverVehicleFilter,
-  }).select('name phone profileImage vehicleType vehicleNumber vehicleColor vehicleMake vehicleModel rating');
+  const driver = await Driver.findOne(combineDriverEligibilityFilters(
+    {
+      _id: driverId,
+      isOnline: true,
+      isOnRide: false,
+    },
+    buildDriverWalletEligibilityQuery(),
+    driverVehicleFilter,
+  )).select('name phone profileImage vehicleType vehicleNumber vehicleColor vehicleMake vehicleModel rating');
 
   if (!driver) {
     throw new ApiError(409, 'Driver is unavailable to bid on this ride');
@@ -1952,13 +1971,15 @@ export const acceptRideBidAssignment = async ({ rideId, bidId, userId }) => {
       }
 
       const driverVehicleFilter = await buildDriverVehicleAcceptFilter(ride);
-      const driver = await Driver.findOne({
-        _id: bid.driverId,
-        isOnline: true,
-        isOnRide: false,
-        'wallet.isBlocked': { $ne: true },
-        ...driverVehicleFilter,
-      }).session(session);
+      const driver = await Driver.findOne(combineDriverEligibilityFilters(
+        {
+          _id: bid.driverId,
+          isOnline: true,
+          isOnRide: false,
+        },
+        buildDriverWalletEligibilityQuery(),
+        driverVehicleFilter,
+      )).session(session);
 
       if (!driver) {
         throw new ApiError(409, 'Driver is unavailable to accept this bid');

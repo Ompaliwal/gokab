@@ -15,6 +15,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { getOwnerFleetDrivers } from "../../services/registrationService";
 import DriverBottomNav from "../../../shared/components/DriverBottomNav";
+import { toHistorySafeState } from "../../../../shared/utils/historyState";
 
 const ManageDrivers = () => {
   const navigate = useNavigate();
@@ -50,6 +51,16 @@ const ManageDrivers = () => {
             email: item.email || "-",
             address: item.city || "-",
             salary: Number(item.salary || 0),
+            zoneId: item.zoneId || item.zone?._id || item.zone?.id || "",
+            zoneName: item.zone?.name || "-",
+            assignedFleetVehicleId: item.assignedFleetVehicleId || item.assignedVehicle?._id || item.assignedVehicle?.id || "",
+            assignedVehicleLabel: item.assignedVehicle
+              ? [
+                  item.assignedVehicle.vehicleMake,
+                  item.assignedVehicle.vehicleModel,
+                  item.assignedVehicle.vehicleNumber,
+                ].filter(Boolean).join(" - ")
+              : "-",
             status:
               item.approve === true ||
               item.approve === 1 ||
@@ -176,10 +187,10 @@ const ManageDrivers = () => {
                       <button
                         onClick={() =>
                           navigate(`${routePrefix}/edit-driver/${d.id}`, {
-                            state: {
+                            state: toHistorySafeState({
                               driver: d,
                               returnTo: `${routePrefix}/manage-drivers`,
-                            },
+                            }),
                           })
                         }
                         className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-slate-900 transition-colors">
@@ -213,11 +224,23 @@ const ManageDrivers = () => {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-400 col-span-2">
+                        <Briefcase size={12} strokeWidth={2.5} />
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
+                          Assigned Vehicle {d.assignedVehicleLabel}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-slate-400 col-span-2">
                         <MapPin size={12} strokeWidth={2.5} />
-                      <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
-                        {d.address}
-                      </span>
-                    </div>
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
+                          {d.address}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-slate-400 col-span-2">
+                        <MapPin size={12} strokeWidth={2.5} />
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">
+                          Assigned Zone {d.zoneName}
+                        </span>
+                      </div>
                   </div>
                 </div>
               ))

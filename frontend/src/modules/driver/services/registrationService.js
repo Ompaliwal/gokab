@@ -414,6 +414,9 @@ export const getOwnerFleetDrivers = () =>
 export const getOwnerFleetDashboard = () =>
   api.get("/drivers/fleet/dashboard", withDriverAuth());
 
+export const getOwnerFleetZones = () =>
+  api.get("/drivers/fleet/zones", withDriverAuth());
+
 export const createOwnerFleetDriver = (payload) =>
   api.post("/drivers/fleet/drivers", payload, withDriverAuth());
 

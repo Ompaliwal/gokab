@@ -22,6 +22,7 @@ import {
   submitRideFeedback,
   updateRideLifecycle,
 } from '../../services/rideService.js';
+import { matchDrivers } from '../../services/matchingService.js';
 import {
   cancelRideByUser,
   emitToDriver,
@@ -976,30 +977,17 @@ export const listAvailableDrivers = async (req, res) => {
     throw new ApiError(400, 'lat and lng are required');
   }
 
-  const near = {
-    $geometry: {
-      type: 'Point',
-      coordinates: [longitude, latitude],
-    },
-  };
-
-  if (Number.isFinite(distance) && distance > 0) {
-    near.$maxDistance = Math.min(distance, 25000);
-  }
-
-  const drivers = await Driver.find({
-    isOnline: true,
-    isOnRide: false,
+  const matchResult = await matchDrivers([longitude, latitude], {
+    maxDistance: Number.isFinite(distance) && distance > 0 ? Math.min(distance, 25000) : 3000,
+    limit: Math.min(Number(limit) || 30, 50),
     vehicleTypeId,
-    location: {
-      $near: near,
-    },
-  })
-    .limit(Math.min(Number(limit) || 30, 50))
-    .select('name phone vehicleTypeId vehicleType vehicleIconType vehicleNumber vehicleColor vehicleMake vehicleModel rating location')
-    .lean();
+    serviceLocationId:
+      service_location_id && mongoose.Types.ObjectId.isValid(service_location_id)
+        ? new mongoose.Types.ObjectId(service_location_id)
+        : null,
+  });
 
-  const enrichedDrivers = drivers.map((driver) => {
+  const enrichedDrivers = (matchResult?.drivers || []).map((driver) => {
     const distanceMeters = calculateDistanceMeters([longitude, latitude], driver.location?.coordinates || []);
     const etaMinutes = estimateEtaMinutes(distanceMeters);
 

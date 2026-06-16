@@ -210,6 +210,7 @@ Processing Time: Refunds are typically credited back to the original payment met
     const driverLocation = useMemo(() => driver?.city || 'N/A', [driver?.city]);
     const driverNumber = useMemo(() => driver?.vehicleNumber || 'N/A', [driver?.vehicleNumber]);
     const driverColor = useMemo(() => driver?.vehicleColor || 'N/A', [driver?.vehicleColor]);
+    const driverZone = useMemo(() => driver?.zone?.name || 'N/A', [driver?.zone?.name]);
     const driverRating = useMemo(() => Number(driver?.rating || 0), [driver?.rating]);
     const routeBookingSubtitle = useMemo(() => {
         if (!routeBookingPreferences.enabled) {
@@ -425,6 +426,10 @@ Processing Time: Refunds are typically credited back to the original payment met
                             <div>
                                 <p className="text-[10px] font-medium text-slate-400">Color</p>
                                 <p className="text-[12px] font-bold text-slate-900">{driverColor}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-medium text-slate-400">Assigned Zone</p>
+                                <p className="text-[12px] font-bold text-slate-900">{driverZone}</p>
                             </div>
                         </div>
                     )}

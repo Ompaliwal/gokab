@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSettings } from '../../../../shared/context/SettingsContext';
+import { toHistorySafeState } from '../../../../shared/utils/historyState';
 import { HAS_VALID_GOOGLE_MAPS_KEY, INDIA_CENTER, useAppGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { userService } from '../../services/userService';
 
@@ -1082,13 +1083,13 @@ const RentalVehicleDetail = () => {
     }
 
     navigate(`${routePrefix}/rental/schedule`, {
-      state: {
+      state: toHistorySafeState({
         vehicle,
         duration,
         selectedPackage,
         serviceLocation: selectedServiceLocation,
         userCoordinates,
-      },
+      }),
     });
   };
 

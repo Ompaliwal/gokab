@@ -135,13 +135,15 @@ const resolveWalletRules = async () => {
 const getWalletSnapshot = async (driver) => {
   const rules = await resolveWalletRules();
   const balance = Number(driver?.wallet?.balance || 0);
+  const isOwnerManagedDriver = Boolean(driver?.owner_id);
 
   return {
     balance,
     cashLimit: rules.cashLimit,
     minimumBalanceForOrders: rules.minimumBalanceForOrders,
     availableForOrders: Math.round((balance - rules.minimumBalanceForOrders) * 100) / 100,
-    isBlocked: Boolean(driver?.wallet?.isBlocked),
+    isBlocked: isOwnerManagedDriver ? false : Boolean(driver?.wallet?.isBlocked),
+    isOwnerManagedDriver,
     rules,
   };
 };
@@ -158,7 +160,9 @@ export const serializeDriverWallet = async (driver) => {
     isTransferEnabled: wallet.rules.isTransferEnabled,
     minimumTopUpAmount: wallet.rules.minimumTopUpAmount,
     minimumTransferAmount: wallet.rules.minimumTransferAmount,
-    isBlocked: wallet.isBlocked || !wallet.rules.isWalletEnabled || wallet.balance <= wallet.minimumBalanceForOrders,
+    isBlocked: wallet.isOwnerManagedDriver
+      ? false
+      : (wallet.isBlocked || !wallet.rules.isWalletEnabled || wallet.balance <= wallet.minimumBalanceForOrders),
   };
 };
 
@@ -173,6 +177,17 @@ export const ensureDriverWalletCanAcceptRide = async (driverOrId, { session } = 
   }
 
   const wallet = await getWalletSnapshot(driver);
+  if (wallet.isOwnerManagedDriver) {
+    if (Number(driver?.wallet?.cashLimit) !== wallet.cashLimit || driver?.wallet?.isBlocked) {
+      await Driver.findByIdAndUpdate(driver._id, {
+        'wallet.cashLimit': wallet.cashLimit,
+        'wallet.isBlocked': false,
+      });
+    }
+
+    return wallet;
+  }
+
   const isBlocked = wallet.isBlocked || !wallet.rules.isWalletEnabled || wallet.balance <= wallet.minimumBalanceForOrders;
 
   if (isBlocked) {
@@ -218,7 +233,9 @@ export const applyDriverWalletAdjustment = async ({
 
   const before = await getWalletSnapshot(driver);
   const balanceAfter = Math.round((before.balance + normalizedAmount) * 100) / 100;
-  const isBlockedAfter = !before.rules.isWalletEnabled || balanceAfter <= before.minimumBalanceForOrders;
+  const isBlockedAfter = before.isOwnerManagedDriver
+    ? false
+    : (!before.rules.isWalletEnabled || balanceAfter <= before.minimumBalanceForOrders);
 
   const updatedDriver = await Driver.findByIdAndUpdate(
     driverId,

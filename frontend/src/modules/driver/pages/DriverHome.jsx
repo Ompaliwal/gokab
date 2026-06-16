@@ -687,10 +687,11 @@ const DriverHome = () => {
     );
     const walletNotice = useMemo(() => {
         if (walletAlertState.isBlocked) {
+            const minimumThresholdLabel = `Rs ${Number(walletAlertState.minimumBalanceForOrders || 0).toFixed(0)}`;
             return {
                 title: walletAlertState.belowMinimumBalance ? 'Top up to go online' : 'Cash limit reached',
                 message: walletAlertState.belowMinimumBalance
-                    ? 'Keep your wallet above Rs 0 to receive orders.'
+                    ? `Keep your wallet above ${minimumThresholdLabel} to receive orders.`
                     : 'Add money to keep receiving ride requests.',
                 tone: 'danger',
             };

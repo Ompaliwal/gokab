@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, X, Banknote, CreditCard, ChevronDown, Clock3, LoaderCircle, Eye, TicketPercent, CheckCircle2 } from 'lucide-react';
 import { GoogleMap, MarkerF, OverlayView, PolylineF } from '@react-google-maps/api';
 import api from '../../../../shared/api/axiosInstance';
+import { toHistorySafeState } from '../../../../shared/utils/historyState';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { userService } from '../../services/userService';
 import { useSettings } from '../../../../shared/context/SettingsContext';
@@ -38,57 +39,6 @@ const toLatLng = (coords, fallback = { lat: 22.7196, lng: 75.8577 }) => {
   }
 
   return fallback;
-};
-
-const toHistorySafeValue = (value, seen = new WeakSet()) => {
-  if (value == null) {
-    return value;
-  }
-
-  const valueType = typeof value;
-
-  if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-    return value;
-  }
-
-  if (valueType === 'bigint') {
-    return String(value);
-  }
-
-  if (valueType === 'function' || valueType === 'symbol') {
-    return undefined;
-  }
-
-  if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? null : value.toISOString();
-  }
-
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => toHistorySafeValue(item, seen))
-      .filter((item) => item !== undefined);
-  }
-
-  if (valueType === 'object') {
-    if (seen.has(value)) {
-      return undefined;
-    }
-
-    seen.add(value);
-
-    const safeObject = {};
-    Object.entries(value).forEach(([key, entryValue]) => {
-      const nextValue = toHistorySafeValue(entryValue, seen);
-      if (nextValue !== undefined) {
-        safeObject[key] = nextValue;
-      }
-    });
-
-    seen.delete(value);
-    return safeObject;
-  }
-
-  return undefined;
 };
 
 const getDriverPosition = (driver) => toLatLng(driver?.location?.coordinates, null);
@@ -1659,7 +1609,7 @@ const SelectVehicle = () => {
     setShowBidModal(false);
     const baseFare = Number(selectedVehicle.price || 0);
     const finalFare = appliedPromo?.breakdown?.fare_after_discount ?? baseFare;
-    const bookingState = toHistorySafeValue({
+    const bookingState = toHistorySafeState({
       pickup,
       drop,
       pickupCoords,

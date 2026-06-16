@@ -9,6 +9,7 @@ import {
   Clock,
   Tag,
 } from 'lucide-react';
+import { toHistorySafeState } from '../../../../shared/utils/historyState';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const TIME_OPTIONS = [
@@ -478,7 +479,7 @@ const RentalSchedule = () => {
           disabled={!isValid}
           onClick={() =>
             navigate(`${routePrefix}/rental/kyc`, {
-              state: {
+              state: toHistorySafeState({
                 vehicle,
                 duration,
                 selectedPackage,
@@ -486,7 +487,7 @@ const RentalSchedule = () => {
                 pickup,
                 returnTime: returnDateTimeValue,
                 totalCost,
-              },
+              }),
             })
           }
           className={`pointer-events-auto w-full py-4 rounded-[18px] text-[15px] font-bold text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2 transition-all ${

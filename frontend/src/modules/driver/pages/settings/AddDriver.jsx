@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, UserPlus, CheckCircle2, ChevronRight, Upload, X, ShieldCheck, Mail, Phone, MapPin, IndianRupee } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { createOwnerFleetDriver, getOwnerFleetDrivers, updateOwnerFleetDriver } from '../../services/registrationService';
+import {
+    createOwnerFleetDriver,
+    getOwnerFleetDrivers,
+    getOwnerFleetVehicles,
+    getOwnerFleetZones,
+    updateOwnerFleetDriver,
+} from '../../services/registrationService';
 
 const AddDriver = () => {
     const navigate = useNavigate();
@@ -12,17 +18,55 @@ const AddDriver = () => {
     const isEditMode = Boolean(driverId);
     const [submitting, setSubmitting] = useState(false);
     const [loadingDriver, setLoadingDriver] = useState(false);
+    const [loadingAssignments, setLoadingAssignments] = useState(false);
     const [error, setError] = useState('');
     const [step, setStep] = useState(1); // 1: Details, 2: Documents, 3: Success
+    const [fleetVehicles, setFleetVehicles] = useState([]);
+    const [zones, setZones] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         mobile: '',
         email: '',
         address: '',
         salary: '',
+        zoneId: '',
+        assignedFleetVehicleId: '',
         adhaarFile: null,
         licenseFile: null
     });
+
+    const unwrap = (response) => response?.data?.data || response?.data || response || {};
+
+    useEffect(() => {
+        let active = true;
+
+        const loadAssignments = async () => {
+            setLoadingAssignments(true);
+
+            try {
+                const [vehicleResponse, zoneResponse] = await Promise.all([
+                    getOwnerFleetVehicles(),
+                    getOwnerFleetZones(),
+                ]);
+
+                if (!active) return;
+
+                setFleetVehicles(unwrap(vehicleResponse)?.results || []);
+                setZones(unwrap(zoneResponse)?.results || []);
+            } catch (err) {
+                if (!active) return;
+                setError((current) => current || err?.message || 'Unable to load vehicle and zone assignments');
+            } finally {
+                if (active) setLoadingAssignments(false);
+            }
+        };
+
+        loadAssignments();
+
+        return () => {
+            active = false;
+        };
+    }, []);
 
     useEffect(() => {
         if (!isEditMode) return;
@@ -36,6 +80,8 @@ const AddDriver = () => {
                 email: stateDriver.email || '',
                 address: stateDriver.address || '',
                 salary: stateDriver.salary ? String(stateDriver.salary) : '',
+                zoneId: stateDriver.zoneId || stateDriver.zone?._id || stateDriver.zone?.id || '',
+                assignedFleetVehicleId: stateDriver.assignedFleetVehicleId || stateDriver.assignedVehicle?._id || stateDriver.assignedVehicle?.id || '',
             }));
             return;
         }
@@ -61,6 +107,8 @@ const AddDriver = () => {
                     email: match.email || '',
                     address: match.city || '',
                     salary: match.salary ? String(match.salary) : '',
+                    zoneId: match.zoneId || match.zone?._id || match.zone?.id || '',
+                    assignedFleetVehicleId: match.assignedFleetVehicleId || match.assignedVehicle?._id || match.assignedVehicle?.id || '',
                 }));
             })
             .catch((err) => {
@@ -105,6 +153,8 @@ const AddDriver = () => {
                 address: formData.address,
                 city: formData.address,
                 salary: Number(formData.salary || 0),
+                zoneId: formData.zoneId || '',
+                assignedFleetVehicleId: formData.assignedFleetVehicleId || '',
             };
 
             if (isEditMode) {
@@ -211,6 +261,54 @@ const AddDriver = () => {
                                         inputMode="decimal"
                                         className="w-full bg-transparent border-none p-0 text-[13px] font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200"
                                     />
+                                </div>
+
+                                <div className="bg-slate-50 p-3.5 rounded-2xl shadow-sm">
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                                        Assigned Fleet Vehicle
+                                    </label>
+                                    <select
+                                        value={formData.assignedFleetVehicleId}
+                                        onChange={(e) => setFormData(p => ({ ...p, assignedFleetVehicleId: e.target.value }))}
+                                        className="w-full bg-transparent border-none p-0 text-[13px] font-black text-slate-900 focus:outline-none focus:ring-0"
+                                        disabled={loadingAssignments}
+                                    >
+                                        <option value="">No vehicle assigned</option>
+                                        {fleetVehicles.map((vehicle) => {
+                                            const vehicleId = vehicle.id || vehicle._id;
+                                            const assignedDriverId = vehicle.assignedDriver?.id || vehicle.assignedDriver?._id || '';
+                                            const isAssignedElsewhere = assignedDriverId && String(assignedDriverId) !== String(driverId || '');
+                                            return (
+                                                <option key={vehicleId} value={vehicleId} disabled={Boolean(isAssignedElsewhere)}>
+                                                    {[
+                                                        vehicle.car_brand,
+                                                        vehicle.car_model,
+                                                        vehicle.license_plate_number,
+                                                    ].filter(Boolean).join(' - ')}
+                                                    {isAssignedElsewhere ? ` (Assigned to ${vehicle.assignedDriver?.name || 'another driver'})` : ''}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+
+                                <div className="bg-slate-50 p-3.5 rounded-2xl shadow-sm">
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-2">
+                                        Assigned Zone
+                                    </label>
+                                    <select
+                                        value={formData.zoneId}
+                                        onChange={(e) => setFormData(p => ({ ...p, zoneId: e.target.value }))}
+                                        className="w-full bg-transparent border-none p-0 text-[13px] font-black text-slate-900 focus:outline-none focus:ring-0"
+                                        disabled={loadingAssignments}
+                                    >
+                                        <option value="">No zone assigned</option>
+                                        {zones.map((zone) => (
+                                            <option key={zone.id || zone._id} value={zone.id || zone._id}>
+                                                {zone.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 

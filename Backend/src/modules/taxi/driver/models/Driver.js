@@ -321,6 +321,12 @@ const driverSchema = new mongoose.Schema(
       ref: 'TaxiZone',
       default: null,
     },
+    assignedFleetVehicleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TaxiFleetVehicle',
+      default: null,
+      index: true,
+    },
     location: {
       type: {
         type: String,
@@ -452,6 +458,7 @@ driverSchema.index({ deletedAt: 1, createdAt: -1 });
 driverSchema.index({ approve: 1, deletedAt: 1, createdAt: -1 });
 driverSchema.index({ status: 1, deletedAt: 1 });
 driverSchema.index({ phone: 1, deletedAt: 1 });
+driverSchema.index({ owner_id: 1, assignedFleetVehicleId: 1 });
 
 driverSchema.index({ location: '2dsphere' });
 driverSchema.index({ 'routeBooking.anchorLocation': '2dsphere' });
