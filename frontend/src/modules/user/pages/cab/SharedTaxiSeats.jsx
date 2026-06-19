@@ -103,8 +103,15 @@ const SharedTaxiSeats = () => {
     return sortedRows.length > 0 ? sortedRows : [[seats[0],seats[1]],[seats[2],seats[3]],[seats[4],seats[5]],[seats[6],seats[7]]];
   }, [seats]);
 
+  const basePath = location.pathname.includes('/taxi/user') ? '/taxi/user' : '';
+
+  useEffect(() => {
+    if (!route) {
+      navigate(`${basePath}/cab/shared`);
+    }
+  }, [route, navigate, basePath]);
+
   if (!route) {
-    navigate('/cab/shared');
     return null;
   }
 
@@ -263,7 +270,7 @@ const SharedTaxiSeats = () => {
           )}
         </AnimatePresence>
         <motion.button whileTap={{ scale: 0.98 }} disabled={selected.length === 0}
-          onClick={() => navigate('/cab/shared/confirm', { state: { route, date, seats: selected, total } })}
+          onClick={() => navigate(`${basePath}/cab/shared/confirm`, { state: { route, date, seats: selected, total } })}
           className={`pointer-events-auto w-full py-4 rounded-[18px] text-[15px] font-extrabold text-white shadow-[0_8px_24px_rgba(32,163,84,0.25)] flex items-center justify-center gap-2 transition-all ${
             selected.length > 0 ? 'bg-[#20A354] hover:bg-[#1a8543]' : 'bg-slate-355 cursor-not-allowed'
           }`}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MapPin, Clock, Users, ChevronRight, Star, Zap, Shield } from 'lucide-react';
 import { userService } from '../../services/userService';
@@ -34,6 +34,8 @@ const getDurationString = (dep, arr) => {
 
 const SharedTaxi = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const basePath = location.pathname.includes('/taxi/user') ? '/taxi/user' : '';
   const dates = getDates();
   const [selectedDate, setSelectedDate] = useState(dates[1]); // default tomorrow
   const [routesList, setRoutesList] = useState([]);
@@ -169,7 +171,7 @@ const SharedTaxi = () => {
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.06 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/cab/shared/seats', { state: { route: r, date: fmtKey(selectedDate) } })}
+                    onClick={() => navigate(`${basePath}/cab/shared/seats`, { state: { route: r, date: fmtKey(selectedDate) } })}
                     className="w-full rounded-[20px] border border-white/80 bg-white/90 shadow-[0_4px_14px_rgba(15,23,42,0.06)] overflow-hidden text-left hover:border-emerald-300 hover:shadow-md transition-all duration-200">
 
                     {/* Route header */}

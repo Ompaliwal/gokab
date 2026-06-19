@@ -13,15 +13,58 @@ const SharedTaxiConfirm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { route, date, seats, total } = location.state || {};
-  if (!route) { navigate('/cab/shared'); return null; }
+  const basePath = location.pathname.includes('/taxi/user') ? '/taxi/user' : '';
+
+  React.useEffect(() => {
+    if (!route) {
+      navigate(`${basePath}/cab/shared`);
+    }
+  }, [route, navigate, basePath]);
+
+  if (!route) return null;
 
   const [method, setMethod] = useState('upi');
   const [paying, setPaying] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const [passengers, setPassengers] = useState(() => 
+    (seats || []).map(seat => ({
+      seatId: seat.id,
+      seatLabel: seat.label,
+      name: '',
+      age: '',
+      gender: 'male',
+      phone: ''
+    }))
+  );
+
+  const updatePassenger = (index, field, value) => {
+    setPassengers(prev => prev.map((p, idx) => 
+      idx === index ? { ...p, [field]: value } : p
+    ));
+    setErrors(prev => {
+      const next = { ...prev };
+      delete next[`p-${index}-${field}`];
+      return next;
+    });
+  };
 
   const bookingId = `SHR-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
 
   const handlePay = () => {
+    const newErrors = {};
+    passengers.forEach((p, idx) => {
+      if (!p.name.trim()) newErrors[`p-${idx}-name`] = true;
+      if (!p.age || Number(p.age) <= 0) newErrors[`p-${idx}-age`] = true;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      alert('Please fill in valid details for all passengers.');
+      return;
+    }
+
     setPaying(true);
     setTimeout(() => { setPaying(false); setConfirmed(true); }, 1800);
   };
@@ -48,16 +91,27 @@ const SharedTaxiConfirm = () => {
             <div className="w-2 h-2 rounded-full bg-orange-500 shrink-0" />
             <span className="text-[12px] font-extrabold text-slate-800 truncate">{route.to}</span>
           </div>
-          <div className="border-t border-slate-50 pt-2.5 flex justify-between items-center">
-            <div>
-              <p className="text-[10px] font-semibold text-slate-400">{date} · {route.departure}</p>
-              <p className="text-[10px] font-semibold text-slate-400">Seats: {seats?.map(s=>s.label).join(', ')}</p>
+          <div className="border-t border-slate-50 pt-2.5 flex flex-col gap-1">
+            <div className="flex justify-between items-center mb-1">
+              <div>
+                <p className="text-[10px] font-semibold text-slate-400">{date} · {route.departure}</p>
+                <p className="text-[10px] font-semibold text-slate-400">Seats: {seats?.map(s=>s.label).join(', ')}</p>
+              </div>
+              <p className="text-[20px] font-extrabold text-[#20A354]">₹{total}</p>
             </div>
-            <p className="text-[20px] font-extrabold text-[#20A354]">₹{total}</p>
+            
+            <div className="mt-1 border-t border-dashed border-slate-100 pt-2 space-y-1">
+              <p className="text-[9px] font-extrabold text-emerald-600 uppercase tracking-widest">Passenger List</p>
+              {passengers.map((p, idx) => (
+                <p key={p.seatId} className="text-[11px] font-semibold text-slate-500 leading-tight">
+                  Seat {p.seatLabel}: <span className="text-slate-700 font-bold">{p.name}</span> ({p.age}, {p.gender.toUpperCase()})
+                </p>
+              ))}
+            </div>
           </div>
         </div>
-        <motion.button onClick={() => navigate('/taxi/user')}
-          className="pointer-events-auto w-full bg-slate-900 hover:bg-slate-850 py-4 rounded-[18px] text-[15px] font-extrabold text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+         <motion.button onClick={() => navigate(basePath ? basePath : '/cab')}
+          className="pointer-events-auto w-full bg-slate-900 hover:bg-slate-855 py-4 rounded-[18px] text-[15px] font-extrabold text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
           Go to Home Dashboard
         </motion.button>
       </div>
@@ -103,6 +157,64 @@ const SharedTaxiConfirm = () => {
             <div className="flex items-center gap-1"><Clock size={10} strokeWidth={2} />{date} · {route.departure}</div>
             <div className="w-1 h-1 bg-slate-200 rounded-full" />
             <div className="flex items-center gap-1"><Users size={10} strokeWidth={2} />{seats?.length} seat{seats?.length > 1 ? 's' : ''}: {seats?.map(s=>s.label).join(', ')}</div>
+          </div>
+        </motion.div>
+
+        {/* Passenger details form */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+          className="rounded-[20px] border border-white/80 bg-white/90 shadow-[0_4px_14px_rgba(15,23,42,0.05)] px-4 py-4 space-y-4">
+          <p className="text-[9px] font-extrabold uppercase tracking-[0.22em] text-emerald-600">Passenger Details</p>
+          
+          <div className="space-y-4 divide-y divide-slate-100">
+            {passengers.map((passenger, index) => (
+              <div key={passenger.seatId} className={`pt-4 ${index === 0 ? 'pt-0' : ''} space-y-3`}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">
+                    Passenger {index + 1} (Seat {passenger.seatLabel})
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-2.5">
+                  <div>
+                    <label className="text-[9px] font-extrabold text-slate-405 uppercase tracking-wider block mb-1">Full Name</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. John Doe"
+                      value={passenger.name}
+                      onChange={(e) => updatePassenger(index, 'name', e.target.value)}
+                      className={`w-full rounded-xl border ${errors[`p-${index}-name`] ? 'border-red-300 bg-red-50/50' : 'border-slate-200'} bg-white px-3.5 py-2 text-xs text-slate-800 outline-none transition-all focus:border-[#20A354]`}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[9px] font-extrabold text-slate-405 uppercase tracking-wider block mb-1">Age</label>
+                      <input 
+                        type="number" 
+                        required
+                        placeholder="Age"
+                        value={passenger.age}
+                        onChange={(e) => updatePassenger(index, 'age', e.target.value)}
+                        className={`w-full rounded-xl border ${errors[`p-${index}-age`] ? 'border-red-300 bg-red-50/50' : 'border-slate-200'} bg-white px-3.5 py-2 text-xs text-slate-800 outline-none transition-all focus:border-[#20A354]`}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-extrabold text-slate-405 uppercase tracking-wider block mb-1">Gender</label>
+                      <select 
+                        value={passenger.gender}
+                        onChange={(e) => updatePassenger(index, 'gender', e.target.value)}
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 outline-none transition-all focus:border-[#20A354]"
+                      >
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
 
