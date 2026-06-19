@@ -31,9 +31,12 @@ const SharedTaxiSeats = () => {
       try {
         const response = await userService.getPoolingRouteDetails(route.routeId, { date });
         const routeData = response?.data?.data || response?.data || {};
-        
+        console.log('loadSeats routeData:', routeData);
         const nextVehicle = routeData.assignedVehicleTypeIds?.[0] || routeData.assignedVehicles?.[0] || null;
-        setServiceTaxPercentage(Number(nextVehicle?.serviceTaxPercentage || 0));
+        console.log('loadSeats nextVehicle:', nextVehicle);
+        const taxVal = Number(nextVehicle?.serviceTaxPercentage || 0);
+        console.log('loadSeats serviceTaxPercentage:', taxVal);
+        setServiceTaxPercentage(taxVal);
         const seatAvailability = routeData.seatAvailability || {};
         const availabilityKey = nextVehicle?._id && route.scheduleId
           ? `${String(nextVehicle._id)}:${String(route.scheduleId)}`

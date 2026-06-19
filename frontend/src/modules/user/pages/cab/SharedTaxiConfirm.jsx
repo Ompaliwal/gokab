@@ -25,6 +25,7 @@ const SharedTaxiConfirm = () => {
 
   const serviceTaxAmount = Math.round((total * serviceTaxPercentage) / 100);
   const grandTotal = total + serviceTaxAmount;
+  console.log('SharedTaxiConfirm state:', { route, date, seats, total, serviceTaxPercentage, serviceTaxAmount, grandTotal });
 
   const [method, setMethod] = useState('upi');
   const [paying, setPaying] = useState(false);
