@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { GoogleMap, HeatmapLayer } from '@react-google-maps/api';
+import { GoogleMap, Circle } from '@react-google-maps/api';
 import { 
   ChevronRight, 
   Map as MapIcon, 
@@ -65,22 +65,23 @@ const HeatMap = () => {
     fetchZones();
   }, []);
 
-  const heatmapData = useMemo(() => {
-    if (!zones.length || !window.google) return [];
-    return zones.flatMap((zone) => {
+  const circleOverlays = useMemo(() => {
+    if (!zones.length) return [];
+    return zones.flatMap((zone, zoneIdx) => {
       const coord = zone.coordinates?.[0]?.[0] || [75.8577, 22.7196];
       const lat = Number(coord[1]);
       const lng = Number(coord[0]);
       
-      return Array.from({ length: 12 }).map(() => ({
-        location: new window.google.maps.LatLng(
-          lat + (Math.random() - 0.5) * 0.08,
-          lng + (Math.random() - 0.5) * 0.08
-        ),
+      return Array.from({ length: 12 }).map((_, i) => ({
+        id: `zone-${zoneIdx}-${i}`,
+        center: {
+          lat: lat + (Math.random() - 0.5) * 0.08,
+          lng: lng + (Math.random() - 0.5) * 0.08
+        },
         weight: Math.random() * 10
       }));
     });
-  }, [zones, isLoaded]);
+  }, [zones]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
@@ -111,11 +112,25 @@ const HeatMap = () => {
               {loadError ? (
                  <div className="h-[400px] flex items-center justify-center bg-gray-50 text-rose-500 font-semibold">Map Error</div>
               ) : HAS_VALID_GOOGLE_MAPS_KEY && isLoaded ? (
-                 <GoogleMap
-                    mapContainerStyle={MAP_CONTAINER_STYLE} center={INDIA_CENTER} zoom={11} options={mapOptions}
-                 >
-                    <HeatmapLayer data={heatmapData} options={{ opacity, radius }} />
-                 </GoogleMap>
+                  <GoogleMap
+                     mapContainerStyle={MAP_CONTAINER_STYLE} center={INDIA_CENTER} zoom={11} options={mapOptions}
+                  >
+                     {circleOverlays.map((overlay) => (
+                       <Circle
+                         key={overlay.id}
+                         center={overlay.center}
+                         radius={radius * 140 * Math.max(1, overlay.weight * 0.2)}
+                         options={{
+                           fillColor: '#ef4444',
+                           fillOpacity: Math.max(0.18, Math.min(opacity * overlay.weight * 0.1, 0.82)),
+                           strokeColor: '#b91c1c',
+                           strokeOpacity: Math.max(0.1, Math.min(opacity * 0.5, 0.9)),
+                           strokeWeight: 1,
+                           clickable: false,
+                         }}
+                       />
+                     ))}
+                  </GoogleMap>
               ) : (
                 <div className="h-[400px] flex flex-col items-center justify-center bg-gray-50 gap-4">
                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm text-indigo-600"><MapIcon size={32} /></div>
