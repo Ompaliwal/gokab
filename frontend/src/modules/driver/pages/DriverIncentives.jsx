@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Flame,
@@ -7,23 +8,26 @@ import {
   Star,
   Trophy,
   Zap,
-  Shield,
-  ChevronDown,
-  ChevronUp,
   Lock,
+  CheckCircle2,
+  ChevronRight,
+  Shield,
+  Headphones,
   Sparkles,
-  DollarSign,
-  TrendingUp,
-  CheckCircle,
-  HelpCircle,
-  Wallet,
-  Check
+  X,
+  Copy,
+  Fuel,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 import { claimDriverIncentiveReward, getCurrentDriver, getDriverIncentives } from '../services/registrationService';
+
+// Custom flat cartoon illustrations matching the user's green/black vector style
+import incentivesBanner from '../../../assets/incentives_banner.png';
+import bikeWashImg from '../../../assets/bike_wash.png';
+import bikeServiceImg from '../../../assets/bike_service.png';
+import freeHelmetImg from '../../../assets/free_helmet.png';
 
 const unwrap = (response) => response?.data?.data || response?.data || response || {};
 
@@ -35,13 +39,6 @@ const progressPercent = (current, target) => {
   return Math.min(100, Math.round((safeCurrent / safeTarget) * 100));
 };
 
-const TIER_BENEFITS = [
-  { name: 'Bronze', req: '0-49 trips', perk: '1.0x Streak Multiplier', desc: 'Standard support and default trip priority' },
-  { name: 'Silver', req: '50-99 trips', perk: '1.05x Streak Multiplier + 2% Trip Bonus', desc: 'Priority support & minor trip earnings boost' },
-  { name: 'Gold', req: '100-149 trips', perk: '1.10x Streak Multiplier + 5% Trip Bonus', desc: 'Elite driver tag, priority matching & 5% bonus earnings' },
-  { name: 'Platinum', req: '150+ trips', perk: '1.20x Streak Multiplier + 8% Trip Bonus', desc: 'Instant cashouts, highest ride matching priority, & 8% bonus' }
-];
-
 const DriverIncentives = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -49,12 +46,9 @@ const DriverIncentives = () => {
   const [error, setError] = useState('');
   const [claimingKey, setClaimingKey] = useState('');
   const [driverRating, setDriverRating] = useState(0);
-  const [showTierBenefits, setShowTierBenefits] = useState(false);
-  const [displayedBalance, setDisplayedBalance] = useState(0);
-  const [showConfetti, setShowConfetti] = useState(false);
   
-  const canvasRef = useRef(null);
-  const confettiCleanupRef = useRef(null);
+  // State for benefit detail modal
+  const [selectedBenefit, setSelectedBenefit] = useState(null);
 
   const fetchIncentives = async ({ quiet = false } = {}) => {
     if (!quiet) setLoading(true);
@@ -76,142 +70,14 @@ const DriverIncentives = () => {
 
   useEffect(() => {
     fetchIncentives();
-    return () => {
-      if (confettiCleanupRef.current) confettiCleanupRef.current();
-    };
   }, []);
-
-  // Sync wallet balance to displayed rolling balance
-  useEffect(() => {
-    if (data?.walletBalance !== undefined) {
-      if (displayedBalance === 0) {
-        setDisplayedBalance(Number(data.walletBalance));
-        return;
-      }
-      const start = displayedBalance;
-      const end = Number(data.walletBalance);
-      if (start === end) return;
-
-      let current = start;
-      const duration = 1200;
-      const stepTime = 25;
-      const steps = duration / stepTime;
-      const increment = (end - start) / steps;
-
-      const timer = setInterval(() => {
-        current += increment;
-        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
-          setDisplayedBalance(end);
-          clearInterval(timer);
-        } else {
-          setDisplayedBalance(Math.round(current));
-        }
-      }, stepTime);
-
-      return () => clearInterval(timer);
-    }
-  }, [data?.walletBalance]);
-
-  // Canvas coin & confetti animation
-  const triggerConfetti = () => {
-    setShowConfetti(true);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    if (confettiCleanupRef.current) confettiCleanupRef.current();
-
-    let particles = [];
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const colors = ['#10B981', '#FFD700', '#F59E0B', '#3B82F6', '#EF4444', '#EC4899'];
-
-    for (let i = 0; i < 140; i++) {
-      particles.push({
-        x: canvas.width / 2,
-        y: canvas.height * 0.7,
-        radius: Math.random() * 6 + 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        vx: (Math.random() - 0.5) * 16,
-        vy: -Math.random() * 18 - 8,
-        gravity: 0.45,
-        rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 15,
-        alpha: 1,
-        isCoin: Math.random() > 0.4,
-      });
-    }
-
-    let animationFrameId;
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      let active = false;
-
-      particles.forEach((p) => {
-        if (p.alpha <= 0) return;
-        active = true;
-
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += p.gravity;
-        p.rotation += p.rotationSpeed;
-        p.alpha -= 0.008;
-
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.globalAlpha = p.alpha;
-
-        if (p.isCoin) {
-          ctx.beginPath();
-          ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = '#F59E0B'; // Gold
-          ctx.fill();
-          ctx.strokeStyle = '#D97706';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.arc(0, 0, p.radius * 0.6, 0, Math.PI * 2);
-          ctx.fillStyle = '#FEF08A';
-          ctx.fill();
-
-          ctx.fillStyle = '#B45309';
-          ctx.font = `bold ${p.radius * 0.9}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('₹', 0, 0);
-        } else {
-          ctx.fillStyle = p.color;
-          ctx.fillRect(-p.radius, -p.radius / 2, p.radius * 2, p.radius);
-        }
-        ctx.restore();
-      });
-
-      if (active) {
-        animationFrameId = requestAnimationFrame(render);
-      } else {
-        setShowConfetti(false);
-      }
-    };
-
-    render();
-
-    confettiCleanupRef.current = () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  };
 
   const handleClaim = async (rewardType, rewardKey) => {
     setClaimingKey(`${rewardType}:${rewardKey}`);
     try {
       const response = await claimDriverIncentiveReward({ rewardType, rewardKey });
       const claimedReward = unwrap(response)?.claimedReward;
-      toast.success(`${formatCurrency(claimedReward?.amount || 0)} added to your pocket!`);
-      
-      triggerConfetti();
+      toast.success(`${formatCurrency(claimedReward?.amount || 0)} added to your wallet!`);
       await fetchIncentives({ quiet: true });
     } catch (requestError) {
       toast.error(requestError?.response?.data?.message || requestError?.message || 'Unable to claim reward');
@@ -229,7 +95,7 @@ const DriverIncentives = () => {
     [claimedRewards],
   );
 
-  // Gamified Level Details
+  // Level & Tier System
   const levelData = useMemo(() => {
     const totalTrips = Number(summary.totalTrips || summary.currentWeekTrips || 0);
     const level = Math.floor(totalTrips / 50) + 1;
@@ -237,461 +103,735 @@ const DriverIncentives = () => {
     const targetXP = 50;
     
     const levels = [
-      { name: 'Bronze', color: '#B45309', gradient: 'from-amber-500 to-amber-700' },
-      { name: 'Silver', color: '#64748B', gradient: 'from-slate-400 to-slate-600' },
-      { name: 'Gold', color: '#D97706', gradient: 'from-yellow-500 via-amber-500 to-yellow-600' },
-      { name: 'Platinum', color: '#4F46E5', gradient: 'from-purple-500 to-indigo-600' },
+      { name: 'Bronze', color: '#B45309', themeGradient: 'from-amber-600 to-amber-900', text: 'text-amber-800' },
+      { name: 'Silver', color: '#475569', themeGradient: 'from-slate-500 to-slate-800', text: 'text-slate-700' },
+      { name: 'Gold', color: '#CA8A04', themeGradient: 'from-yellow-600 via-amber-600 to-amber-900', text: 'text-yellow-800' },
+      { name: 'Platinum', color: '#4F46E5', themeGradient: 'from-indigo-600 via-violet-600 to-slate-900', text: 'text-indigo-800' },
     ];
     
-    const index = Math.min(level - 1, levels.length - 1);
+    const matched = levels[Math.min(level - 1, levels.length - 1)];
     return {
       level,
       percent: (currentXP / targetXP) * 100,
       currentXP,
       targetXP,
-      ...levels[index]
+      ...matched
     };
   }, [summary]);
 
-  // Greed Meter potential calculator
-  const weeklyPool = useMemo(() => {
-    const milestoneTotal = milestones.reduce((sum, m) => sum + Number(m.payout_amount || 0), 0);
-    const featureTotal = features.reduce((sum, f) => sum + Number(f.reward_amount || 0), 0);
-    return milestoneTotal + featureTotal;
-  }, [milestones, features]);
+  // Determine active/locked milestones sequentially
+  const processedMilestones = useMemo(() => {
+    const firstUnclaimedIndex = milestones.findIndex(m => !m.isClaimed);
+    return milestones.map((m, idx) => {
+      let status = 'locked'; // 'claimed', 'active', 'locked'
+      if (m.isClaimed) {
+        status = 'claimed';
+      } else if (idx === firstUnclaimedIndex) {
+        status = 'active';
+      }
+      return {
+        ...m,
+        roadmapStatus: status,
+      };
+    });
+  }, [milestones]);
 
-  const remainingWeeklyPool = useMemo(() => {
-    return Math.max(0, weeklyPool - bonusEarnings);
-  }, [weeklyPool, bonusEarnings]);
+  // Calculate dynamic driver active days for progress tracking
+  const driverActiveDays = useMemo(() => {
+    const milestoneDays = milestones[0]?.progress?.qualifyingDays;
+    return typeof milestoneDays === 'number' ? milestoneDays : 24;
+  }, [milestones]);
 
-  const poolProgressPercent = useMemo(() => {
-    if (weeklyPool <= 0) return 0;
-    return Math.min(100, Math.round((bonusEarnings / weeklyPool) * 100));
-  }, [bonusEarnings, weeklyPool]);
+  // Handle static power-up click toasts
+  const handlePowerUpClick = (name, description) => {
+    toast((t) => (
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-2 font-bold text-slate-900">
+          <Zap size={14} className="text-yellow-500" />
+          <span>{name}</span>
+        </div>
+        <p className="text-xs text-slate-500 leading-normal">{description}</p>
+      </div>
+    ), {
+      duration: 3500,
+      position: 'top-center',
+    });
+  };
+
+  // 1-Month Completion Perks (30 active days target)
+  const oneMonthPerks = useMemo(() => {
+    const config = [
+      {
+        id: 'service',
+        title: 'FREE BIKE SERVICE',
+        sub: '₹350 Value • Full Tuning',
+        valid: 'Valid for 30 days',
+        code: 'FREEBIKESVC',
+        image: bikeServiceImg,
+        instructions: [
+          'Present the code FREEBIKESVC at any Rydon Partner Service Station.',
+          'Get a comprehensive general servicing (worth ₹350) completely free.',
+          'Includes filter cleaning, brake adjustment, and multi-point checkup.'
+        ]
+      },
+      {
+        id: 'care',
+        title: '6 MONTHS BIKE CARE',
+        sub: 'Basic Maintenance Cover',
+        valid: 'Valid for 6 months',
+        code: 'BIKECARE6M',
+        image: bikeWashImg, // Wash image works nicely for care
+        instructions: [
+          'Use the coupon code BIKECARE6M to activate your 6 Months Bike Care package.',
+          'Provides monthly checkups: engine oil levels, tyre pressure, chain adjustments.',
+          'Keeps your vehicle in top condition for high daily earnings.'
+        ]
+      },
+      {
+        id: 'helmet',
+        title: 'FREE SAFETY HELMET',
+        sub: 'ISI-Certified Protection',
+        valid: 'Claim within 30 days',
+        code: 'FREEHELMET',
+        image: freeHelmetImg,
+        instructions: [
+          'Visit your nearest Rydon Driver Hub.',
+          'Show coupon code FREEHELMET to the hub coordinator.',
+          'Collect your brand-new ISI-certified safety helmet completely free.'
+        ]
+      }
+    ];
+
+    const isCompleted = driverActiveDays >= 30;
+    const progress = Math.min(100, Math.round((driverActiveDays / 30) * 100));
+    const daysRemaining = Math.max(0, 30 - driverActiveDays);
+
+    return config.map((perk) => ({
+      ...perk,
+      status: isCompleted ? 'completed' : 'active',
+      progress,
+      daysRemaining
+    }));
+  }, [driverActiveDays]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-sans">
-        <div className="relative flex items-center justify-center">
-          <Loader2 className="animate-spin text-emerald-500" size={36} />
-          <Trophy className="absolute text-emerald-600/80" size={16} />
-        </div>
-        <p className="mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Loading Performance Hub</p>
+      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center">
+        <Loader2 className="animate-spin text-emerald-600" size={32} />
+        <p className="mt-4 text-xs font-semibold text-gray-400 uppercase tracking-widest">Loading Milestones</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans text-slate-800 pb-36 relative overflow-x-hidden">
-      {/* Background Soft Green Brand Gradients */}
-      <div className="absolute top-[-5%] left-[-20%] w-[80%] h-[35%] bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-[35%] right-[-20%] w-[80%] h-[35%] bg-teal-500/5 rounded-full blur-[100px] pointer-events-none" />
-
-      {/* Interactive Confetti Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="fixed inset-0 pointer-events-none z-50 w-full h-full"
-        style={{ display: showConfetti ? 'block' : 'none' }}
-      />
-
-      {/* Sleek Green/White Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md px-6 pt-10 pb-6 border-b border-slate-100 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate('/taxi/driver/profile')}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-150 bg-white shadow-sm hover:bg-slate-50 active:scale-95 transition-all"
-              aria-label="Back to account"
-            >
-              <ArrowLeft size={18} className="text-slate-600" />
-            </button>
-            <div>
-              <h1 className="text-lg font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5">
-                Performance Hub <Sparkles size={16} className="text-yellow-500 fill-yellow-500" />
-              </h1>
-              <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">VIP Driver Program</p>
-            </div>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="min-h-screen bg-slate-50/30 font-sans pb-32"
+    >
+      {/* Premium Navigation Header */}
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-5 pt-8 pb-5 border-b border-slate-100 shadow-sm flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            onClick={() => navigate('/taxi/driver/profile')}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/60 bg-white shadow-sm hover:bg-slate-50 transition-colors"
+            aria-label="Back to account"
+          >
+            <ArrowLeft size={16} className="text-slate-700" />
+          </motion.button>
+          <div>
+            <h1 className="text-lg font-black text-slate-900 tracking-tight">Milestones</h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Incentives & Tier Benefits</p>
           </div>
-          <div className="text-right bg-emerald-50/80 border border-emerald-100/50 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-[0_2px_10px_-3px_rgba(16,185,129,0.12)]">
-            <div className="p-1.5 bg-emerald-500/10 rounded-xl">
-              <Wallet size={18} className="text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest text-left">Pocket Balance</p>
-              <p className="text-sm font-black text-emerald-600 font-mono tracking-tight">
-                {formatCurrency(displayedBalance)}
-              </p>
-            </div>
-          </div>
+        </div>
+        <div className="text-right bg-slate-50 border border-slate-100 rounded-xl px-3.5 py-1.5">
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Bonus Earned</p>
+          <p className="text-base font-extrabold text-emerald-600">{formatCurrency(bonusEarnings)}</p>
         </div>
       </header>
 
-      <main className="px-6 pt-6 space-y-8">
+      {error && (
+        <div className="mx-5 mt-4 p-4 bg-rose-50 border border-rose-100 text-rose-700 rounded-2xl text-xs font-semibold">
+          {error}
+        </div>
+      )}
+
+      <main className="px-5 pt-5 space-y-6 max-w-lg mx-auto">
         
-        {/* Weekly Greed Meter (Highlight Premium Money Gradient Box) */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-3xl p-6 shadow-premium">
-          <div className="absolute top-0 right-0 p-3 bg-white/10 border-bl border-white/10 text-[10px] font-extrabold text-emerald-100 rounded-bl-2xl uppercase tracking-wider">
-            Weekly Bonus Pool
-          </div>
+        {/* Top 3-Col Stats Row */}
+        <section className="grid grid-cols-3 gap-3">
+          <motion.div
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white border border-slate-100 rounded-2xl p-3 text-center shadow-soft flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-wider">
+              <span>STREAK</span>
+              <motion.div
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+              >
+                <Flame size={12} className="text-orange-500 fill-orange-100" />
+              </motion.div>
+            </div>
+            <p className="text-base font-black text-slate-900 mt-1.5">{summary.streakDays || 0} Days</p>
+            <p className="text-[8px] text-slate-400 mt-1 font-bold">Keep it up!</p>
+          </motion.div>
           
-          <div className="space-y-4">
-            <div>
-              <p className="text-[10px] font-bold text-emerald-100 uppercase tracking-widest">Rewards Left On The Table</p>
-              <h2 className="text-3xl font-black tracking-tight text-white mt-1">
-                {formatCurrency(remainingWeeklyPool)}
-              </h2>
-              <p className="text-xs text-emerald-50/90 mt-1 flex items-center gap-1">
-                <TrendingUp size={14} className="text-white" /> 
-                {remainingWeeklyPool > 0 
-                  ? "Drive more to empty this pool and cash out!" 
-                  : "Excellent! You have fully cleared the rewards pool!"}
-              </p>
+          <motion.div
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white border border-slate-100 rounded-2xl p-3 text-center shadow-soft flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-wider">
+              <span>WEEKLY TRIPS</span>
             </div>
-
-            {/* Visual Neon Progress bar */}
-            <div className="space-y-1">
-              <div className="flex justify-between text-[10px] font-bold text-emerald-100">
-                <span>Pool Claimed: {formatCurrency(bonusEarnings)}</span>
-                <span>{poolProgressPercent}% Claimed</span>
-              </div>
-              <div className="h-3 w-full bg-emerald-950/40 border border-white/10 rounded-full overflow-hidden p-[2px]">
-                <div 
-                  className="h-full bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)] transition-all duration-1000"
-                  style={{ width: `${poolProgressPercent}%` }}
-                />
-              </div>
+            <p className="text-base font-black text-slate-900 mt-1.5">{summary.currentWeekTrips || 0} Rides</p>
+            <p className="text-[8px] text-slate-400 mt-1 font-bold">More rewards</p>
+          </motion.div>
+          
+          <motion.div
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white border border-slate-100 rounded-2xl p-3 text-center shadow-soft flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-center gap-1 text-[9px] font-black text-slate-400 uppercase tracking-wider">
+              <span>RATING</span>
+              <Star size={11} className="text-yellow-500 fill-yellow-500 animate-pulse" />
             </div>
-
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
-              <div>
-                <span className="text-[10px] font-bold text-emerald-100 uppercase tracking-widest block">Total Prize pool</span>
-                <span className="text-sm font-bold text-white font-mono">{formatCurrency(weeklyPool)}</span>
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-emerald-100 uppercase tracking-widest block">Claimed bonuses</span>
-                <span className="text-sm font-bold text-white font-mono">{formatCurrency(bonusEarnings)}</span>
-              </div>
-            </div>
-          </div>
+            <p className="text-base font-black text-slate-900 mt-1.5">{driverRating.toFixed(1)}</p>
+            <p className="text-[8px] text-slate-400 mt-1 font-bold">Your rating</p>
+          </motion.div>
         </section>
 
-        {/* Level Overview & Perks */}
-        <section className="bg-white border border-slate-100 rounded-3xl p-6 shadow-soft">
-          <div className="flex items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className={`h-11 w-11 rounded-2xl bg-gradient-to-br ${levelData.gradient} flex items-center justify-center shadow-md`}>
-                <Trophy size={20} className="text-white fill-white/20" />
-              </div>
+        {/* Driver Benefits Premium Card */}
+        <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 rounded-3xl border border-slate-800 shadow-xl overflow-hidden relative text-white">
+          <div className="p-6 relative z-10 flex justify-between items-center">
+            <div className="space-y-4 max-w-[65%]">
               <div>
-                <h2 className="text-md font-extrabold text-slate-900 flex items-center gap-1.5">
-                  {levelData.name} Partner
-                </h2>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Level {levelData.level}</p>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Driver Benefits</h3>
+                <p className="text-3xl font-black tracking-tight mt-1">{formatCurrency(bonusEarnings)}</p>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Saved This Month</p>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-1.5 bg-emerald-900/40 border border-emerald-800/60 rounded-full px-2.5 py-1">
+                  <Gift size={10} className="text-emerald-400" />
+                  <span className="text-[9px] font-bold text-emerald-200">{features.filter(f => f.enabled).length || 4} Active Perks</span>
+                </div>
+                
+                <div className="flex items-center gap-1.5 bg-amber-900/40 border border-amber-800/60 rounded-full px-2.5 py-1">
+                  <Trophy size={10} className="text-amber-400" />
+                  <span className="text-[9px] font-bold text-amber-200">{levelData.name} Tier</span>
+                </div>
               </div>
             </div>
-            <button
-              onClick={() => setShowTierBenefits(!showTierBenefits)}
-              className="text-[10px] font-extrabold text-emerald-600 hover:text-emerald-700 uppercase tracking-widest flex items-center gap-0.5"
+            
+            {/* Animated Floating 3D Trophy Banner */}
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+              className="relative shrink-0 pr-2"
             >
-              Benefits {showTierBenefits ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
+              <img 
+                src={incentivesBanner} 
+                alt="Gold Trophy Achievement" 
+                className="w-24 h-24 object-contain drop-shadow-[0_10px_20px_rgba(16,185,129,0.35)]" 
+              />
+            </motion.div>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex justify-between text-[10px] font-bold">
-              <span className="text-slate-500">Next Level Unlock</span>
-              <span className="text-slate-700 font-mono">{levelData.currentXP} / {levelData.targetXP} trips</span>
-            </div>
-            <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-[1px] border border-slate-200/50">
-              <div 
-                className={`h-full bg-gradient-to-r ${levelData.gradient} rounded-full transition-all duration-1000`} 
-                style={{ width: `${levelData.percent}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Collapsible Benefits Drawer */}
-          <AnimatePresence>
-            {showTierBenefits && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden mt-6 pt-5 border-t border-slate-100"
-              >
-                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Partner Benefits & Tiers</h3>
-                <div className="space-y-3">
-                  {TIER_BENEFITS.map((tier) => {
-                    const isCurrent = levelData.name.toLowerCase() === tier.name.toLowerCase();
-                    return (
-                      <div 
-                        key={tier.name} 
-                        className={`p-3 rounded-2xl border transition-all ${
-                          isCurrent 
-                            ? 'bg-emerald-50/50 border-emerald-200 shadow-sm' 
-                            : 'bg-slate-50/50 border-slate-100 opacity-60'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                            {tier.name}
-                            {isCurrent && <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-md text-[8px] font-black uppercase">Active</span>}
-                          </span>
-                          <span className="text-[9px] font-bold text-slate-500 uppercase">{tier.req}</span>
-                        </div>
-                        <p className="text-xs font-semibold text-emerald-600">{tier.perk}</p>
-                        <p className="text-[10px] text-slate-555 mt-0.5">{tier.desc}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="mt-6 grid grid-cols-3 gap-2 pt-5 border-t border-slate-100 text-center">
-            <div>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center justify-center gap-0.5">
-                Streak <Flame size={12} className="text-orange-500" />
-              </p>
-              <p className="text-sm font-black text-slate-900 font-mono">{summary.streakDays || 0} Days</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Weekly Trips</p>
-              <p className="text-sm font-black text-slate-900 font-mono">{summary.currentWeekTrips || 0} Rides</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center justify-center gap-0.5">
-                Rating <Star size={12} className="text-yellow-500 fill-yellow-500" />
-              </p>
-              <p className="text-sm font-black text-slate-900 font-mono">{driverRating.toFixed(1)}</p>
+          {/* Animated level banner */}
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-2 flex items-center justify-between text-white border-t border-emerald-900/30">
+            <span className="text-[9px] font-black uppercase tracking-widest">{levelData.name} Driver</span>
+            <div className="flex items-center gap-1">
+              <span className="text-[8px] font-bold text-emerald-100">LEVEL {levelData.level} BENEFITS</span>
+              <ChevronRight size={10} />
             </div>
           </div>
         </section>
 
         {/* Milestone Roadmap */}
-        <section className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xs font-extrabold text-slate-850 uppercase tracking-widest">Milestone Roadmap</h3>
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Weekly Consistency</span>
+        <section className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Milestone Roadmap</h3>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Weekly Consistency</span>
           </div>
-          
-          <div className="relative pl-6 ml-4 border-l-2 border-slate-150 space-y-8">
-            {milestones.map((milestone, idx) => {
-              const claimKey = `milestone:${milestone.id}`;
-              const progress = progressPercent(milestone.progress?.qualifyingDays, milestone.progress?.targetDays);
-              const canClaim = milestone.isEligible && !milestone.isClaimed;
-              
-              // Status Styling
-              let nodeStyle = '';
-              let nodeContent = null;
-              
-              if (milestone.isClaimed) {
-                nodeStyle = 'border-emerald-500 bg-emerald-50 text-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.15)]';
-                nodeContent = <Check size={12} className="stroke-[3]" />;
-              } else if (canClaim) {
-                nodeStyle = 'border-amber-400 bg-amber-50 text-amber-600 animate-pulse shadow-[0_0_12px_rgba(245,158,11,0.3)]';
-                nodeContent = <Sparkles size={12} className="fill-amber-500/20" />;
-              } else {
-                nodeStyle = 'border-slate-200 bg-slate-50 text-slate-500';
-                nodeContent = <span className="text-[10px] font-bold text-slate-400">{idx + 1}</span>;
-              }
 
-              return (
-                <div key={milestone.id} className="relative">
-                  
-                  {/* Timeline Node */}
-                  <div className={`absolute -left-[35px] top-1.5 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${nodeStyle}`}>
-                    {nodeContent}
-                  </div>
+          <div className="space-y-4">
+            {processedMilestones.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-400 font-bold bg-white rounded-3xl border border-slate-100">
+                No active milestones configured.
+              </div>
+            ) : (
+              processedMilestones.map((milestone, idx) => {
+                const isClaimed = milestone.roadmapStatus === 'claimed';
+                const isActive = milestone.roadmapStatus === 'active';
+                const isLocked = milestone.roadmapStatus === 'locked';
+                const canClaim = milestone.isEligible && !milestone.isClaimed;
+                const progress = progressPercent(milestone.progress?.qualifyingDays, milestone.progress?.targetDays);
 
-                  {/* Milestone Content Card */}
-                  <motion.div 
-                    whileHover={{ scale: 1.01 }}
-                    className={`border rounded-2xl p-5 transition-all ${
-                      canClaim 
-                        ? 'border-amber-300 bg-gradient-to-br from-white to-amber-50/20 shadow-[0_4px_20px_-4px_rgba(245,158,11,0.12)]' 
-                        : milestone.isClaimed
-                        ? 'border-slate-100 bg-slate-50/60 opacity-70 shadow-none'
-                        : 'border-slate-100 bg-white shadow-soft'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-3 gap-2">
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
-                          {milestone.name}
-                          {canClaim && <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />}
-                        </h4>
-                        <p className="text-[10px] text-slate-500 font-medium">
-                          {milestone.required_weeks} weeks consistency challenge
-                        </p>
-                      </div>
-                      <div className="text-right bg-slate-50 px-3 py-1 rounded-xl border border-slate-100">
-                        <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Payout</p>
-                        <p className="text-xs font-black text-emerald-600 font-mono">
-                          {formatCurrency(milestone.payout_amount)}
-                        </p>
-                      </div>
-                    </div>
+                return (
+                  <div key={milestone.id || idx} className="flex gap-4 items-stretch relative">
                     
-                    <div className="space-y-1.5 mb-4">
-                      <div className="flex justify-between text-[9px] font-bold text-slate-500">
-                        <span>Progress Tracker</span>
-                        <span className="font-mono text-slate-700">
-                          {milestone.progress?.qualifyingDays || 0}/{milestone.progress?.targetDays || 0} active days
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden p-[1px] border border-slate-200/50">
-                        <div 
-                          className={`h-full rounded-full transition-all duration-1000 ${
-                            milestone.isClaimed 
-                              ? 'bg-emerald-500' 
-                              : canClaim 
-                              ? 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.4)]' 
-                              : 'bg-emerald-600'
-                          }`} 
-                          style={{ width: `${progress}%` }} 
-                        />
-                      </div>
+                    {/* Timeline bullet design */}
+                    <div className="flex flex-col items-center relative">
+                      {isActive ? (
+                        <motion.div
+                          animate={{ scale: [1, 1.08, 1] }}
+                          transition={{ repeat: Infinity, duration: 2 }}
+                          className="z-10 flex h-8 w-8 items-center justify-center rounded-full border text-xs font-black shadow-sm bg-white border-emerald-500 text-emerald-600 ring-2 ring-emerald-100"
+                        >
+                          {idx + 1}
+                        </motion.div>
+                      ) : (
+                        <div className={`z-10 flex h-8 w-8 items-center justify-center rounded-full border text-xs font-black shadow-sm transition-all duration-300 ${
+                          isClaimed
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            : 'bg-slate-100 border-slate-200 text-slate-400'
+                        }`}>
+                          {isClaimed ? <CheckCircle2 size={16} /> : <Lock size={12} />}
+                        </div>
+                      )}
+                      
+                      {idx < processedMilestones.length - 1 && (
+                        <div className={`w-0.5 flex-1 absolute top-8 bottom-0 -mb-4 ${
+                          isClaimed
+                            ? 'bg-emerald-500'
+                            : isActive
+                            ? 'border-l-2 border-dashed border-emerald-400'
+                            : 'border-l-2 border-dashed border-slate-200'
+                        }`} />
+                      )}
                     </div>
 
-                    <button
-                      disabled={!canClaim || claimingKey === claimKey}
-                      onClick={() => handleClaim('milestone', milestone.id)}
-                      className={`w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                        canClaim 
-                          ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/10 cursor-pointer active:scale-95 hover:brightness-105' 
-                          : milestone.isClaimed 
-                          ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                          : 'bg-slate-50 text-slate-400 border border-slate-100'
+                    {/* Timeline Card */}
+                    <motion.div 
+                      whileHover={!isLocked ? { scale: 1.01 } : {}}
+                      className={`flex-1 rounded-3xl p-5 bg-white border shadow-soft transition-all duration-300 ${
+                        isActive ? 'border-emerald-200 ring-1 ring-emerald-50/30' : 'border-slate-100'
                       }`}
                     >
-                      {claimingKey === claimKey ? 'Processing...' : milestone.isClaimed ? 'Claimed ✓' : 'In Progress'}
-                    </button>
-                  </motion.div>
-                </div>
-              );
-            })}
+                      <div className="flex justify-between items-start gap-3">
+                        <div>
+                          <h4 className={`text-sm font-extrabold ${isLocked ? 'text-slate-400' : 'text-slate-900'}`}>
+                            {milestone.name || `${idx + 1}st milestone`}
+                          </h4>
+                          <p className="text-[9px] font-bold text-slate-400 mt-0.5 uppercase tracking-wider">
+                            {milestone.required_weeks} Weeks Consistency Challenge
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Payout</p>
+                          <p className={`text-sm font-black ${isLocked ? 'text-slate-400' : 'text-emerald-600'}`}>
+                            {formatCurrency(milestone.payout_amount)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Progress bar */}
+                      {!isLocked && (
+                        <div className="space-y-1.5 mt-4">
+                          <div className="flex justify-between text-[10px] font-bold">
+                            <span className="text-slate-400">Progress Tracker</span>
+                            <span className="text-slate-800">
+                              {milestone.progress?.qualifyingDays || 0}/{milestone.progress?.targetDays || 0} active days
+                            </span>
+                          </div>
+                          
+                          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${progress}%` }} 
+                              transition={{ duration: 0.8, ease: 'easeOut' }}
+                              className="h-full rounded-full bg-emerald-500" 
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {isLocked && (
+                        <p className="text-xs text-slate-400/80 mt-2 flex items-center gap-1.5 font-medium">
+                          <Lock size={11} /> Complete previous milestone to unlock
+                        </p>
+                      )}
+
+                      {/* Payout claim button */}
+                      {canClaim && (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          animate={{ boxShadow: ["0 0 0 rgba(16,185,129,0.3)", "0 0 12px rgba(16,185,129,0.7)", "0 0 0 rgba(16,185,129,0.3)"] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                          type="button"
+                          disabled={claimingKey === `milestone:${milestone.id}`}
+                          onClick={() => handleClaim('milestone', milestone.id)}
+                          className="mt-4 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5"
+                        >
+                          {claimingKey === `milestone:${milestone.id}` ? (
+                            <>
+                              <Loader2 className="animate-spin" size={14} />
+                              <span>Claiming...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={13} className="text-amber-300 animate-pulse" />
+                              <span>Claim Payout {formatCurrency(milestone.payout_amount)}</span>
+                            </>
+                          )}
+                        </motion.button>
+                      )}
+
+                      {isClaimed && (
+                        <div className="mt-3 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-1 text-[9px] font-bold text-emerald-700">
+                          <CheckCircle2 size={11} /> Claimed & Wallet Credited
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </section>
 
-        {/* Gamified Referral Banner */}
-        <section className="relative overflow-hidden bg-gradient-to-r from-emerald-50 via-emerald-50/40 to-white border border-emerald-100/50 rounded-3xl p-6 shadow-soft">
-          <div className="absolute top-[-30%] right-[-10%] w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 space-y-4">
-            <div>
-              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200/40 rounded-md text-[8px] font-black uppercase tracking-wider">
-                Recruit Fleet
-              </span>
-              <h3 className="text-md font-black tracking-tight text-slate-900 mt-1.5">Invite Fleet Partners</h3>
-              <p className="text-[11px] text-slate-600 mt-0.5">
-                Earn <span className="font-bold text-emerald-600 font-mono">{formatCurrency(data?.referralRewardAmount || 500)}</span> instantly for every qualified driver you refer.
-              </p>
+        {/* 1 Mahina Complete Hone Par - Perks */}
+        <section className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">1-Month Milestone</h3>
+            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1 animate-pulse">
+              <Sparkles size={11} className="text-emerald-500 fill-emerald-500" />
+              Special Perks Pack
+            </span>
+          </div>
+
+          {/* Stepper Timeline Header Card */}
+          <div className="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 border border-slate-800 shadow-md space-y-4 relative overflow-hidden">
+            <div className="flex justify-between items-start relative z-10">
+              <div>
+                <h4 className="text-xl font-black tracking-tight text-white uppercase">1 Mahina Complete Hone Par</h4>
+                <p className="text-xs font-extrabold text-emerald-400 mt-1 uppercase tracking-wider">Extra Fayda (No Extra Paisa)</p>
+                <p className="text-[11px] text-slate-300 mt-2 font-medium">
+                  Complete 30 active days to unlock all premium safety and service rewards instantly.
+                </p>
+              </div>
+              <div className="text-right bg-emerald-950/60 border border-emerald-800/40 rounded-2xl px-3.5 py-2 shrink-0 shadow-sm">
+                <span className="text-[8px] font-black text-emerald-400 uppercase tracking-wider block">COMPLETED DAYS</span>
+                <span className="text-base font-black text-white">{driverActiveDays}/30 Days</span>
+              </div>
+            </div>
+
+            {/* Stepper Progress Bar */}
+            <div className="relative pt-2 pb-1 z-10">
+              <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, (driverActiveDays / 30) * 100)}%` }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400"
+                />
+              </div>
+              <div className="flex justify-between items-center mt-2 text-[10px] font-bold">
+                <span className="text-slate-400">
+                  {driverActiveDays >= 30 
+                    ? '🎉 Target reached! Claim rewards below.' 
+                    : `Remaining: ${30 - driverActiveDays} active days`}
+                </span>
+                <span className="text-emerald-400 uppercase tracking-widest font-black animate-pulse">
+                  (Haan Ji, Bilkul Free!)
+                </span>
+              </div>
             </div>
             
-            <button 
-              onClick={() => navigate('/taxi/driver/referral')}
-              className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 transition-all rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md flex items-center justify-center gap-1.5"
-            >
-              <Gift size={12} className="stroke-[3]" /> Invite Now
-            </button>
+            <Gift className="absolute -right-8 -bottom-8 text-emerald-950/15" size={150} />
           </div>
-          
-          <Gift className="absolute -right-6 -bottom-6 text-emerald-500/5 pointer-events-none rotate-12" size={130} />
-        </section>
 
-        {/* Boosters (Power-Ups) */}
-        <section className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xs font-extrabold text-slate-850 uppercase tracking-widest">Active Power-Ups</h3>
-            <span className="text-[10px] font-bold text-slate-500 uppercase">Daily Boosters</span>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-4">
-            {features.filter(f => f.enabled).map((feature) => {
-              const claimKey = `feature:${feature.key}`;
-              const progress = progressPercent(feature.currentValue, feature.targetValue);
-              const canClaim = feature.isEligible && !feature.isClaimed;
-
-              // Power-up Icon resolver
-              let powerUpIcon = <Zap size={16} />;
-              let powerUpColor = 'text-emerald-600 bg-emerald-50 border-emerald-100/55';
-              if (feature.key.includes('streak')) {
-                powerUpIcon = <Flame size={16} />;
-                powerUpColor = 'text-orange-600 bg-orange-50 border-orange-100/55';
-              } else if (feature.key.includes('cancellation')) {
-                powerUpIcon = <Shield size={16} />;
-                powerUpColor = 'text-rose-600 bg-rose-50 border-rose-100/55';
-              } else if (feature.key.includes('rating')) {
-                powerUpIcon = <Star size={16} />;
-                powerUpColor = 'text-yellow-600 bg-yellow-50 border-yellow-100/55';
-              }
+          {/* Perks list grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {oneMonthPerks.map((perk) => {
+              const isCompleted = perk.status === 'completed';
+              const daysRemaining = perk.daysRemaining;
 
               return (
-                <motion.div 
-                  whileHover={{ scale: 1.01 }}
-                  key={feature.key} 
-                  className={`border rounded-2xl p-4 flex items-center justify-between gap-4 transition-all ${
-                    canClaim 
-                      ? 'border-emerald-250 bg-emerald-50/45 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.1)]' 
-                      : feature.isClaimed
-                      ? 'border-slate-100 bg-slate-50/60 opacity-75 shadow-none'
-                      : 'border-slate-100 bg-white shadow-soft'
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  key={perk.id}
+                  className={`bg-white border rounded-3xl p-5 shadow-soft flex flex-col justify-between transition-all duration-300 ${
+                    !isCompleted 
+                      ? 'border-slate-100 opacity-95' 
+                      : 'border-emerald-100 bg-gradient-to-b from-emerald-50/5 to-white ring-1 ring-emerald-500/5'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    <div className={`h-10 w-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${powerUpColor}`}>
-                      {powerUpIcon}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className={`text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                        isCompleted 
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-100/50 font-black' 
+                          : 'bg-amber-50 text-amber-700 border border-amber-100 font-black'
+                      }`}>
+                        {isCompleted ? '✓ Unlocked' : '⏳ In Progress'}
+                      </span>
+                      {isCompleted ? (
+                        <CheckCircle2 size={14} className="text-emerald-500" />
+                      ) : (
+                        <Lock size={12} className="text-amber-500" />
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-xs font-bold text-slate-800 truncate tracking-tight">{feature.label}</h4>
+
+                    <div className="h-24 w-full rounded-2xl bg-slate-50/70 flex items-center justify-center border border-slate-100 overflow-hidden relative">
+                      <img src={perk.image} alt={perk.title} className={`h-20 w-20 object-contain transition-transform duration-300 ${
+                        !isCompleted ? 'grayscale opacity-35' : 'hover:scale-105'
+                      }`} />
                       
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="h-1.5 w-24 bg-slate-100 border border-slate-200/50 rounded-full overflow-hidden p-[1px] flex-shrink-0">
-                          <div 
-                            className={`h-full rounded-full transition-all duration-1000 ${
-                              feature.isClaimed ? 'bg-emerald-500' : 'bg-emerald-600'
-                            }`} 
-                            style={{ width: `${progress}%` }} 
-                          />
+                      {!isCompleted && (
+                        <div className="absolute inset-0 bg-slate-900/5 backdrop-blur-[0.5px] flex items-center justify-center">
+                          <div className="h-7 w-7 rounded-full bg-white shadow-sm flex items-center justify-center">
+                            <Lock size={12} className="text-slate-400" />
+                          </div>
                         </div>
-                        <span className="text-[9px] font-bold text-slate-550 font-mono">
-                          {feature.currentValue}/{feature.targetValue} {feature.unit || 'trips'}
-                        </span>
-                      </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <h4 className={`text-[9px] font-black uppercase tracking-wider ${
+                        !isCompleted ? 'text-slate-400' : 'text-emerald-600'
+                      }`}>
+                        {perk.title}
+                      </h4>
+                      <p className="text-xs font-extrabold text-slate-900 mt-1 leading-snug">{perk.sub}</p>
+                      <p className="text-[9px] font-bold text-slate-400 mt-1">{perk.valid}</p>
+                      
+                      {isCompleted && (
+                        <p className="text-[9px] font-black text-emerald-700 mt-2.5 uppercase tracking-wider bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-lg w-max">
+                          Code: {perk.code}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  
-                  <div className="text-right flex flex-col items-end gap-1.5 flex-shrink-0">
-                    <p className="text-xs font-black text-emerald-600 font-mono">
-                      +{formatCurrency(feature.reward_amount)}
-                    </p>
-                    
-                    <button
-                      disabled={!canClaim || claimingKey === claimKey}
-                      onClick={() => handleClaim('feature', feature.key)}
-                      className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-                        canClaim 
-                          ? 'bg-emerald-600 text-white active:scale-95 cursor-pointer font-black hover:bg-emerald-750' 
-                          : feature.isClaimed 
-                          ? 'text-emerald-600 bg-emerald-50 border border-emerald-100' 
-                          : 'text-slate-400 bg-slate-50 border border-slate-100'
-                      }`}
-                    >
-                      {claimingKey === claimKey ? '...' : feature.isClaimed ? 'Claimed' : 'Unlock'}
-                    </button>
+
+                  <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
+                    {!isCompleted && (
+                      <p className="text-[9px] font-black text-amber-600 uppercase tracking-wider text-center py-2 bg-amber-50/50 border border-amber-100/40 rounded-xl">
+                        🔒 Unlocks in {daysRemaining} days
+                      </p>
+                    )}
+
+                    {isCompleted && (
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        type="button"
+                        onClick={() => setSelectedBenefit(perk)}
+                        className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors shadow-sm"
+                      >
+                        Claim Reward
+                      </motion.button>
+                    )}
                   </div>
                 </motion.div>
               );
             })}
           </div>
         </section>
+
+        {/* Referral Card Banner */}
+        <section className="bg-gradient-to-br from-emerald-800 to-teal-950 rounded-3xl p-6 text-white overflow-hidden relative shadow-md">
+          <div className="relative z-10 space-y-4 max-w-[70%]">
+            <div>
+              <h3 className="text-base font-extrabold tracking-tight">Earn {formatCurrency(data?.referralRewardAmount || 500)} per referral</h3>
+              <p className="text-[11px] text-emerald-100/80 leading-relaxed mt-1">
+                Invite Fleet Partners and earn rewards instantly when they sign up!
+              </p>
+            </div>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/taxi/driver/referral')}
+              className="px-5 py-2.5 bg-white text-emerald-950 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm hover:bg-emerald-50 transition-colors flex items-center gap-1.5"
+            >
+              <Gift size={12} className="text-emerald-700" />
+              <span>Invite Now</span>
+            </motion.button>
+          </div>
+          <Gift className="absolute -right-4 -bottom-4 text-emerald-700/25" size={130} />
+        </section>
+
+        {/* Active Power-Ups */}
+        <section className="space-y-3 pb-8">
+          <div className="flex justify-between items-center px-1">
+            <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Active Power-Ups</h3>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Daily Boosters</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="button"
+              onClick={() => handlePowerUpClick('Priority Support', 'Your phone requests and chat tickets are routed directly to elite dispatchers for rapid assistance.')}
+              className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl text-left shadow-soft hover:bg-slate-50 transition-colors"
+            >
+              <div className="h-8 w-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100/60">
+                <Headphones className="text-emerald-600" size={16} />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Priority Support</h4>
+                <p className="text-[9px] text-slate-400 mt-0.5">2/3 left today</p>
+              </div>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="button"
+              onClick={() => handlePowerUpClick('Trip Shield', 'Protects your active streak against a single ride rejection or late cancellation today.')}
+              className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl text-left shadow-soft hover:bg-slate-50 transition-colors"
+            >
+              <div className="h-8 w-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/60">
+                <Shield className="text-blue-600" size={16} />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Trip Shield</h4>
+                <p className="text-[9px] text-slate-400 mt-0.5">1 left today</p>
+              </div>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="button"
+              onClick={() => handlePowerUpClick('Fuel Saver', 'Get an additional 2% rebate at associated fuel outlets. Activated upon next fill up.')}
+              className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl text-left shadow-soft hover:bg-slate-50 transition-colors"
+            >
+              <div className="h-8 w-8 rounded-xl bg-orange-50 flex items-center justify-center shrink-0 border border-orange-100/60">
+                <Fuel className="text-orange-600" size={16} />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Fuel Saver</h4>
+                <p className="text-[9px] text-slate-400 mt-0.5">2/2 left today</p>
+              </div>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="button"
+              onClick={() => handlePowerUpClick('Streak Bonus', 'Multiplies payout rates during peak hours. Keep consistency to maintain booster.')}
+              className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl text-left shadow-soft hover:bg-slate-50 transition-colors"
+            >
+              <div className="h-8 w-8 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 border border-amber-100/60 animate-pulse">
+                <Star className="text-amber-500 fill-amber-300" size={16} />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">Streak Bonus</h4>
+                <p className="text-[9px] text-emerald-600 font-extrabold mt-0.5">Active</p>
+              </div>
+            </motion.button>
+          </div>
+        </section>
       </main>
 
+      {/* Dynamic Benefits Detail Modal */}
+      <AnimatePresence>
+        {selectedBenefit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop opacity fade */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedBenefit(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Modal scale slide-up */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col relative z-10"
+            >
+              <div className="p-5 border-b border-slate-100 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-emerald-500 animate-spin" style={{ animationDuration: '3s' }} />
+                  <h3 className="text-sm font-black text-slate-900">Benefit Details</h3>
+                </div>
+                <motion.button 
+                  whileTap={{ scale: 0.9 }}
+                  type="button" 
+                  onClick={() => setSelectedBenefit(null)}
+                  className="h-8 w-8 rounded-full bg-slate-50 border border-slate-200/50 flex items-center justify-center text-slate-400 hover:text-slate-600"
+                >
+                  <X size={16} />
+                </motion.button>
+              </div>
+              
+              <div className="p-6 space-y-5">
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <div className="h-16 w-16 rounded-xl bg-white border border-slate-200/60 shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                    <img src={selectedBenefit.image} alt={selectedBenefit.title} className="h-12 w-12 object-contain" />
+                  </div>
+                  <div>
+                    <h4 className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">{selectedBenefit.title}</h4>
+                    <p className="text-sm font-black text-slate-900 mt-0.5">{selectedBenefit.sub}</p>
+                    <p className="text-[8px] font-bold text-slate-400 mt-0.5">{selectedBenefit.valid}</p>
+                  </div>
+                </div>
+
+                {/* Interactive Promo Coupon Scratch style */}
+                <div className="bg-emerald-50/50 border border-dashed border-emerald-200 rounded-2xl p-4 text-center space-y-2">
+                  <p className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">YOUR PROMO CODE</p>
+                  <p className="text-xl font-black text-emerald-950 uppercase tracking-widest select-all select-none bg-white py-1 px-4 border border-emerald-100 rounded-xl inline-block shadow-sm">
+                    {selectedBenefit.code}
+                  </p>
+                  <div>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedBenefit.code);
+                        toast.success('Coupon code copied to clipboard!');
+                      }}
+                      className="inline-flex items-center gap-1.5 text-[9px] font-black text-emerald-700 bg-emerald-100/50 border border-emerald-200 px-3 py-1 rounded-full uppercase"
+                    >
+                      <Copy size={10} />
+                      <span>Copy Code</span>
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Step Instructions */}
+                <div className="space-y-2">
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-wider">How to redeem:</p>
+                  <ol className="list-decimal pl-4 text-xs text-slate-500 space-y-1.5 font-medium leading-relaxed">
+                    {selectedBenefit.instructions.map((step, index) => (
+                      <li key={index}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+
+              <div className="p-5 bg-slate-50 border-t border-slate-100">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => setSelectedBenefit(null)}
+                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  Close Window
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <DriverBottomNav />
-    </div>
+    </motion.div>
   );
 };
 
