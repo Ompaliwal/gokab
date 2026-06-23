@@ -18,7 +18,7 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { GoogleMap } from '@react-google-maps/api';
+import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { userAuthService } from '../../services/authService';
 import api from '../../../../shared/api/axiosInstance';
@@ -215,7 +215,34 @@ const getDeliveryVehicleIcon = (vehicle) => {
   return CarIcon;
 };
 
+const getDeliveryVehicleMapIcon = (vehicle) => {
+  const configuredMapIcon = String(vehicle?.map_icon || vehicle?.vehicleIconUrl || vehicle?.icon || '').trim();
+  if (configuredMapIcon) return configuredMapIcon;
+
+  const iconType = String(vehicle?.icon_types || vehicle?.vehicleIconType || vehicle?.name || '').trim().toLowerCase();
+  if (iconType.includes('bike')) return '/1_Bike.png';
+  if (iconType.includes('auto')) return '/2_AutoRickshaw.png';
+  if (iconType.includes('ehc')) return '/ehcv.png';
+  if (iconType.includes('hcv')) return '/hcv.png';
+  if (iconType.includes('lcv')) return '/LCV.png';
+  if (iconType.includes('mcv')) return '/mcv.png';
+  if (iconType.includes('truck')) return '/truck.png';
+  if (iconType.includes('lux')) return '/Luxury.png';
+  if (iconType.includes('premium')) return '/Premium.png';
+  if (iconType.includes('suv')) return '/SUV.png';
+
+  return '/4_Taxi.png';
+};
+
 const getDeliveryEtaMinutes = (distanceKm) => Math.max(8, Math.round(Math.max(0, Number(distanceKm || 0)) * 4.5));
+
+const getLiveVehiclePosition = (coords) => {
+  const position = coordPairToLatLng(coords);
+  return {
+    lat: position.lat + 0.0022,
+    lng: position.lng + 0.0022,
+  };
+};
 
 const PhoneInput = ({ label, value, onChange, error, name, onClearError, disabled = false }) => (
   <div className="space-y-2">
@@ -748,6 +775,14 @@ const SenderReceiverDetails = () => {
     const currentSelection = selectedVehicles.find((vehicle) => getVehicleId(vehicle) === selectedVehicleId);
     return currentSelection || selectedVehicles[0] || null;
   }, [selectedVehicleId, selectedVehicles]);
+  const activeSelectedVehicleMapIcon = useMemo(
+    () => activeSelectedVehicle ? getDeliveryVehicleMapIcon(activeSelectedVehicle) : '',
+    [activeSelectedVehicle],
+  );
+  const liveVehiclePosition = useMemo(
+    () => getLiveVehiclePosition(pickupCoords),
+    [pickupCoords],
+  );
   const estimatedDistanceKm = useMemo(
     () => calculateDistanceKm(pickupCoords, dropCoords),
     [dropCoords, pickupCoords],
@@ -1254,7 +1289,46 @@ const SenderReceiverDetails = () => {
               mapTypeControl: false,
               gestureHandling: 'greedy',
             }}
-          />
+          >
+            <MarkerF
+              position={coordPairToLatLng(pickupCoords)}
+              title="Pickup"
+              icon={{
+                path: window.google.maps.SymbolPath.CIRCLE,
+                fillColor: '#10b981',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2,
+                scale: 7,
+              }}
+            />
+            {dropCoords ? (
+              <MarkerF
+                position={coordPairToLatLng(dropCoords)}
+                title="Drop"
+                icon={{
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#f43f5e',
+                  fillOpacity: 1,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2,
+                  scale: 7,
+                }}
+              />
+            ) : null}
+            {activeSelectedVehicleMapIcon ? (
+              <MarkerF
+                key={getVehicleId(activeSelectedVehicle) || activeSelectedVehicleMapIcon}
+                position={liveVehiclePosition}
+                title={activeSelectedVehicle?.name || 'Selected delivery vehicle'}
+                icon={{
+                  url: activeSelectedVehicleMapIcon,
+                  scaledSize: new window.google.maps.Size(48, 48),
+                  anchor: new window.google.maps.Point(24, 24),
+                }}
+              />
+            ) : null}
+          </GoogleMap>
         ) : (
           <div className="h-full w-full bg-[linear-gradient(135deg,#dbe4ee_0%,#f8fafc_100%)]" />
         )}
