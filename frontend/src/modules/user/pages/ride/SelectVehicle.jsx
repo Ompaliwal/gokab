@@ -644,6 +644,34 @@ const findBestPricingRule = ({ rules, vehicleTypeId, serviceLocationId, transpor
 
 const calculateEstimatedFare = ({ vehicle, pricingRule, distanceMeters, durationMinutes }) => {
   const fallbackFare = getFallbackVehicleEstimate(vehicle?.raw || vehicle);
+  const rawVehicle = vehicle?.raw || vehicle;
+  const normalizedTransportType = String(vehicle?.transportType || rawVehicle?.transport_type || '').trim().toLowerCase();
+
+  if (normalizedTransportType === 'delivery') {
+    const deliveryPricing = rawVehicle?.delivery_distance_pricing || {};
+    const basePrice = toFiniteNumber(deliveryPricing.base_price, 0);
+    const freeDistance = Math.max(0, toFiniteNumber(deliveryPricing.free_distance, 0));
+    const distancePrice = toFiniteNumber(deliveryPricing.distance_price, 0);
+    const freeTime = Math.max(0, toFiniteNumber(deliveryPricing.free_time, 0));
+    const timePrice = toFiniteNumber(deliveryPricing.time_price, 0);
+    const isEnabled = Boolean(
+      deliveryPricing.enabled
+      || basePrice > 0
+      || distancePrice > 0
+      || timePrice > 0
+    );
+
+    if (!isEnabled) {
+      return fallbackFare;
+    }
+
+    const distanceKm = Math.max(0, Number(distanceMeters || 0) / 1000);
+    const extraDistanceKm = Math.max(0, distanceKm - freeDistance);
+    const extraMinutes = Math.max(0, Number(durationMinutes || 0) - freeTime);
+    const total = basePrice + (extraDistanceKm * distancePrice) + (extraMinutes * timePrice);
+
+    return Math.max(0, Math.round(total));
+  }
 
   if (!pricingRule) {
     return fallbackFare;
@@ -944,6 +972,8 @@ const SelectVehicle = () => {
     [routeState.stops],
   );
   const serviceLocationId = routeState.service_location_id || routeState.serviceLocationId || '';
+  const requestedTransportType = String(routeState.transport_type || routeState.transportType || 'taxi').trim().toLowerCase() || 'taxi';
+  const isDeliveryFlow = requestedTransportType === 'delivery' || String(routeState.serviceType || '').trim().toLowerCase() === 'parcel';
   const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const pickupPosition = useMemo(() => toLatLng(pickupCoords), [pickupCoords]);
   const dropPosition = useMemo(() => toLatLng(dropCoords, null), [dropCoords]);
@@ -991,12 +1021,12 @@ const SelectVehicle = () => {
           .filter((type) => {
             const isActive = type.active !== false && Number(type.status ?? 1) !== 0;
             const transportType = String(type.transport_type || 'taxi').toLowerCase();
-            return isActive && (transportType === 'taxi' || transportType === 'both');
+            return isActive && (transportType === requestedTransportType || transportType === 'both');
           })
           .map(normalizeVehicleType);
 
         setVehicles(nextVehicles);
-        setSelected((current) => current || nextVehicles[0]?.id || '');
+        setSelected((current) => current || routeState.selectedVehicleId || nextVehicles[0]?.id || '');
       } catch (error) {
         if (active) {
           setVehicleLoadError(error.message || 'Could not load vehicle types.');
@@ -1013,7 +1043,7 @@ const SelectVehicle = () => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [requestedTransportType, routeState.selectedVehicleId]);
 
   useEffect(() => {
     let active = true;
@@ -1597,6 +1627,9 @@ const SelectVehicle = () => {
         pickupCoords,
         dropCoords,
         stops,
+        transport_type: requestedTransportType,
+        transportType: requestedTransportType,
+        serviceType: isDeliveryFlow ? 'parcel' : routeState.serviceType,
       },
     });
   };

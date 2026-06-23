@@ -148,6 +148,8 @@ const SelectLocation = () => {
   const location = useLocation();
   const routeState = location.state || {};
   const serviceLocationId = routeState.service_location_id || routeState.serviceLocationId || '';
+  const requestedTransportType = String(routeState.transport_type || routeState.transportType || 'taxi').trim().toLowerCase() || 'taxi';
+  const isDeliveryFlow = requestedTransportType === 'delivery' || String(routeState.serviceType || '').trim().toLowerCase() === 'parcel';
   const savedLocation = getSavedLocation();
   const savedPickupLabel = String(savedLocation?.address || '').trim();
   const savedPickupCoords = getSavedLocationCoords();
@@ -599,6 +601,9 @@ const SelectLocation = () => {
         pickupCoords: resolvedPickupCoords,
         dropCoords: resolvedDropCoords,
         service_location_id: serviceLocationId,
+        transport_type: requestedTransportType,
+        transportType: requestedTransportType,
+        serviceType: isDeliveryFlow ? 'parcel' : 'ride',
       },
     });
   };
@@ -877,8 +882,8 @@ const SelectLocation = () => {
               <ArrowLeft size={22} className="text-slate-900" strokeWidth={3} />
             </button>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ride</p>
-              <h1 className="mt-0.5 text-[20px] font-bold text-slate-900 tracking-tight leading-none truncate">Where to?</h1>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{isDeliveryFlow ? 'Parcel' : 'Ride'}</p>
+              <h1 className="mt-0.5 text-[20px] font-bold text-slate-900 tracking-tight leading-none truncate">{isDeliveryFlow ? 'Pickup & drop' : 'Where to?'}</h1>
             </div>
           </div>
         </div>
@@ -1134,7 +1139,7 @@ const SelectLocation = () => {
               onClick={() => handleConfirmNavigate()}
               className="w-full bg-[#f8e001] py-4 rounded-3xl text-slate-900 font-bold text-[16px] shadow-[0_8px_30px_rgba(248,224,1,0.3)] flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
             >
-              Confirm & Proceed
+              {isDeliveryFlow ? 'See parcel vehicles' : 'Confirm & Proceed'}
               <ChevronRight size={18} strokeWidth={3} className="opacity-60" />
             </button>
           </motion.div>

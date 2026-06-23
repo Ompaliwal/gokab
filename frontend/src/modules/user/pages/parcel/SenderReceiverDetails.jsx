@@ -6,6 +6,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   ChevronRight,
+  Clock3,
   Contact,
   LocateFixed,
   MapPin,
@@ -21,6 +22,17 @@ import { GoogleMap } from '@react-google-maps/api';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { userAuthService } from '../../services/authService';
 import api from '../../../../shared/api/axiosInstance';
+import BikeIcon from '../../../../assets/icons/bike.png';
+import AutoIcon from '../../../../assets/icons/auto.png';
+import CarIcon from '../../../../assets/icons/car.png';
+import PremiumIcon from '../../../../assets/icons/Premium.png';
+import LuxuryIcon from '../../../../assets/icons/Luxury.png';
+import SuvIcon from '../../../../assets/icons/SUV.png';
+import TruckIcon from '../../../../assets/icons/truck.png';
+import LcvIcon from '../../../../assets/icons/LCV.png';
+import McvIcon from '../../../../assets/icons/mcv.png';
+import HcvIcon from '../../../../assets/icons/hcv.png';
+import EhcvIcon from '../../../../assets/icons/ehcv.png';
 
 const Motion = motion;
 const PHONE_REGEX = /^[6-9]\d{9}$/;
@@ -183,6 +195,27 @@ const matchesDeliveryCategory = (vehicle, categoryId) => {
   const iconType = String(vehicle?.icon_types || '').toLowerCase();
   return searchTokens.some((token) => vehicleName.includes(token) || iconType.includes(token));
 };
+
+const getDeliveryVehicleIcon = (vehicle) => {
+  const configuredIcon = String(vehicle?.image || vehicle?.preview_image || vehicle?.previewImage || vehicle?.icon || vehicle?.map_icon || '').trim();
+  if (configuredIcon) return configuredIcon;
+
+  const iconType = String(vehicle?.icon_types || vehicle?.vehicleIconType || vehicle?.name || '').trim().toLowerCase();
+  if (iconType.includes('bike')) return BikeIcon;
+  if (iconType.includes('auto')) return AutoIcon;
+  if (iconType.includes('ehc')) return EhcvIcon;
+  if (iconType.includes('hcv')) return HcvIcon;
+  if (iconType.includes('lcv')) return LcvIcon;
+  if (iconType.includes('mcv')) return McvIcon;
+  if (iconType.includes('truck')) return TruckIcon;
+  if (iconType.includes('lux')) return LuxuryIcon;
+  if (iconType.includes('premium')) return PremiumIcon;
+  if (iconType.includes('suv')) return SuvIcon;
+
+  return CarIcon;
+};
+
+const getDeliveryEtaMinutes = (distanceKm) => Math.max(8, Math.round(Math.max(0, Number(distanceKm || 0)) * 4.5));
 
 const PhoneInput = ({ label, value, onChange, error, name, onClearError, disabled = false }) => (
   <div className="space-y-2">
@@ -579,6 +612,7 @@ const SenderReceiverDetails = () => {
   const [isLocatingPickup, setIsLocatingPickup] = useState(false);
   const [errors, setErrors] = useState({});
   const [recoveredSelectedVehicles, setRecoveredSelectedVehicles] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(() => String(parcelState.selectedVehicleId || '').trim());
   const [googleDropSuggestions, setGoogleDropSuggestions] = useState([]);
   const [isFetchingDropSuggestions, setIsFetchingDropSuggestions] = useState(false);
   const autoPickupRequestedRef = useRef(false);
@@ -661,11 +695,6 @@ const SenderReceiverDetails = () => {
     const selectedIdSet = new Set([...selectedVehicleIds, selectedVehicleId].filter(Boolean));
     const deliveryCategory = String(parcelState.deliveryCategory || parcelState.category || '').trim().toLowerCase();
 
-    if (!selectedIdSet.size && !deliveryCategory) {
-      setRecoveredSelectedVehicles([]);
-      return undefined;
-    }
-
     let active = true;
 
     const recoverSelectedVehicles = async () => {
@@ -677,6 +706,9 @@ const SenderReceiverDetails = () => {
         let matchedVehicles = deliveryVehicles.filter((vehicle) => selectedIdSet.has(getVehicleId(vehicle)));
         if (matchedVehicles.length === 0 && deliveryCategory) {
           matchedVehicles = deliveryVehicles.filter((vehicle) => matchesDeliveryCategory(vehicle, deliveryCategory));
+        }
+        if (matchedVehicles.length === 0) {
+          matchedVehicles = deliveryVehicles;
         }
 
         if (!active) return;
@@ -712,6 +744,10 @@ const SenderReceiverDetails = () => {
     }
     return [];
   }, [recoveredSelectedVehicles]);
+  const activeSelectedVehicle = useMemo(() => {
+    const currentSelection = selectedVehicles.find((vehicle) => getVehicleId(vehicle) === selectedVehicleId);
+    return currentSelection || selectedVehicles[0] || null;
+  }, [selectedVehicleId, selectedVehicles]);
   const estimatedDistanceKm = useMemo(
     () => calculateDistanceKm(pickupCoords, dropCoords),
     [dropCoords, pickupCoords],
@@ -738,6 +774,26 @@ const SenderReceiverDetails = () => {
 
     return null;
   }, [drop, estimatedDistanceKm, selectedVehicles]);
+  const vehicleFareCards = useMemo(
+    () => selectedVehicles
+      .map((vehicle) => ({
+        vehicle,
+        fare: calculateVehicleFare(vehicle, estimatedDistanceKm),
+      }))
+      .filter((item) => Number.isFinite(item.fare)),
+    [estimatedDistanceKm, selectedVehicles],
+  );
+
+  useEffect(() => {
+    if (!selectedVehicles.length) {
+      setSelectedVehicleId('');
+      return;
+    }
+
+    if (!selectedVehicles.some((vehicle) => getVehicleId(vehicle) === selectedVehicleId)) {
+      setSelectedVehicleId(getVehicleId(selectedVehicles[0]));
+    }
+  }, [selectedVehicleId, selectedVehicles]);
 
   const validate = () => {
     const nextErrors = {};
@@ -1077,6 +1133,10 @@ const SenderReceiverDetails = () => {
     navigate(`${routePrefix}/parcel/searching`, {
       state: {
         ...parcelState,
+        selectedVehicleId: getVehicleId(activeSelectedVehicle),
+        selectedVehicleIds: activeSelectedVehicle ? [getVehicleId(activeSelectedVehicle)] : [],
+        selectedVehicle: activeSelectedVehicle,
+        selectedVehicles: activeSelectedVehicle ? [activeSelectedVehicle] : [],
         pickup,
         drop,
         pickupCoords: resolvedPickupCoords,
@@ -1111,7 +1171,7 @@ const SenderReceiverDetails = () => {
   };
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-lg flex-col overflow-x-hidden bg-[linear-gradient(180deg,#f8fbff_0%,#f7f9fc_100%)] font-sans">
+    <div className="relative mx-auto h-[100dvh] max-w-lg overflow-hidden bg-slate-50 font-['Plus_Jakarta_Sans']">
       <MapPickerSheet
         open={activeMapPicker === 'pickup'}
         title="Set Pickup Location"
@@ -1180,208 +1240,261 @@ const SenderReceiverDetails = () => {
         }}
       />
 
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md px-4 py-4 flex items-center">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex h-10 w-10 items-center justify-center rounded-full text-slate-800 hover:bg-slate-50 transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </button>
-      </header>
+      <div className="absolute inset-0 bg-slate-200">
+        {HAS_VALID_GOOGLE_MAPS_KEY && isGoogleMapsLoaded ? (
+          <GoogleMap
+            mapContainerStyle={MAP_CONTAINER_STYLE}
+            center={coordPairToLatLng(pickupCoords)}
+            zoom={13}
+            options={{
+              disableDefaultUI: true,
+              clickableIcons: false,
+              streetViewControl: false,
+              fullscreenControl: false,
+              mapTypeControl: false,
+              gestureHandling: 'greedy',
+            }}
+          />
+        ) : (
+          <div className="h-full w-full bg-[linear-gradient(135deg,#dbe4ee_0%,#f8fafc_100%)]" />
+        )}
 
-      <main className="flex-1 px-4 pt-2 pb-28 z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-[32px] bg-white p-6 shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-50 relative"
-        >
-          {/* Route dots & line on the left */}
-          <div className="absolute left-6 top-10 flex flex-col items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <div className="w-0.5 h-20 border-l-2 border-dashed border-slate-100" />
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-          </div>
+        <div className="absolute top-6 left-4 right-4 z-20 flex items-center gap-2.5">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white/95 shadow-[0_4px_14px_rgba(15,23,42,0.12)]"
+          >
+            <ArrowLeft size={18} className="text-slate-900" strokeWidth={2.5} />
+          </motion.button>
+        </div>
+      </div>
 
-          <div className="pl-8 space-y-6">
-            {/* Sender Card */}
-            <div className="bg-slate-50/80 rounded-2xl p-4 flex items-center justify-between gap-3 border border-slate-100/50">
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Pickup</p>
-                <div className="flex items-center gap-2">
-                   <p className="text-[14px] font-black text-slate-900">{senderName || 'Sender Details'}</p>
-                   {senderMobile && (
-                     <>
-                        <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <p className="text-[12px] font-bold text-slate-500">{senderMobile}</p>
-                     </>
-                   )}
+      <div className="absolute bottom-0 left-0 right-0 z-40 flex max-h-[74dvh] min-h-[420px] flex-col overflow-hidden rounded-t-[26px] bg-white shadow-[0_-12px_44px_rgba(15,23,42,0.16)]">
+        <div className="mx-auto mb-2 mt-2.5 h-1 w-10 shrink-0 rounded-full bg-slate-200" />
+
+        <div className="shrink-0 border-b border-slate-100 px-4 pb-3">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex gap-3">
+                <div className="flex w-2.5 shrink-0 flex-col items-center">
+                  <span className="mt-1.5 h-2.5 w-2.5 rounded-full bg-[#7fc76d]" />
+                  <span className="my-1 h-6 w-px bg-slate-300" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#d95c6a]" />
                 </div>
-                <p className="text-[13px] font-medium text-slate-500 truncate mt-1">{pickup || 'Pickup location'}</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setActiveMapPicker('pickup')}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-100 bg-white text-emerald-600 shadow-sm"
-                  aria-label="Change pickup location"
-                >
-                  <LocateFixed size={18} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsContactSheetOpen(true)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-400 shadow-sm"
-                  aria-label="Open sender details"
-                >
-                  <ChevronRight size={16} />
-                </button>
+                <div className="min-w-0 flex-1 space-y-2.5">
+                  <div className="flex items-start gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveMapPicker('pickup')}
+                      className="min-w-0 flex-1 rounded-[12px] -mx-1 px-1 py-1 text-left transition hover:bg-slate-50"
+                    >
+                      <p className="truncate text-[13px] font-medium text-slate-700">{pickup || 'Pickup location'}</p>
+                      <p className="mt-0.5 truncate text-[10px] font-semibold text-slate-400">{senderName || 'Sender'} {senderMobile ? `- ${senderMobile}` : ''}</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsContactSheetOpen(true)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-slate-100 bg-white text-slate-400 shadow-sm"
+                      aria-label="Open sender details"
+                    >
+                      <ChevronRight size={15} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={dropInputRef}
+                      type="text"
+                      placeholder="Where is your Drop ?"
+                      value={drop}
+                      onChange={(event) => {
+                        setDrop(event.target.value);
+                        clearError('drop');
+                      }}
+                      className={`min-w-0 flex-1 rounded-[12px] border bg-white px-3 py-2.5 text-[13px] font-medium text-slate-700 outline-none transition ${
+                        errors.drop ? 'border-red-200 bg-red-50' : 'border-slate-200 focus:border-emerald-300'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setActiveMapPicker('drop')}
+                      className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[12px] border border-slate-200 bg-white text-slate-600"
+                      aria-label="Select drop on map"
+                    >
+                      <LocateFixed size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Drop Input Area */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 relative">
-                 <input 
-                   ref={dropInputRef}
-                   type="text" 
-                   placeholder="Where is your Drop ?"
-                   value={drop}
-                   onChange={(e) => {
-                     setDrop(e.target.value);
-                     clearError('drop');
-                   }}
-                   className={`w-full h-14 bg-white border-2 rounded-2xl pl-5 pr-12 text-[15px] font-bold text-slate-900 placeholder:text-slate-300 outline-none transition-all ${
-                     errors.drop ? 'border-red-500 bg-red-50' : 'border-emerald-600 focus:shadow-[0_0_0_4px_rgba(16,185,129,0.12)]'
-                   }`}
-                  />
-                 <Mic size={20} className="absolute right-5 top-1/2 -translate-y-1/2 text-emerald-600" />
-              </div>
-              <button className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 shrink-0">
-                 <Plus size={24} />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setActiveMapPicker('drop')}
+              className="flex w-[42px] shrink-0 flex-col items-center justify-center rounded-[12px] border border-slate-200 bg-white px-1 py-2 text-[10px] font-medium text-slate-600"
+            >
+              <MapPin size={14} strokeWidth={2.2} />
+              <span className="mt-1">Map</span>
+            </button>
           </div>
-        </motion.div>
+        </div>
 
-        <button 
-          onClick={() => setActiveMapPicker('drop')} 
-          className="mt-8 mx-auto flex items-center gap-2 text-emerald-600 font-black text-[13px] uppercase tracking-widest hover:bg-emerald-50/60 px-4 py-2 rounded-full transition-colors"
-        >
-           <MapPin size={18} fill="currentColor" className="text-emerald-600/20" />
-           Select on map
-        </button>
-
-        <div className="mt-8 space-y-5 px-2">
-          {googleDropSuggestions.length > 0 ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Search Results</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">Low API usage mode</p>
-              </div>
-              <div className="space-y-2">
+        <div className="relative flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto px-3 pt-3 pb-2 space-y-2.5">
+            {!drop.trim() && googleDropSuggestions.length > 0 ? (
+              <div className="space-y-2.5">
                 {googleDropSuggestions.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => applySuggestion('drop', item)}
-                    className="flex w-full items-start gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-left shadow-sm hover:border-emerald-200"
+                    className="flex w-full items-start gap-3 rounded-[18px] border border-slate-100 bg-white px-4 py-3 text-left shadow-sm hover:border-emerald-200"
                   >
                     <Navigation size={14} className="mt-0.5 shrink-0 text-emerald-500" />
                     <div className="min-w-0">
-                      <p className="truncate text-[13px] font-black text-slate-800">{item.label}</p>
+                      <p className="truncate text-[13px] font-semibold text-slate-800">{item.label}</p>
                       {item.secondaryText ? (
-                        <p className="mt-1 truncate text-[11px] font-semibold text-slate-400">{item.secondaryText}</p>
+                        <p className="mt-1 truncate text-[11px] font-medium text-slate-400">{item.secondaryText}</p>
                       ) : null}
                     </div>
                   </button>
                 ))}
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          {!drop && nearbyDropSuggestions.length > 0 ? (
-            <div className="space-y-3">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Near Current Pickup</p>
-              <div className="grid grid-cols-2 gap-2">
+            {!drop.trim() && googleDropSuggestions.length === 0 ? (
+              <div className="space-y-2.5">
                 {nearbyDropSuggestions.map((item) => (
                   <button
                     key={item}
                     onClick={() => applySuggestion('drop', item)}
-                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-sm hover:border-emerald-200"
+                    className="flex w-full items-center gap-3 rounded-[18px] border border-transparent bg-slate-50/70 px-4 py-3 text-left"
                   >
-                    <MapPin size={12} className="shrink-0 text-emerald-500" />
-                    <span className="truncate text-[12px] font-bold text-slate-700">{item}</span>
+                    <MapPin size={14} className="shrink-0 text-emerald-500" />
+                    <span className="truncate text-[13px] font-semibold text-slate-700">{item}</span>
                   </button>
                 ))}
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          {!drop && dropSuggestions.length > 0 ? (
-            <div className="space-y-3">
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Popular Suggestions</p>
-              <div className="grid grid-cols-2 gap-2">
-                {dropSuggestions.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => applySuggestion('drop', item)}
-                    className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-sm hover:border-emerald-200"
-                  >
-                    <Navigation size={12} className="text-emerald-500 shrink-0" />
-                    <span className="text-[12px] font-bold text-slate-700 truncate">{item}</span>
-                  </button>
-                ))}
+            {Boolean(drop) && isFetchingDropSuggestions ? (
+              <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 text-slate-400">
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500" />
+                <p className="text-[11px] font-bold uppercase tracking-widest">Finding delivery options</p>
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          {Boolean(drop) && isFetchingDropSuggestions ? (
-            <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 shadow-sm">
-              Finding nearby drop suggestions...
-            </div>
-          ) : null}
+            {drop.trim() ? (
+              <React.Fragment>
+                <div className="mb-1 flex items-center justify-between gap-3 px-1">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Available Delivery Vehicles</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">{vehicleFareCards.length} options</p>
+                </div>
+
+                <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold text-slate-500">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1">
+                    <MapPin size={12} className="text-emerald-500" />
+                    {estimatedDistanceKm.toFixed(1)} km
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1">
+                    <Clock3 size={12} className="text-slate-500" />
+                    {getDeliveryEtaMinutes(estimatedDistanceKm)} min
+                  </span>
+                </div>
+
+                {vehicleFareCards.length > 0 ? (
+                  vehicleFareCards.map(({ vehicle, fare }, index) => {
+                    const vehicleId = getVehicleId(vehicle);
+                    const isSelected = vehicleId === getVehicleId(activeSelectedVehicle);
+                    const vehicleIcon = getDeliveryVehicleIcon(vehicle);
+
+                    return (
+                      <motion.div
+                        key={vehicleId}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.34, delay: index * 0.04, ease: [0.23, 1, 0.32, 1] }}
+                        className={`overflow-hidden rounded-[18px] border transition-all ${
+                          isSelected
+                            ? 'border-slate-200 bg-[#fbfaf8] shadow-[0_6px_16px_rgba(15,23,42,0.08)]'
+                            : 'border-transparent bg-white'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVehicleId(vehicleId)}
+                          className="flex w-full items-center gap-3 px-3 py-3 text-left"
+                        >
+                          <div className="flex w-[52px] shrink-0 flex-col items-center">
+                            <div className="flex h-9 w-full items-center justify-center">
+                              <img
+                                src={vehicleIcon}
+                                alt={vehicle.name || 'Delivery Vehicle'}
+                                className="h-8 w-12 object-contain"
+                                draggable={false}
+                              />
+                            </div>
+                            <span className="mt-1 text-[10px] font-medium text-slate-500">{getDeliveryEtaMinutes(estimatedDistanceKm)} min</span>
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <span className="block truncate text-[14px] font-semibold leading-tight text-slate-900">
+                                  {vehicle.name || 'Delivery Vehicle'}
+                                </span>
+                                <p className="mt-0.5 truncate text-[11px] font-medium text-slate-400">
+                                  {vehicle.short_description || vehicle.description || 'Admin delivery pricing'}
+                                </p>
+                              </div>
+                              <div className="shrink-0 text-right">
+                                <span className="block text-[20px] font-semibold leading-none text-slate-900">Rs {fare}</span>
+                                {isSelected ? (
+                                  <span className="mt-1 inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[9px] font-black uppercase tracking-[0.14em] text-emerald-700">
+                                    Selected
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            {isSelected ? (
+                              <p className="mt-2 truncate text-[11px] font-medium text-slate-500">
+                                Based on admin delivery pricing for about {estimatedDistanceKm.toFixed(1)} km.
+                              </p>
+                            ) : null}
+                          </div>
+                        </button>
+
+                        {!isSelected && index < vehicleFareCards.length - 1 ? (
+                          <div className="ml-[68px] border-b border-slate-100" />
+                        ) : null}
+                      </motion.div>
+                    );
+                  })
+                ) : (
+                  <div className="rounded-[18px] border border-slate-100 bg-white px-4 py-5 text-center">
+                    <p className="text-[13px] font-bold text-slate-900">No delivery vehicles available</p>
+                    <p className="mt-1 text-[11px] font-bold text-slate-400">Try changing the route or configured parcel category.</p>
+                  </div>
+                )}
+              </React.Fragment>
+            ) : null}
+          </div>
         </div>
 
-        <motion.section 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ delay: 0.12 }} 
-          className="mt-8 rounded-[28px] bg-gradient-to-br from-emerald-700 via-green-700 to-emerald-900 px-6 py-5 text-white shadow-xl relative overflow-hidden"
-        >
-          <div className="absolute right-0 top-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
-          <div className="relative z-10 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/40">Approx. Delivery Fare</p>
-              <p className="mt-1 text-2xl font-black">
-                {estimatedFare ? `Rs ${estimatedFare.approx ?? estimatedFare.min}` : '--'}
-              </p>
-              <p className="mt-1 text-[11px] font-bold text-white/55">
-                {estimatedFare
-                  ? `Based on admin pricing for about ${estimatedDistanceKm.toFixed(1)} km`
-                  : 'Enter a drop address to see the live fare'}
-              </p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md">
-              <PackageCheck size={24} className="text-emerald-400" />
-            </div>
-          </div>
-        </motion.section>
-      </main>
-
-      <div className="fixed bottom-0 left-0 right-0 z-30 p-6">
-        <div className="mx-auto max-w-lg relative">
-          <div className="absolute inset-x-0 bottom-0 -mb-6 h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+        <div className="shrink-0 border-t border-slate-100 bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2.5">
+          <button
+            type="button"
             onClick={handleProceed}
-            className="relative flex h-16 w-full items-center justify-center gap-3 rounded-[24px] bg-emerald-600 text-[15px] font-black text-white shadow-[0_20px_40px_rgba(16,185,129,0.26)] group overflow-hidden"
+            className={`mt-1 flex w-full items-center justify-center gap-2 rounded-[8px] px-4 py-3.5 text-[16px] font-medium transition ${
+              drop.trim() && activeSelectedVehicle
+                ? 'bg-[#1f1f1f] text-white'
+                : 'bg-slate-200 text-slate-400'
+            }`}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative z-10">
-               {drop ? 'Confirm Receiver Details' : 'Select Drop Location'}
-            </span>
-            <ChevronRight size={20} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-          </motion.button>
+            {drop.trim() ? 'Confirm Receiver Details' : 'Select Drop Location'}
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
     </div>

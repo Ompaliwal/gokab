@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSettings, normalizeAssetUrl } from '../../../shared/context/SettingsContext';
 import toast from 'react-hot-toast';
 
-const ServiceTile = ({ icon, label, description, path, accentClass, loading }) => {
+const ServiceTile = ({ icon, label, description, path, navState, accentClass, loading }) => {
   const navigate = useNavigate();
 
   if (loading) {
@@ -23,7 +23,7 @@ const ServiceTile = ({ icon, label, description, path, accentClass, loading }) =
       type="button"
       whileHover={{ y: -1.5 }}
       whileTap={{ scale: 0.98 }}
-      onClick={() => path && navigate(path)}
+      onClick={() => path && navigate(path, navState ? { state: navState } : undefined)}
       className="flex h-full min-h-[112px] w-full items-center justify-center transition-transform"
     >
       <div className="flex h-[108px] w-[92%] flex-col items-center justify-center gap-1.5 px-1 py-1">
@@ -45,6 +45,7 @@ const ServiceTile = ({ icon, label, description, path, accentClass, loading }) =
 const ServiceGrid = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const getServiceKey = (service, index) => {
     const label = String(service?.label || '').trim();
@@ -52,22 +53,34 @@ const ServiceGrid = () => {
     return label || path ? `${label || 'service'}-${path || index}` : `service-${index}`;
   };
 
-  const getPath = (module) => {
-    if (module.transport_type === 'delivery') return '/taxi/user/parcel/type';
-    if (module.service_type === 'rental') return '/taxi/user/rental';
-    if (module.service_type === 'outstation') return '/taxi/user/cab';
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+
+  const getNavigationConfig = (module) => {
+    if (module.transport_type === 'delivery') {
+      return {
+        path: `${routePrefix}/parcel/details`,
+        navState: {
+          serviceType: 'parcel',
+          transport_type: 'delivery',
+          transportType: 'delivery',
+          deliveryScope: 'city',
+        },
+      };
+    }
+
+    if (module.service_type === 'rental') return { path: `${routePrefix}/rental` };
+    if (module.service_type === 'outstation') return { path: `${routePrefix}/cab` };
     if (module.service_type === 'bus' || module.name.toLowerCase().includes('bus')) {
-      return '/taxi/user/bus';
+      return { path: `${routePrefix}/bus` };
     }
     if (module.service_type === 'pooling' || module.name.toLowerCase().includes('pooling')) {
-      return '/taxi/user/pooling';
+      return { path: `${routePrefix}/pooling` };
     }
     
-    // Default taxi paths based on name/keywords if needed, or just generic select-location
     if (module.name.toLowerCase().includes('cab') || module.name.toLowerCase().includes('taxi')) {
-        return '/taxi/user/cab';
+      return { path: `${routePrefix}/cab` };
     }
-    return '/taxi/user/ride/select-location';
+    return { path: `${routePrefix}/ride/select-location` };
   };
 
   const getAccent = (index) => {
@@ -91,10 +104,10 @@ const ServiceGrid = () => {
     const activeModules = (modules || []).filter(m => m.active);
     
     const mapped = activeModules.map((m, idx) => ({
+      ...getNavigationConfig(m),
       icon: normalizeAssetUrl(m.mobile_menu_icon),
       label: m.name,
       description: m.short_description,
-      path: getPath(m),
       accentClass: getAccent(idx)
     }));
     
