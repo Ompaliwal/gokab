@@ -11,8 +11,8 @@ const bootstrap = async () => {
   const httpServer = createServer();
   configureTaxiSocketServer(httpServer);
 
-  // Use a separate port for Socket server or fall back to 5001
-  const port = process.env.PORT || 5001;
+  // Use a separate port for Socket server
+  const port = env.socketPort;
 
   httpServer.listen(port, () => {
     console.log(`Taxi socket server listening on port ${port}`);
