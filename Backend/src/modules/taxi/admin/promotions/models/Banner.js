@@ -9,9 +9,12 @@ const bannerSchema = new mongoose.Schema(
       index: true,
     },
     image: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       required: true,
-      trim: true,
+      get(val) {
+        if (val && typeof val === 'object' && val.url) return val.url;
+        return val;
+      },
     },
     link_type: {
       type: String,
@@ -48,7 +51,11 @@ const bannerSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  },
 );
 
 bannerSchema.index({ active: 1, createdAt: -1 });

@@ -95,9 +95,12 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
     profileImage: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       default: '',
-      trim: true,
+      get(val) {
+        if (val && typeof val === 'object' && val.url) return val.url;
+        return val;
+      },
     },
     governmentIdProof: {
       type: {
@@ -249,6 +252,8 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
   },
 );
 

@@ -5688,6 +5688,16 @@ const toAdminRideRow = (ride) => {
       vehicleType: ride.driverId.vehicleType || '',
       vehicleNumber: ride.driverId.vehicleNumber || '',
     } : null,
+    bookingPreferences: ride.bookingPreferences || {
+      tripType: 'ONE_WAY',
+      pickupDate: '',
+      pickupTime: '',
+      passengers: 1,
+      luggage: false,
+      pooling: false,
+      preferredLanguages: [],
+      driverPreferences: [],
+    },
   };
 };
 

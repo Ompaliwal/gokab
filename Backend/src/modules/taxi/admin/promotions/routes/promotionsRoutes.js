@@ -18,6 +18,14 @@ import {
   updateBanner,
   updatePromoCode,
 } from '../controllers/promotionsController.js';
+import {
+  createAdvertisement,
+  getAdvertisements,
+  updateAdvertisement,
+  deleteAdvertisement,
+  toggleAdvertisementStatus,
+} from '../controllers/advertisementController.js';
+import { uploadImage } from '../../../../../middleware/upload.middleware.js';
 
 export const promotionsRouter = Router();
 
@@ -43,3 +51,10 @@ promotionsRouter.post('/admin/banners', createBanner);
 promotionsRouter.patch('/admin/banners/:id', updateBanner);
 promotionsRouter.delete('/admin/banners/:id', deleteBanner);
 promotionsRouter.post('/admin/banners/:id/push', pushBanner);
+
+// Advertisement Management Routes
+promotionsRouter.get('/admin/advertisements', getAdvertisements);
+promotionsRouter.post('/admin/advertisements', uploadImage('advertisements', 'file'), createAdvertisement);
+promotionsRouter.put('/admin/advertisements/:id', uploadImage('advertisements', 'file'), updateAdvertisement);
+promotionsRouter.delete('/admin/advertisements/:id', deleteAdvertisement);
+promotionsRouter.patch('/admin/advertisements/:id/status', toggleAdvertisementStatus);

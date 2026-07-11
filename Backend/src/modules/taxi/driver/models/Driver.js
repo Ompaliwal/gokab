@@ -67,14 +67,20 @@ const driverSchema = new mongoose.Schema(
       default: null,
     },
     profile_picture: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       default: '',
-      trim: true,
+      get(val) {
+        if (val && typeof val === 'object' && val.url) return val.url;
+        return val;
+      },
     },
     profileImage: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       default: '',
-      trim: true,
+      get(val) {
+        if (val && typeof val === 'object' && val.url) return val.url;
+        return val;
+      },
     },
     gender: {
       type: String,
@@ -164,9 +170,12 @@ const driverSchema = new mongoose.Schema(
       trim: true,
     },
     vehicleImage: {
-      type: String,
+      type: mongoose.Schema.Types.Mixed,
       default: '',
-      trim: true,
+      get(val) {
+        if (val && typeof val === 'object' && val.url) return val.url;
+        return val;
+      },
     },
     city: {
       type: String,
@@ -450,6 +459,8 @@ const driverSchema = new mongoose.Schema(
   },
   { 
     timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
   },
 );
 

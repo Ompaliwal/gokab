@@ -80,7 +80,7 @@ const StepReferral = () => {
                                 Rewards Program
                             </span>
                         </div>
-                        <h1 className="font-['Outfit'] text-[48px] font-black leading-[1] tracking-[-0.04em] text-slate-900">
+                        <h1 className="font-['Poppins'] text-[48px] font-black leading-[1] tracking-[-0.04em] text-slate-900">
                             Got a <span className="text-slate-400">Code?</span>
                         </h1>
                         <p className="text-[15px] leading-relaxed text-slate-500 font-bold opacity-80 max-w-[28ch]">

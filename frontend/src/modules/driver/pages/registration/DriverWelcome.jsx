@@ -69,7 +69,7 @@ const DriverWelcome = () => {
                         <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-amber-400 border border-white/10">
                              <Sparkles size={12} strokeWidth={3} /> Partner Program
                         </div>
-                        <h1 className="font-['Outfit'] text-[48px] font-black leading-[0.95] tracking-[-0.05em]">
+                        <h1 className="font-['Poppins'] text-[48px] font-black leading-[0.95] tracking-[-0.05em]">
                             Drive & <span className="text-amber-400">Earn Daily</span>
                         </h1>
                         <p className="max-w-[24ch] text-[15px] font-bold text-white/70 leading-relaxed opacity-90">

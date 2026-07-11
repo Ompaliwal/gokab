@@ -18,28 +18,26 @@ const ServiceTile = ({ icon, label, description, path, navState, accentClass, lo
     );
   }
 
-  return (
     <motion.button
       type="button"
-      whileHover={{ y: -1.5 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.97 }}
       onClick={() => path && navigate(path, navState ? { state: navState } : undefined)}
-      className="flex h-full min-h-[112px] w-full items-center justify-center transition-transform"
+      className="flex h-full min-h-[112px] w-full items-center justify-center transition-all"
     >
-      <div className="flex h-[108px] w-[92%] flex-col items-center justify-center gap-1.5 px-1 py-1">
+      <div className="flex h-[108px] w-[92%] flex-col items-center justify-center gap-1.5 px-1 py-1 rounded-[18px] border border-transparent hover:border-[#E8F3E9] hover:shadow-[0_6px_20px_rgba(47,95,67,0.08)] transition-all duration-200">
         <div className={`flex h-[82px] w-[82px] items-center justify-center rounded-[18px] overflow-hidden ${accentClass || 'bg-gray-50'}`}>
           <img src={icon} alt={label} className="h-[70px] w-[70px] object-contain scale-[1.12] mix-blend-multiply drop-shadow-sm" />
         </div>
 
         <div className="flex flex-col items-center gap-0.5 text-center">
-          <span className="min-h-[24px] text-[10.5px] font-bold leading-tight tracking-tight text-slate-900 line-clamp-2 uppercase">
+          <span className="min-h-[24px] text-[10.5px] font-semibold leading-tight tracking-tight text-[#2F5F43] line-clamp-2 uppercase">
             {label}
           </span>
           <span className="sr-only">{description}</span>
         </div>
       </div>
     </motion.button>
-  );
 };
 
 const ServiceGrid = () => {
@@ -85,12 +83,12 @@ const ServiceGrid = () => {
 
   const getAccent = (index) => {
     const accnets = [
-      'bg-[linear-gradient(135deg,#F0FDF4_0%,#DCFCE7_100%)]', // Minty Green
-      'bg-[linear-gradient(135deg,#ECFEFF_0%,#CFFAFE_100%)]', // Light Cyan
-      'bg-[linear-gradient(135deg,#F0F9FF_0%,#E0F2FE_100%)]', // Sky Blue
-      'bg-[linear-gradient(135deg,#EBFDF5_0%,#D1FAE5_100%)]', // Emerald Green
-      'bg-[linear-gradient(135deg,#F4FBF7_0%,#D8F3E5_100%)]', // Subtle Teal
-      'bg-[linear-gradient(135deg,#FEFCE8_0%,#FEF9C3_100%)]', // Soft Gold
+      'bg-[linear-gradient(135deg,#EFF8F0_0%,#D4EDD7_100%)]', // GoKab mint green
+      'bg-[linear-gradient(135deg,#FFF9E6_0%,#FEF3C7_100%)]', // GoKab soft gold
+      'bg-[linear-gradient(135deg,#E8F4FD_0%,#CDEAFB_100%)]', // Soft sky blue
+      'bg-[linear-gradient(135deg,#F0FDF4_0%,#DCFCE7_100%)]', // Fresh mint
+      'bg-[linear-gradient(135deg,#FCF4E8_0%,#FDE9C4_100%)]', // Warm peach
+      'bg-[linear-gradient(135deg,#F0F9FF_0%,#E0F2FE_100%)]', // Cool sky
     ];
     return accnets[index % accnets.length];
   };
@@ -129,8 +127,8 @@ const ServiceGrid = () => {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-slate-400">Services</p>
-            <h2 className="mt-1 text-[18px] font-bold tracking-tight text-primary">Choose your ride</h2>
-            <p className="mt-0.5 text-[11px] font-bold text-slate-500">Tap to start quickly.</p>
+            <h2 className="mt-1 text-[18px] font-bold tracking-tight text-[#2F5F43]">Choose your ride</h2>
+            <p className="mt-0.5 text-[11px] font-medium text-slate-400">Tap to start quickly.</p>
           </div>
         </div>
 

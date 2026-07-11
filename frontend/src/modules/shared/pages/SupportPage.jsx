@@ -8,7 +8,7 @@ const quickCards = [
     title: 'Client care number',
     value: SUPPORT_INFO.phone,
     href: `tel:${SUPPORT_INFO.phoneHref}`,
-    helper: 'Call for booking, ride, parcel, or account help',
+    helper: 'Call for booking, ride, or account help',
     Icon: Phone,
   },
   {
@@ -45,31 +45,31 @@ const SupportPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-stone-50 text-slate-900">
-      <div className="fixed left-0 right-0 top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur-md">
+    <div className="min-h-screen bg-[#FBFBF6] text-slate-900">
+      <div className="fixed left-0 right-0 top-0 z-50 border-b border-stone-200 bg-[#CFE8C9]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6">
           <button
             onClick={() => navigate(-1)}
-            className="rounded-full p-2 transition-all hover:bg-stone-100"
+            className="rounded-full p-2 transition-all hover:bg-stone-100/50"
           >
             <ArrowLeft size={20} />
           </button>
-          <span className="text-sm font-bold uppercase tracking-[0.3em] text-stone-500">
+          <span className="text-sm font-bold uppercase tracking-[0.3em] text-[#2F5F43]">
             Support
           </span>
         </div>
       </div>
 
-      <section className="bg-[#171717] px-6 pb-16 pt-28 text-white">
+      <section className="bg-[#2F5F43] px-6 pb-16 pt-28 text-white">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8 flex h-18 w-18 items-center justify-center rounded-[28px] bg-[#f4b400] text-black shadow-lg shadow-black/20">
+          <div className="mb-8 flex h-18 w-18 items-center justify-center rounded-[28px] bg-[#F2D34F] text-black shadow-lg shadow-black/20">
             <ShieldCheck size={30} />
           </div>
           <h1 className="max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
-            Talk to <span className="text-[#f4b400]">Support</span>
+            Talk to <span className="text-[#F2D34F]">Support</span>
           </h1>
           <p className="mt-6 max-w-3xl text-lg leading-relaxed text-stone-300">
-            Reach the client support team for ride issues, parcel help, payment questions, account updates,
+            Reach the client support team for ride issues, payment questions, account updates,
             or business follow-ups.
           </p>
 
@@ -80,7 +80,7 @@ const SupportPage = () => {
                 href={item.href}
                 className="flex items-center gap-4 rounded-[26px] border border-white/10 bg-white/5 px-5 py-5 transition hover:bg-white/10"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-[#f4b400]">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-[#F2D34F]">
                   <item.Icon size={22} />
                 </div>
                 <div className="min-w-0">
@@ -105,18 +105,18 @@ const SupportPage = () => {
           {detailCards.map((card) => (
             <div
               key={card.title}
-              className="rounded-[28px] border border-stone-200 bg-white p-7 shadow-sm"
+              className="rounded-[28px] border border-stone-200 bg-[#CFE8C9] p-7 shadow-sm"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-slate-900">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FBFBF6] text-[#2F5F43]">
                 <card.Icon size={22} />
               </div>
               <p className="mt-5 text-[11px] font-black uppercase tracking-[0.24em] text-stone-400">
                 {card.title}
               </p>
-              <p className="mt-2 text-xl font-black leading-tight text-slate-900">
+              <p className="mt-2 text-xl font-black leading-tight text-[#2F5F43]">
                 {card.value}
               </p>
-              <p className="mt-3 text-sm font-bold leading-6 text-slate-500">
+              <p className="mt-3 text-sm font-bold leading-6 text-slate-700">
                 {card.helper}
               </p>
             </div>

@@ -12,6 +12,7 @@ import { Driver } from '../../driver/models/Driver.js';
 import { comparePassword, hashPassword, signAccessToken } from '../services/authService.js';
 import { env } from '../../../../config/env.js';
 import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
+import { mediaService } from '../../../../services/media.service.js';
 import { resolveConfiguredGatewayCredentials } from '../../services/paymentGatewayService.js';
 import { getTransportRideSettings } from '../../services/transportSettingsService.js';
 import {
@@ -1968,13 +1969,13 @@ export const uploadUserProfileImage = async (req, res) => {
 
   validatePhone(phone);
 
-  const folderByPurpose = {
-    profile: 'user-profile',
-    government_id: 'user-government-id',
+  const categoryMap = {
+    profile: 'users',
+    government_id: 'documents',
   };
-  const targetFolder = folderByPurpose[purpose];
+  const category = categoryMap[purpose];
 
-  if (!targetFolder) {
+  if (!category) {
     throw new ApiError(400, 'Invalid upload purpose');
   }
 
@@ -1984,17 +1985,13 @@ export const uploadUserProfileImage = async (req, res) => {
     throw new ApiError(413, 'Image is too large');
   }
 
-  const uploadResult = await uploadDataUrlToCloudinary({
-    dataUrl,
-    folder: `${env.cloudinary.folder}/${targetFolder}`,
-    publicIdPrefix: targetFolder,
-  });
+  const uploadResult = await mediaService.uploadMedia(dataUrl, category, '', req);
 
   res.status(201).json({
     success: true,
     data: {
-      secureUrl: uploadResult.secureUrl,
-      publicId: uploadResult.publicId,
+      secureUrl: uploadResult.url,
+      publicId: uploadResult.filename,
     },
   });
 };
@@ -3827,7 +3824,6 @@ export const verifyBusBookingPayment = async (req, res) => {
 };
 
 export const getMyBusBookingById = async (req, res) => {
-  await ensureBusServiceEnabled();
   await cleanupExpiredBusSeatHolds();
 
   const bookingId = String(req.params?.id || '').trim();
@@ -3857,7 +3853,6 @@ export const getMyBusBookingById = async (req, res) => {
 };
 
 export const submitMyBusBookingReview = async (req, res) => {
-  await ensureBusServiceEnabled();
 
   const bookingId = String(req.params?.id || '').trim();
   if (!mongoose.Types.ObjectId.isValid(bookingId)) {
@@ -3933,7 +3928,6 @@ export const submitMyBusBookingReview = async (req, res) => {
 };
 
 export const cancelMyBusBooking = async (req, res) => {
-  await ensureBusServiceEnabled();
   await cleanupExpiredBusSeatHolds();
 
   const bookingId = String(req.params?.id || '').trim();
@@ -4570,7 +4564,6 @@ export const updateMyActiveRentalLocation = async (req, res) => {
 };
 
 export const listMyBusBookings = async (req, res) => {
-  await ensureBusServiceEnabled();
   await cleanupExpiredBusSeatHolds();
 
   const page = toPositiveInteger(req.query?.page, 1);

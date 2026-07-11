@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Camera, PlayCircle, Share2, ArrowRight } from 'lucide-react';
-import checkUsOutImg from '@/assets/check_us_out.jpg';
+// import checkUsOutImg from '@/assets/check_us_out.jpg';
 
 const CheckUsOutSection = () => {
   return (
@@ -28,7 +28,7 @@ const CheckUsOutSection = () => {
             className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent" />
-          
+
           {/* Social Badges */}
           <div className="absolute bottom-4 left-5 flex gap-2">
             <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 text-white hover:bg-white hover:text-slate-900 transition-colors cursor-pointer">
@@ -61,7 +61,7 @@ const CheckUsOutSection = () => {
               <ArrowRight size={20} strokeWidth={3} />
             </motion.button>
           </div>
-          
+
           {/* Stats/Features */}
           <div className="mt-6 pt-6 border-t border-slate-100 grid grid-cols-3 gap-4">
             <div>

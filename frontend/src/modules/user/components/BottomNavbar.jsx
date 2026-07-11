@@ -78,14 +78,14 @@ const BottomNavbar = () => {
                         damping: 32,
                         mass: 1
                       }}
-                      className="absolute -inset-y-1 -inset-x-3 bg-[linear-gradient(135deg,#10b981_0%,#059669_100%)] rounded-[14px] shadow-[0_6px_14px_rgba(16,185,129,0.25)]"
+                      className="absolute -inset-y-1 -inset-x-3 bg-[linear-gradient(135deg,#6FBF7A_0%,#4da65a_100%)] rounded-[14px] shadow-[0_6px_14px_rgba(111,191,122,0.28)]"
                     />
                   )}
                 </AnimatePresence>
 
                 {/* Icon Container with Transition */}
                 <motion.div
-                  animate={{ 
+                  animate={{
                     scale: isActive ? 1.15 : 1,
                     y: isActive ? -1 : 0
                   }}
@@ -107,14 +107,14 @@ const BottomNavbar = () => {
                     <Icon
                       size={21}
                       strokeWidth={isActive ? 2.5 : 2}
-                      className={`transition-colors duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-500'}`}
+                      className={`transition-colors duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#6FBF7A]'}`}
                     />
                   )}
                 </motion.div>
 
                 {/* Label with Transition */}
-                <motion.span 
-                  animate={{ 
+                <motion.span
+                  animate={{
                     opacity: isActive ? 1 : 0.5,
                     y: isActive ? 2 : 1,
                     scale: isActive ? 1 : 0.95
@@ -122,13 +122,12 @@ const BottomNavbar = () => {
                   transition={{
                     duration: 0.2
                   }}
-                  className={`relative z-20 text-[10px] font-bold uppercase tracking-[0.18em] font-sans mt-1 transition-colors duration-300 ${
-                    isActive ? 'text-white' : 'text-slate-500 group-hover:text-emerald-600'
-                  }`}
+                  className={`relative z-20 text-[10px] font-bold uppercase tracking-[0.18em] font-sans mt-1 transition-colors duration-300 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-[#6FBF7A]'
+                    }`}
                 >
                   {label}
                 </motion.span>
-                
+
                 {/* Subtle Bottom Glow for Active Tab */}
                 {isActive && (
                   <motion.div
@@ -138,7 +137,7 @@ const BottomNavbar = () => {
                       stiffness: 400,
                       damping: 32
                     }}
-                    className="absolute -bottom-2 w-4 h-1 bg-white/20 rounded-full blur-[2px]"
+                    className="absolute -bottom-2 w-4 h-1 bg-white/25 rounded-full blur-[2px]"
                   />
                 )}
               </div>

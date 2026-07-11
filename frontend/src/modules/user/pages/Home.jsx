@@ -3,8 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User } from 'lucide-react';
 import HeaderGreeting from '../components/HeaderGreeting';
+import RideBookingForm from '../components/RideBookingForm';
 import ServiceGrid from '../components/ServiceGrid';
 import LocationMapSection from '../components/LocationMapSection';
+import HomeMapSection from '../components/HomeMapSection';
 import ActionsSection from '../components/ActionsSection';
 import PromoBanners from '../components/PromoBanners';
 import ExplorerSection from '../components/ExplorerSection';
@@ -12,7 +14,6 @@ import CheckUsOutSection from '../components/CheckUsOutSection';
 import BottomNavbar from '../components/BottomNavbar';
 import carIcon from '../../../assets/icons/car.png';
 import bikeIcon from '../../../assets/icons/bike.png';
-import rajwadaSketchImg from '@/assets/rajwada_sketch.png';
 import autoIcon from '../../../assets/icons/auto.png';
 import deliveryIcon from '../../../assets/icons/Delivery.png';
 import api from '../../../shared/api/axiosInstance';
@@ -189,6 +190,147 @@ const normalizeRentalCurrentRideSnapshot = (ride = {}, previousRide = {}) => {
   };
 };
 
+const getDynamicMediaUrl = (url) => {
+  if (!url) return '';
+  try {
+    const backendBase = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/api(?:\/v1)?$/, '') : '';
+    if (backendBase && (url.includes('localhost:5000') || url.includes('127.0.0.1:5000'))) {
+      return url.replace(/https?:\/\/localhost:5000/g, backendBase).replace(/https?:\/\/127.0.0.1:5000/g, backendBase);
+    }
+  } catch (err) {
+    console.error('Error resolving dynamic media url:', err);
+  }
+  return url;
+};
+
+const TopFullAd = ({ ad }) => {
+  const navigate = useNavigate();
+  if (!ad) return null;
+
+  const handleClick = () => {
+    if (ad.actionType === 'URL' && ad.actionValue) {
+      window.open(ad.actionValue, '_blank');
+    } else if (ad.actionType === 'SCREEN' && ad.actionValue) {
+      navigate(ad.actionValue);
+    }
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      className="mx-5 mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 shadow-sm relative cursor-pointer active:scale-[0.99] transition"
+    >
+      {ad.mediaType === 'VIDEO' ? (
+        <video
+          src={getDynamicMediaUrl(ad.url)}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-40 object-cover"
+        />
+      ) : (
+        <img
+          src={getDynamicMediaUrl(ad.url)}
+          alt={ad.title}
+          loading="lazy"
+          className="w-full h-40 object-cover"
+        />
+      )}
+      {ad.title && (
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/75 to-transparent p-3 pt-6 text-white">
+          <p className="text-xs font-bold leading-none">{ad.title}</p>
+          {ad.description && <p className="text-[10px] text-white/80 mt-0.5 truncate">{ad.description}</p>}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const BottomAdCarousel = ({ ads }) => {
+  const navigate = useNavigate();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (ads.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % ads.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [ads.length]);
+
+  if (!ads || ads.length === 0) return null;
+
+  const activeAd = ads[currentIndex];
+
+  const handleClick = () => {
+    if (activeAd.actionType === 'URL' && activeAd.actionValue) {
+      window.open(activeAd.actionValue, '_blank');
+    } else if (activeAd.actionType === 'SCREEN' && activeAd.actionValue) {
+      navigate(activeAd.actionValue);
+    }
+  };
+
+  return (
+    <div className="mx-5 space-y-2">
+      <div className="flex items-center justify-between ml-1">
+        <h2 className="text-[16px] font-extrabold text-slate-800 tracking-tight">Special Promotions</h2>
+        {ads.length > 1 && (
+          <div className="flex gap-1">
+            {ads.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentIndex === i ? 'bg-emerald-500 w-3' : 'bg-slate-300'}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div
+        onClick={handleClick}
+        className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-950 cursor-pointer active:scale-[0.99] transition shadow-md"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.25 }}
+            className="w-full h-full relative"
+          >
+            {activeAd.mediaType === 'VIDEO' ? (
+              <video
+                src={getDynamicMediaUrl(activeAd.url)}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={getDynamicMediaUrl(activeAd.url)}
+                alt={activeAd.title}
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            )}
+            {activeAd.title && (
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 pt-8 text-white">
+                <p className="text-xs font-bold leading-none">{activeAd.title}</p>
+                {activeAd.description && <p className="text-[10px] text-white/70 mt-1 truncate">{activeAd.description}</p>}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -202,6 +344,25 @@ const Home = () => {
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [endingRide, setEndingRide] = useState(false);
   const [showDeferredSections, setShowDeferredSections] = useState(false);
+  const [advertisements, setAdvertisements] = useState({ fullAd: null, carouselAds: [] });
+
+  useEffect(() => {
+    const fetchActiveAds = async () => {
+      try {
+        const response = await api.get('/advertisements/active');
+        const raw = response?.__raw || response;
+        if (raw?.success) {
+          setAdvertisements(raw.data || { fullAd: null, carouselAds: [] });
+        } else if (raw?.fullAd || raw?.carouselAds) {
+          setAdvertisements(raw);
+        }
+      } catch (error) {
+        console.error('Error fetching active advertisements:', error);
+      }
+    };
+    fetchActiveAds();
+  }, []);
+
   const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
   const currentRideRef = useRef(currentRide);
   const lastSyncAtRef = useRef(0);
@@ -577,33 +738,7 @@ const Home = () => {
   };
 
   const rentalTimerLabel = serviceType === 'rental' ? formatRentalTime(rentalElapsedSeconds) : '';
-  const footerIllustrationBg = {
-    backgroundImage: `url(${rajwadaSketchImg})`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center bottom',
-    backgroundSize: 'cover',
-  };
-  const footerIllustrationFadeMask = {
-    WebkitMaskImage:
-      'linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%)',
-    maskImage:
-      'linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.2) 20%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%)',
-    WebkitMaskRepeat: 'no-repeat',
-    maskRepeat: 'no-repeat',
-    WebkitMaskSize: '100% 100%',
-    maskSize: '100% 100%',
-  };
 
-  const footerIllustrationEdgeBlurMask = {
-    WebkitMaskImage:
-      'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 16%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 100%)',
-    maskImage:
-      'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 16%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 100%)',
-    WebkitMaskRepeat: 'no-repeat',
-    maskRepeat: 'no-repeat',
-    WebkitMaskSize: '100% 100%',
-    maskSize: '100% 100%',
-  };
 
   return (
     <div className="min-h-screen bg-white pb-24 max-w-lg mx-auto relative overflow-hidden font-sans no-scrollbar">
@@ -613,7 +748,32 @@ const Home = () => {
 
 
       <div className="relative z-10 space-y-4 pb-6">
+
+        {/* Center-aligned GoKab Logo Header */}
+        <div className="flex flex-col items-center justify-center pt-4 pb-2">
+          {settings.general?.logo || settings.customization?.logo ? (
+            <img
+              src={settings.general?.logo || settings.customization?.logo}
+              alt={settings.general?.app_name || 'GoKab'}
+              className="h-10 object-contain"
+            />
+          ) : (
+            <div className="flex items-center gap-1.5 bg-[#EFF8F0] px-4 py-2 rounded-2xl border border-[#E8F3E9]">
+              <span className="text-[#6FBF7A] text-lg">⚡</span>
+              <span className="text-sm font-black tracking-widest text-[#2F5F43] uppercase">GoKab</span>
+            </div>
+          )}
+        </div>
+        {/* Top Full Advertisement */}
+        {advertisements?.fullAd && (
+          <TopFullAd ad={advertisements.fullAd} />
+        )}
+
+        <HomeMapSection />
+
         <HeaderGreeting />
+
+        <RideBookingForm />
 
         {isScheduledAcceptedRide && (
           <motion.button
@@ -861,82 +1021,11 @@ const Home = () => {
             <div className="h-[160px] animate-pulse rounded-[24px] border border-white/80 bg-white/70 shadow-[0_10px_22px_rgba(15,23,42,0.05)]" />
           </div>
         )}
-        <div
-          className="relative w-full"
-          style={{
-            height: 360,
-          }}
-        >
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#EEF2F7]/20 via-[#EEF2F7]/5 to-transparent" />
-            <div className="relative z-10 flex h-full items-start justify-center px-6 pt-10 text-left">
-              <div className="flex max-w-[340px] flex-col items-start px-2 py-2 -translate-x-4">
-                <svg viewBox="0 0 220 70" className="w-[180px] h-[58px] -translate-x-1.5 pointer-events-none drop-shadow-[0_8px_16px_rgba(16,185,129,0.12)]">
-                  <style>{`
-                    @import url('https://fonts.googleapis.com/css2?family=Cabin+Sketch:wght@700&display=swap');
-                    @keyframes drawPencil {
-                      0% {
-                        stroke-dashoffset: 1000;
-                        fill: rgba(16, 185, 129, 0);
-                      }
-                      75% {
-                        stroke-dashoffset: 0;
-                        fill: rgba(16, 185, 129, 0);
-                      }
-                      100% {
-                        stroke-dashoffset: 0;
-                        fill: rgba(16, 185, 129, 1);
-                      }
-                    }
-                    .pencil-sketch-text {
-                      font-family: 'Cabin Sketch', cursive, sans-serif;
-                      stroke: #10b981;
-                      stroke-width: 1.5px;
-                      fill: rgba(16, 185, 129, 0);
-                      stroke-dasharray: 1000;
-                      stroke-dashoffset: 1000;
-                      animation: drawPencil 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-                    }
-                  `}</style>
-                  <text x="2" y="52" className="pencil-sketch-text text-[56px] font-bold tracking-tight">
-                    Redigo
-                  </text>
-                </svg>
-                <div className="mt-2 text-[14px] font-sans font-extrabold tracking-tight text-emerald-800">
-                  Your trusted ride partner
-                </div>
-                <div className="mt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-600/70 flex items-center gap-1.5">
-                  Simple. Smart. Green.
-                  <img
-                    src="/flag-in.svg"
-                    alt="India"
-                    className="h-3 w-4 shrink-0"
-                    draggable={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Bottom Advertisement Carousel */}
+        {advertisements?.carouselAds && advertisements.carouselAds.length > 0 && (
+          <BottomAdCarousel ads={advertisements.carouselAds} />
+        )}
 
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              filter: 'grayscale(1) contrast(1.08)',
-              ...footerIllustrationFadeMask,
-            }}
-          >
-            <div className="absolute inset-0" style={footerIllustrationBg} />
-            <div
-              className="absolute inset-0 opacity-55"
-              style={{
-                ...footerIllustrationBg,
-                filter: 'blur(3px)',
-                ...footerIllustrationEdgeBlurMask,
-              }}
-            />
-          </div>
-        </div>
       </div>
 
       <AnimatePresence>
@@ -1030,3 +1119,5 @@ const Home = () => {
 };
 
 export default Home;
+
+

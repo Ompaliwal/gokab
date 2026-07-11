@@ -684,7 +684,7 @@ const CreateDriver = () => {
               <ChevronRight size={12} />
               <span className="text-slate-700">Admin Onboarding</span>
             </div>
-            <h1 className="font-['Outfit'] text-4xl font-black tracking-[-0.04em] text-slate-900">
+            <h1 className="font-['Poppins'] text-4xl font-black tracking-[-0.04em] text-slate-900">
               Create Driver <span className="text-slate-400">With Full Onboarding</span>
             </h1>
             <p className="mt-2 max-w-2xl text-sm font-semibold text-slate-500">

@@ -488,9 +488,9 @@ const SelectLocation = () => {
       if (query.trim().length >= 1) {
         const matchingResults = allResults
           .filter(
-          (result) =>
-            result.title.toLowerCase().includes(query.toLowerCase())
-            || result.address.toLowerCase().includes(query.toLowerCase()),
+            (result) =>
+              result.title.toLowerCase().includes(query.toLowerCase())
+              || result.address.toLowerCase().includes(query.toLowerCase()),
           )
           .map((result) => ({
             ...result,
@@ -599,7 +599,7 @@ const SelectLocation = () => {
     const startCoord = Array.isArray(pickupCoords) && pickupCoords.length === 2
       ? { lat: pickupCoords[1], lng: pickupCoords[0] }
       : INDIA_CENTER;
-    
+
     setMapCenter(startCoord);
     lastCenterRef.current = startCoord;
     setShowMapPicker(true);
@@ -610,14 +610,14 @@ const SelectLocation = () => {
     const center = mapInstanceRef.current.getCenter();
     const lat = center.lat();
     const lng = center.lng();
-    
+
     // Only update and geocode if the center has actually changed significantly
     const dist = Math.abs(lat - lastCenterRef.current.lat) + Math.abs(lng - lastCenterRef.current.lng);
     if (dist < 0.00001) {
       setIsDragging(false);
       return;
     }
-    
+
     lastCenterRef.current = { lat, lng };
     setIsDragging(false);
 
@@ -656,7 +656,7 @@ const SelectLocation = () => {
   const handleConfirmNavigate = async (optionalDrop, optionalDropCoords = null) => {
     const finalDrop = optionalDrop || drop;
     const finalPickup = pickup || 'Pipaliyahana, Indore';
-    
+
     if (!finalDrop || finalDrop.trim().length === 0) return;
 
     const resolvedPickupCoords = pickupCoords || await resolveCoords(finalPickup);
@@ -813,10 +813,7 @@ const SelectLocation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] max-w-lg mx-auto font-sans relative overflow-hidden pb-6">
-      <div className="absolute -top-20 right-[-40px] h-48 w-48 rounded-full bg-orange-100/55 blur-3xl pointer-events-none" />
-      <div className="absolute top-56 left-[-60px] h-56 w-56 rounded-full bg-emerald-100/50 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-16 right-[-40px] h-44 w-44 rounded-full bg-blue-100/50 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-white max-w-lg mx-auto font-sans relative overflow-hidden pb-6">
       <AnimatePresence>
         {showMapPicker && (
           <motion.div
@@ -827,20 +824,20 @@ const SelectLocation = () => {
           >
             {/* Map Header */}
             <div className="absolute top-0 left-0 right-0 z-20 px-5 pt-10 pb-4 bg-gradient-to-b from-white via-white/80 to-transparent">
-               <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setShowMapPicker(false)}
-                    className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center border border-slate-100 active:scale-95 transition-all"
-                  >
-                    <ArrowLeft size={20} className="text-slate-900" strokeWidth={2.5} />
-                  </button>
-                  <div className="flex-1 bg-white rounded-2xl shadow-lg border border-slate-100 px-4 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Select Point</p>
-                    <p className="text-[14px] font-semibold text-slate-900 truncate leading-tight">
-                      {isGeocoding ? 'Locating...' : pickedAddress}
-                    </p>
-                  </div>
-               </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowMapPicker(false)}
+                  className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center border border-slate-100 active:scale-95 transition-all"
+                >
+                  <ArrowLeft size={20} className="text-slate-900" strokeWidth={2.5} />
+                </button>
+                <div className="flex-1 bg-white rounded-2xl shadow-lg border border-slate-100 px-4 py-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Select Point</p>
+                  <p className="text-[14px] font-semibold text-slate-900 truncate leading-tight">
+                    {isGeocoding ? 'Locating...' : pickedAddress}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Map Area */}
@@ -898,7 +895,7 @@ const SelectLocation = () => {
               {/* Central Pin - Uber Style */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[100%] pointer-events-none z-10">
                 <div className="relative">
-                  <motion.div 
+                  <motion.div
                     animate={isDragging || isGeocoding ? { y: -12 } : { y: 0 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     className="flex flex-col items-center"
@@ -917,7 +914,7 @@ const SelectLocation = () => {
               </div>
 
               {/* Current Location FAB */}
-              <button 
+              <button
                 onClick={handleUseCurrentLocation}
                 disabled={isLocating}
                 className="absolute bottom-6 right-5 w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-slate-100 active:scale-90 transition-all z-20"
@@ -933,13 +930,13 @@ const SelectLocation = () => {
             {/* Confirm Actions */}
             <div className="px-5 pt-4 pb-10 bg-white border-t border-slate-50 space-y-4">
               <div className="flex items-center gap-3 py-1 px-1">
-                 <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                    <MapPin size={20} className="text-slate-400" />
-                 </div>
-                 <div className="min-w-0 flex-1">
-                    <h4 className="text-[15px] font-bold text-slate-900 leading-none">Confirm Spot</h4>
-                    <p className="text-[12px] font-medium text-slate-400 mt-1 line-clamp-1">{pickedAddress}</p>
-                 </div>
+                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                  <MapPin size={20} className="text-slate-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-[15px] font-bold text-slate-900 leading-none">Confirm Spot</h4>
+                  <p className="text-[12px] font-medium text-slate-400 mt-1 line-clamp-1">{pickedAddress}</p>
+                </div>
               </div>
               <button
                 onClick={handleConfirmMapLocation}
@@ -1021,11 +1018,10 @@ const SelectLocation = () => {
                       </div>
                     </div>
                     <div
-                      className={`flex-1 flex items-center rounded-xl px-3 py-2.5 transition-all ${
-                        stop.trim().length > 0
+                      className={`flex-1 flex items-center rounded-xl px-3 py-2.5 transition-all ${stop.trim().length > 0
                           ? 'bg-white/90 border border-indigo-200 shadow-[0_10px_24px_rgba(99,102,241,0.10)]'
                           : 'bg-indigo-50/70 border border-indigo-100/70'
-                      } ${activeInput === idx ? 'ring-2 ring-indigo-200' : ''}`}
+                        } ${activeInput === idx ? 'ring-2 ring-indigo-200' : ''}`}
                       onClick={() => setActiveInput(idx)}
                     >
                       <input
@@ -1035,9 +1031,8 @@ const SelectLocation = () => {
                         placeholder={`Stop ${idx + 1} location...`}
                         onFocus={() => setActiveInput(idx)}
                         onChange={(e) => updateStop(idx, sanitizeLocationInput(e.target.value))}
-                        className={`w-full bg-transparent border-none text-[15px] font-medium text-slate-900 focus:outline-none ${
-                          stop.trim().length > 0 ? 'placeholder:text-slate-300' : 'placeholder:text-indigo-300'
-                        }`}
+                        className={`w-full bg-transparent border-none text-[15px] font-medium text-slate-900 focus:outline-none ${stop.trim().length > 0 ? 'placeholder:text-slate-300' : 'placeholder:text-indigo-300'
+                          }`}
                       />
                       {stop.length > 0 && (
                         <button onClick={() => updateStop(idx, '')} className="ml-2 shrink-0">
@@ -1090,25 +1085,7 @@ const SelectLocation = () => {
         </div>
       </div>
 
-      {/* Action Pills */}
-      <div className="relative z-10 flex gap-3 px-5 my-4">
-        <button
-          onClick={showMapToast}
-          className="flex-1 flex items-center justify-center gap-2 bg-white/75 backdrop-blur-md border border-white/80 rounded-full py-2.5 shadow-[0_12px_26px_rgba(15,23,42,0.06)] active:scale-95 transition-all text-[13px] font-bold text-slate-800"
-        >
-          <MapPin size={16} className="text-slate-900" />
-          <span>Select on map</span>
-        </button>
-        <button
-          onClick={addStop}
-          className="flex-1 flex items-center justify-center gap-2 rounded-full py-2.5 shadow-[0_12px_26px_rgba(15,23,42,0.06)] active:scale-95 transition-all text-[13px] font-bold bg-white/75 backdrop-blur-md border border-white/80 text-slate-800"
-        >
-          <div className="w-4 h-4 rounded bg-indigo-500 flex items-center justify-center">
-            <Plus size={12} className="text-white" strokeWidth={3} />
-          </div>
-          <span>Add stop {stops.length > 0 ? `(${stops.length})` : ''}</span>
-        </button>
-      </div>
+
 
       {/* Stop count chips */}
       {stops.length > 0 && (
@@ -1143,18 +1120,18 @@ const SelectLocation = () => {
               onClick={handleUseCurrentLocationResult}
               className="w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-white/70 bg-emerald-50/30 hover:bg-emerald-50/50 transition-colors group"
             >
-               <div className="w-10 h-10 rounded-2xl bg-white border border-emerald-100 shadow-sm flex items-center justify-center shrink-0">
-                  {isLocating ? (
-                     <LoaderCircle size={18} className="animate-spin text-emerald-500" />
-                  ) : (
-                     <Navigation size={18} className="text-emerald-500 fill-emerald-50" />
-                  )}
-               </div>
-               <div className="flex-1">
-                  <h4 className="text-[15px] font-bold text-slate-900 leading-tight group-hover:text-emerald-600 transition-colors">Use Current Location</h4>
-                  <p className="text-[12px] text-slate-400 font-medium mt-0.5">Perfect for accurate pickup</p>
-               </div>
-               <ChevronRight size={16} className="text-slate-300" />
+              <div className="w-10 h-10 rounded-2xl bg-white border border-emerald-100 shadow-sm flex items-center justify-center shrink-0">
+                {isLocating ? (
+                  <LoaderCircle size={18} className="animate-spin text-emerald-500" />
+                ) : (
+                  <Navigation size={18} className="text-emerald-500 fill-emerald-50" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[15px] font-bold text-slate-900 leading-tight group-hover:text-emerald-600 transition-colors">Use Current Location</h4>
+                <p className="text-[12px] text-slate-400 font-medium mt-0.5">Perfect for accurate pickup</p>
+              </div>
+              <ChevronRight size={16} className="text-slate-300" />
             </motion.button>
 
             {searchResults.map((result, idx) => (

@@ -36,57 +36,53 @@ const HeaderGreeting = () => {
   }, []);
 
   return (
-    <div className="px-5 pt-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-            className="relative inline-flex items-center"
-          >
-            {appLogo ? (
-              <motion.img
-                key={appLogo}
-                src={appLogo}
-                alt={appName}
-                className="relative z-10 h-10 object-contain drop-shadow-sm"
-                animate={{ y: [0, -2, 0], scale: [1, 1.02, 1] }}
-                transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-            ) : showBrandingSkeleton ? (
-              <div className="relative z-10 h-10 min-w-[40px] animate-pulse rounded-full bg-slate-200/90" />
-            ) : (
-              <div className="relative z-10 flex h-10 min-w-[40px] items-center justify-center rounded-full bg-slate-900 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
-                {appName.slice(0, 2)}
-              </div>
-            )}
-          </motion.div>
+    <div className="px-5 pt-3 space-y-4">
+      {/* Search destination bar at the top */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
+        className="space-y-2.5"
+      >
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.99 }}
+          onClick={() => navigate('/ride/select-location')}
+          className="flex w-full items-center gap-2.5 rounded-2xl border border-[#E8F3E9] bg-white px-4 py-3.5 text-left shadow-[0_4px_20px_rgba(47,95,67,0.06)] transition-shadow hover:shadow-[0_6px_24px_rgba(47,95,67,0.10)] hover:border-[#CFE8C9]"
+        >
+          <Search size={16} className="text-slate-400" strokeWidth={2.5} />
+          <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-slate-400">
+            Where are you going?
+          </span>
+          <span className="text-[9px] font-black uppercase tracking-[0.22em] text-white bg-[#2F5F43] px-2.5 py-1 rounded-full">Go</span>
+        </motion.button>
+      </motion.div>
 
-          <motion.button
-            type="button"
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.03, ease: 'easeOut' }}
-            whileTap={{ scale: 0.99 }}
-            onClick={() => navigate('/ride/select-location')}
-            className="group flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-transparent px-0 py-0 text-left transition-opacity active:opacity-80"
-          >
-            <MapPin size={16} className="text-slate-500 transition-colors group-hover:text-slate-700" strokeWidth={2.5} />
+      {/* Location and Wallet Row below */}
+      <div className="flex items-center justify-between gap-3 bg-white/80 backdrop-blur-md rounded-2xl p-2 border border-[#E8F3E9]">
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.03, ease: 'easeOut' }}
+          whileTap={{ scale: 0.99 }}
+          onClick={() => navigate('/ride/select-location')}
+          className="group flex min-w-0 flex-1 items-center gap-2 rounded-lg bg-transparent px-2 py-1 text-left transition-opacity active:opacity-80"
+        >
+          <MapPin size={16} className="text-[#6FBF7A] transition-colors group-hover:text-[#2F5F43] shrink-0" strokeWidth={2.5} />
 
-            <div className="min-w-0 flex-1">
-              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-400">Location</p>
-              <p className="truncate text-[11px] font-bold tracking-tight text-slate-900">{locationLabel}</p>
-            </div>
-          </motion.button>
-        </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-400">Location</p>
+            <p className="truncate text-[11px] font-bold tracking-tight text-slate-900">{locationLabel}</p>
+          </div>
+        </motion.button>
 
         <button
           onClick={() => navigate('/wallet')}
-          className="relative w-12 h-12 overflow-hidden rounded-full border border-white/80 bg-white/95 flex items-center justify-center shadow-[0_12px_30px_rgba(15,23,42,0.08)] shrink-0 active:scale-95 transition-transform"
+          className="relative w-9 h-9 overflow-hidden rounded-full border border-white/80 bg-white/95 flex items-center justify-center shadow-[0_6px_15px_rgba(15,23,42,0.06)] shrink-0 active:scale-95 transition-transform"
         >
           <motion.div
-            className="absolute inset-x-2 top-1 h-3 rounded-full bg-gradient-to-b from-amber-200/50 to-transparent"
+            className="absolute inset-x-1.5 top-0.5 h-2 rounded-full bg-gradient-to-b from-amber-200/50 to-transparent"
             animate={{ opacity: [0.15, 0.35, 0.15] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           />
@@ -95,10 +91,10 @@ const HeaderGreeting = () => {
             <motion.span
               key={coin.id}
               aria-hidden="true"
-              className="absolute top-1 block h-1.5 w-1.5 rounded-full bg-gradient-to-br from-amber-300 to-yellow-500 shadow-[0_1px_4px_rgba(245,158,11,0.45)]"
+              className="absolute top-0.5 block h-1 w-1 rounded-full bg-gradient-to-br from-amber-300 to-yellow-500"
               style={{ left: coin.left }}
               animate={{
-                y: [0, 10, 16],
+                y: [0, 8, 12],
                 opacity: [0, 1, 1, 0],
                 scale: [0.85, 1, 0.92],
               }}
@@ -117,30 +113,10 @@ const HeaderGreeting = () => {
             animate={{ y: [0, -1, 0], rotate: [0, -2, 0] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <Wallet size={20} className="text-gray-900" strokeWidth={2.5} />
+            <Wallet size={16} className="text-gray-900" strokeWidth={2.5} />
           </motion.div>
         </button>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
-        className="mt-3 space-y-2.5"
-      >
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.99 }}
-          onClick={() => navigate('/ride/select-location')}
-          className="flex w-full items-center gap-2 rounded-[18px] border border-white/80 bg-white/92 px-3.5 py-3 text-left shadow-[0_12px_26px_rgba(15,23,42,0.06)]"
-        >
-          <Search size={16} className="text-slate-500" strokeWidth={2.5} />
-          <span className="min-w-0 flex-1 truncate text-[12px] font-bold text-slate-500">
-            Search destination
-          </span>
-          <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-600">Go</span>
-        </motion.button>
-      </motion.div>
     </div>
   );
 };

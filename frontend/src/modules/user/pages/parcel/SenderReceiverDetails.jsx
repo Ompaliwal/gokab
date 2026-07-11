@@ -1237,7 +1237,7 @@ const SenderReceiverDetails = () => {
   };
 
   return (
-    <div className="relative mx-auto h-[100dvh] max-w-lg overflow-hidden bg-slate-50 font-['Plus_Jakarta_Sans']">
+    <div className="relative mx-auto h-[100dvh] max-w-lg overflow-hidden bg-slate-50 font-['Poppins']">
       <MapPickerSheet
         open={activeMapPicker === 'pickup'}
         title="Set Pickup Location"

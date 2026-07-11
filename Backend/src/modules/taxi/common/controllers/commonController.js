@@ -1,5 +1,5 @@
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
-import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
+import { mediaService } from '../../../../services/media.service.js';
 import { env } from '../../../../config/env.js';
 import { getReferralSettings, getReferralTranslationContent } from '../../admin/services/adminService.js';
 import { getPublicActivePaymentGateway } from '../../services/paymentGatewayService.js';
@@ -15,18 +15,15 @@ export const uploadImage = asyncHandler(async (req, res) => {
         return res.status(400).json({ success: false, message: 'Image data is required' });
     }
 
-    const uploadResult = await uploadDataUrlToCloudinary({
-        dataUrl: image,
-        folder: `${env.cloudinary.folder}/${folder}`,
-        publicIdPrefix: `content-${folder}`
-    });
+    const uploadResult = await mediaService.uploadMedia(image, folder, '', req);
 
     return res.json({
         success: true,
         data: {
-            url: uploadResult.secureUrl,
-            publicId: uploadResult.publicId,
-            format: uploadResult.format
+            url: uploadResult.url,
+            secureUrl: uploadResult.url,
+            publicId: uploadResult.filename,
+            format: uploadResult.mimeType.split('/')[1] || 'webp'
         }
     });
 });

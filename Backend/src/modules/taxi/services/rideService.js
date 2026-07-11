@@ -867,6 +867,7 @@ export const createRideRecord = async ({
   bookingMode,
   userMaxBidFare,
   bidStepAmount,
+  bookingPreferences,
 }) => {
   const user = await User.findById(userId);
 
@@ -1077,6 +1078,16 @@ export const createRideRecord = async ({
       scheduledAt: normalizedScheduledAt,
       status: RIDE_STATUS.SEARCHING,
       liveStatus: RIDE_LIVE_STATUS.SEARCHING,
+      bookingPreferences: {
+        tripType: bookingPreferences?.tripType || 'ONE_WAY',
+        pickupDate: bookingPreferences?.pickupDate || '',
+        pickupTime: bookingPreferences?.pickupTime || '',
+        passengers: Number(bookingPreferences?.passengers || 1),
+        luggage: Boolean(bookingPreferences?.luggage),
+        pooling: Boolean(bookingPreferences?.pooling),
+        preferredLanguages: Array.isArray(bookingPreferences?.preferredLanguages) ? bookingPreferences.preferredLanguages : [],
+        driverPreferences: Array.isArray(bookingPreferences?.driverPreferences) ? bookingPreferences.driverPreferences : [],
+      },
     });
 
     user.currentRideId = ride._id;
@@ -1132,6 +1143,16 @@ export const createRideRecord = async ({
             scheduledAt: normalizedScheduledAt,
             status: RIDE_STATUS.SEARCHING,
             liveStatus: RIDE_LIVE_STATUS.SEARCHING,
+            bookingPreferences: {
+              tripType: bookingPreferences?.tripType || 'ONE_WAY',
+              pickupDate: bookingPreferences?.pickupDate || '',
+              pickupTime: bookingPreferences?.pickupTime || '',
+              passengers: Number(bookingPreferences?.passengers || 1),
+              luggage: Boolean(bookingPreferences?.luggage),
+              pooling: Boolean(bookingPreferences?.pooling),
+              preferredLanguages: Array.isArray(bookingPreferences?.preferredLanguages) ? bookingPreferences.preferredLanguages : [],
+              driverPreferences: Array.isArray(bookingPreferences?.driverPreferences) ? bookingPreferences.driverPreferences : [],
+            },
           },
         ],
         { session },

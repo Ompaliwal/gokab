@@ -260,19 +260,20 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto pb-28 relative overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-[#FBFBF6] max-w-lg mx-auto pb-28 relative overflow-x-hidden">
       {/* Premium Header Background */}
-      <div className="absolute top-0 inset-x-0 h-80 bg-slate-900 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/30 via-slate-900 to-slate-900" />
-        <div className="absolute top-[-20%] right-[-10%] h-64 w-64 bg-indigo-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-[-5%] h-40 w-40 bg-emerald-500/5 rounded-full blur-2xl" />
+      <div className="absolute top-0 inset-x-0 h-80 bg-[#2F5F43] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#6FBF7A]/30 via-[#2F5F43] to-[#1a3d2a]" />
+        <div className="absolute top-[-20%] right-[-10%] h-64 w-64 bg-[#6FBF7A]/15 rounded-full blur-3xl" />
+        <div className="absolute top-[40%] left-[-8%] h-48 w-48 bg-[#F2D34F]/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-[-5%] h-40 w-40 bg-[#6FBF7A]/10 rounded-full blur-2xl" />
       </div>
 
       <div className="relative z-10">
         {/* Header Section */}
         <div className="px-6 pt-12 pb-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="font-sans text-2xl font-extrabold text-white tracking-tight">Profile</h1>
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">Profile</h1>
             <MotionButton
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -287,11 +288,11 @@ const Profile = () => {
           <MotionDiv
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-[32px] bg-white p-6 shadow-2xl shadow-slate-900/20"
+            className="rounded-[28px] bg-white p-6 shadow-[0_20px_60px_rgba(47,95,67,0.12)] border border-[#E8F3E9]"
           >
             <div className="flex items-center gap-5">
               <div className="relative">
-                <div className="w-20 h-20 rounded-[28px] bg-slate-900 flex items-center justify-center shadow-lg overflow-hidden border-2 border-white">
+                <div className="w-20 h-20 rounded-[28px] bg-[#2F5F43] flex items-center justify-center shadow-lg overflow-hidden border-2 border-white">
                   {profile.profileImage ? (
                     <img 
                       src={profile.profileImage} 
@@ -302,12 +303,12 @@ const Profile = () => {
                     <span className="text-2xl font-black text-white opacity-40">{initials || 'U'}</span>
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-lg border-2 border-white flex items-center justify-center shadow-sm">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#6FBF7A] rounded-lg border-2 border-white flex items-center justify-center shadow-sm">
                   <Check size={14} className="text-white" strokeWidth={4} />
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <h2 className="font-sans text-[22px] font-extrabold text-slate-900 truncate capitalize leading-tight">
+                <h2 className="text-[22px] font-extrabold text-[#1F2937] truncate capitalize leading-tight">
                   {profile.name}
                 </h2>
                 <p className="text-[14px] font-bold text-slate-400 mt-1 flex items-center gap-1.5">
@@ -320,19 +321,19 @@ const Profile = () => {
             {/* Quick Stats Row */}
             <div className="grid grid-cols-3 gap-3 mt-8 pt-6 border-t border-slate-50">
               <div className="text-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Total Trips</p>
-                <p className="font-sans text-[18px] font-extrabold text-slate-900 mt-1">{profile.stats.trips}</p>
+                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Total Trips</p>
+                 <p className="text-[18px] font-extrabold text-[#2F5F43] mt-1">{profile.stats.trips}</p>
               </div>
               <div className="text-center border-x border-slate-50">
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Rating</p>
                 <div className="flex items-center justify-center gap-1 mt-1">
                   <Star size={14} className="text-amber-400 fill-amber-400" />
-                  <p className="font-sans text-[18px] font-extrabold text-slate-900">{profile.stats.rating}</p>
+                  <p className="text-[18px] font-extrabold text-[#1F2937]">{profile.stats.rating}</p>
                 </div>
               </div>
               <div className="text-center">
                 <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">Credits</p>
-                <p className="font-sans text-[18px] font-extrabold text-indigo-600 mt-1">₹{profile.stats.wallet}</p>
+                 <p className="text-[18px] font-extrabold text-[#6FBF7A] mt-1">₹{profile.stats.wallet}</p>
               </div>
             </div>
           </MotionDiv>
@@ -351,7 +352,7 @@ const Profile = () => {
               Loyalty Club
             </h3>
             
-            <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 p-6 text-white shadow-xl shadow-emerald-600/20">
+            <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#2F5F43] via-[#3a7050] to-[#2F5F43] p-6 text-white shadow-xl shadow-[#2F5F43]/25">
               {/* Decorative elements */}
               <div className="absolute top-[-20%] right-[-10%] h-32 w-32 bg-white/10 rounded-full blur-xl" />
               <div className="absolute bottom-[-20%] left-[-10%] h-24 w-24 bg-white/5 rounded-full blur-lg" />
@@ -362,8 +363,8 @@ const Profile = () => {
                     <Award size={28} className="text-white" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <p className="text-[12px] font-bold tracking-wider text-emerald-100 uppercase opacity-90">Referral Wallet</p>
-                    <h4 className="font-sans text-[26px] font-extrabold tracking-tight mt-0.5">
+                    <p className="text-[12px] font-bold tracking-wider text-[#CFE8C9] uppercase opacity-90">Referral Wallet</p>
+                    <h4 className="text-[26px] font-extrabold tracking-tight mt-0.5">
                       ₹{safeAvailableReferralWallet.toFixed(0)} <span className="text-sm font-bold text-emerald-100">Available</span>
                     </h4>
                     <p className="mt-1 text-[11px] font-semibold text-emerald-100/90">
@@ -377,7 +378,7 @@ const Profile = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate('/taxi/user/wallet')}
-                  className="px-4 py-2 rounded-xl bg-white text-emerald-600 font-extrabold text-[13px] shadow-md hover:bg-emerald-50 transition-all"
+                  className="px-4 py-2 rounded-xl bg-white text-[#2F5F43] font-extrabold text-[13px] shadow-md hover:bg-[#EFF8F0] transition-all"
                 >
                   Redeem
                 </MotionButton>

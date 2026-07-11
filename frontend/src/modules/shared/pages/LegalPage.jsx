@@ -9,7 +9,6 @@ const ownerContact = {
 };
 
 const vehiclePricing = [
-  { type: 'Bike', capacity: 'Up to 2 riders', price: 'Starts at Rs 49', cancellationCut: 'Admin cut up to Rs 10', note: 'Best for quick solo rides and short-distance travel.' },
   { type: 'Auto', capacity: 'Up to 3 riders', price: 'Starts at Rs 79', cancellationCut: 'Admin cut up to Rs 15', note: 'Suitable for city commutes and local market travel.' },
   { type: 'Taxi', capacity: 'Up to 4 riders', price: 'Starts at Rs 129', cancellationCut: 'Admin cut up to Rs 25', note: 'Standard cab option for everyday point-to-point trips.' },
   { type: 'Premium Car', capacity: 'Up to 7 riders', price: 'Starts at Rs 249', cancellationCut: 'Admin cut up to Rs 40', note: 'Extra comfort and larger seating for family or business travel.' },
@@ -22,12 +21,12 @@ const legalContent = {
     title: 'Terms & Conditions',
     icon: ScrollText,
     intro:
-      'These Terms & Conditions govern the use of the Redigo  Trawler website, app, and booking services. By using the platform, you agree to follow these terms whenever you browse, register, book, cancel, or pay for a service.',
+      'These Terms & Conditions govern the use of the Gokab Trawler website, app, and booking services. By using the platform, you agree to follow these terms whenever you browse, register, book, cancel, or pay for a service.',
     sections: [
       {
         title: 'Use of the platform',
         body:
-          'Redigo  Trawler provides technology services for ride booking, vehicle-based transport support, parcel movement, and related mobility services. Availability can vary by city, vehicle type, demand, operating hours, and serviceability.',
+          'Gokab Trawler provides technology services for ride booking, vehicle-based transport support, and related mobility services. Availability can vary by city, vehicle type, demand, operating hours, and serviceability.',
       },
       {
         title: 'Eligibility',
@@ -57,12 +56,12 @@ const legalContent = {
       {
         title: 'Account actions',
         body:
-          'Redigo  Trawler may suspend, restrict, or terminate access where there is fraud, abusive conduct, repeated policy violations, non-payment, chargeback misuse, or legal/regulatory risk.',
+          'Gokab Trawler may suspend, restrict, or terminate access where there is fraud, abusive conduct, repeated policy violations, non-payment, chargeback misuse, or legal/regulatory risk.',
       },
       {
         title: 'Liability and service interruptions',
         body:
-          'Redigo  Trawler works to keep the service reliable, but delays may happen because of traffic, weather, technical downtime, route closures, law-and-order issues, or third-party failures. To the extent permitted by law, Redigo  Trawler is not responsible for indirect or consequential loss arising from such interruptions.',
+          'Gokab Trawler works to keep the service reliable, but delays may happen because of traffic, weather, technical downtime, route closures, law-and-order issues, or third-party failures. To the extent permitted by law, Gokab Trawler is not responsible for indirect or consequential loss arising from such interruptions.',
       },
       {
         title: 'Contact',
@@ -76,7 +75,7 @@ const legalContent = {
     title: 'Privacy Policy',
     icon: ShieldCheck,
     intro:
-      'This website is managed by Redigo  Trawler. This Privacy Policy explains what information we collect, why we collect it, how we use it, and the steps we take to protect it when you use the Redigo  Trawler website or connected services.',
+      'This website is managed by Gokab Trawler. This Privacy Policy explains what information we collect, why we collect it, how we use it, and the steps we take to protect it when you use the Gokab Trawler website or connected services.',
     sections: [
       {
         title: 'Information we may collect',
@@ -104,7 +103,7 @@ const legalContent = {
       {
         title: 'Payments and data security',
         body:
-          'Payments may be processed through third-party payment partners. Redigo  Trawler does not intentionally store full card data on the website. We use reasonable administrative and technical safeguards to protect user information, but no internet-based system can be guaranteed to be fully secure.',
+          'Payments may be processed through third-party payment partners. Gokab Trawler does not intentionally store full card data on the website. We use reasonable administrative and technical safeguards to protect user information, but no internet-based system can be guaranteed to be fully secure.',
       },
       {
         title: 'Data retention and user rights',
@@ -117,7 +116,7 @@ const legalContent = {
       {
         title: 'Policy updates',
         body:
-          'Redigo  Trawler may revise this Privacy Policy from time to time. Continued use of the website after an update means you accept the revised policy.',
+          'Gokab Trawler may revise this Privacy Policy from time to time. Continued use of the website after an update means you accept the revised policy.',
       },
     ],
   },
@@ -126,7 +125,7 @@ const legalContent = {
     title: 'Refund & Cancellation Policy',
     icon: ReceiptText,
     intro:
-      'This page explains refund eligibility, cancellation timelines, and indicative prices for the main vehicle types available on the Redigo  Trawler platform. Refunds are reviewed based on service status, time of cancellation, and payment mode.',
+      'This page explains refund eligibility, cancellation timelines, and indicative prices for the main vehicle types available on the Gokab Trawler platform. Refunds are reviewed based on service status, time of cancellation, and payment mode.',
     sections: [
       {
         title: 'When refunds may be approved',
@@ -140,15 +139,14 @@ const legalContent = {
       {
         title: 'Refund policy overview',
         body:
-          'Redigo  Trawler reviews refund requests on a case-by-case basis to confirm whether the booking was completed, cancelled before service, cancelled after dispatch, or affected by a technical or payment issue. Approved refunds are returned only after internal verification of ride logs, payment status, and service records.',
+          'Gokab Trawler reviews refund requests on a case-by-case basis to confirm whether the booking was completed, cancelled before service, cancelled after dispatch, or affected by a technical or payment issue. Approved refunds are returned only after internal verification of ride logs, payment status, and service records.',
       },
       {
         title: 'Cancellation rules',
         bullets: [
-          'Bike and Auto bookings: free cancellation usually applies before partner assignment or within a short grace window after booking.',
+          'Auto bookings: free cancellation usually applies before partner assignment or within a short grace window after booking.',
           'Taxi bookings: a cancellation fee may apply once a driver is assigned, the driver is close to pickup, or the vehicle has already started toward the user.',
           'Premium Car bookings: because these block a larger-capacity vehicle, late cancellation may attract a higher convenience or blocking fee.',
-          'Parcel or service-center linked vehicle bookings: once pickup, dispatch, or service preparation begins, the booking may become partially refundable or non-refundable.',
           'No-show cases, repeated misuse, or cancellations after service start are generally non-refundable.',
         ],
       },
@@ -189,7 +187,7 @@ const legalContent = {
         bullets: [
           'Raise the issue through the support team with your booking ID, payment details, and reason for the request.',
           'Submit the request as early as possible after the cancelled or affected booking.',
-          'Redigo   Trawler may ask for screenshots, transaction references, or additional verification before approval.',
+          'Gokab Trawler may ask for screenshots, transaction references, or additional verification before approval.',
         ],
       },
       {
@@ -208,7 +206,7 @@ const legalContent = {
     title: 'Cancellation Policy',
     icon: Scale,
     intro:
-      'This page summarizes how cancellations are handled across Redigo  Trawler booking categories.',
+      'This page summarizes how cancellations are handled across Gokab Trawler booking categories.',
     sections: [
       {
         title: 'General policy',
@@ -238,24 +236,24 @@ const LegalPage = () => {
   const Icon = content.icon || FileText;
 
   return (
-    <div className="min-h-screen bg-stone-50 text-slate-900">
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur-md">
+    <div className="min-h-screen bg-[#FBFBF6] text-slate-900">
+      <div className="fixed top-0 left-0 right-0 z-50 border-b border-stone-200 bg-[#CFE8C9]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6">
           <button
             onClick={() => navigate(-1)}
-            className="rounded-full p-2 transition-all hover:bg-stone-100"
+            className="rounded-full p-2 transition-all hover:bg-stone-100/50"
           >
             <ArrowLeft size={20} />
           </button>
-          <span className="text-sm font-bold uppercase tracking-[0.3em] text-stone-500">
+          <span className="text-sm font-bold uppercase tracking-[0.3em] text-[#2F5F43]">
             {content.label}
           </span>
         </div>
       </div>
 
-      <section className="bg-[#171717] px-6 pb-16 pt-28 text-white">
+      <section className="bg-[#2F5F43] px-6 pb-16 pt-28 text-white">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-8 flex h-18 w-18 items-center justify-center rounded-[28px] bg-[#f4b400] text-black shadow-lg shadow-black/20">
+          <div className="mb-8 flex h-18 w-18 items-center justify-center rounded-[28px] bg-[#F2D34F] text-black shadow-lg shadow-black/20">
             <Icon size={30} />
           </div>
           <h1 className="max-w-4xl text-4xl font-black tracking-tight md:text-6xl">
@@ -269,14 +267,14 @@ const LegalPage = () => {
               href={`tel:${ownerContact.phone}`}
               className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
             >
-              <Phone size={18} className="text-[#f4b400]" />
+              <Phone size={18} className="text-[#F2D34F]" />
               <span>{ownerContact.phone}</span>
             </a>
             <a
               href={`mailto:${ownerContact.email}`}
               className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10"
             >
-              <Mail size={18} className="text-[#f4b400]" />
+              <Mail size={18} className="text-[#F2D34F]" />
               <span>{ownerContact.email}</span>
             </a>
           </div>
@@ -286,20 +284,20 @@ const LegalPage = () => {
       <section className="px-6 py-16">
         <div className="mx-auto max-w-6xl space-y-8">
           {content.sections.map((section) => (
-            <div key={section.title} className="rounded-[28px] border border-stone-200 bg-white p-8 shadow-sm">
-              <h2 className="text-xl font-black tracking-tight text-slate-900 md:text-2xl">
+            <div key={section.title} className="rounded-[28px] border border-stone-200 bg-[#CFE8C9] p-8 shadow-sm">
+              <h2 className="text-xl font-black tracking-tight text-[#2F5F43] md:text-2xl">
                 {section.title}
               </h2>
 
               {section.body ? (
-                <p className="mt-4 text-base leading-8 text-slate-600">{section.body}</p>
+                <p className="mt-4 text-base leading-8 text-slate-800">{section.body}</p>
               ) : null}
 
               {section.bullets ? (
-                <ul className="mt-4 space-y-3 text-base leading-7 text-slate-600">
+                <ul className="mt-4 space-y-3 text-base leading-7 text-slate-800">
                   {section.bullets.map((item) => (
                     <li key={item} className="flex gap-3">
-                      <span className="mt-2 h-2 w-2 rounded-full bg-[#f4b400]" />
+                      <span className="mt-2 h-2 w-2 rounded-full bg-[#F2D34F]" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -309,25 +307,25 @@ const LegalPage = () => {
               {section.table ? (
                 <div className="mt-6 overflow-hidden rounded-[24px] border border-stone-200">
                   <div className="grid grid-cols-1 gap-px bg-stone-200 md:grid-cols-5">
-                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-stone-500">Vehicle Type</div>
-                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-stone-500">Capacity</div>
-                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-stone-500">Starting Price</div>
-                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-stone-500">Cancellation Cut</div>
-                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-stone-500">Use Case</div>
+                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-[#2F5F43]">Vehicle Type</div>
+                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-[#2F5F43]">Capacity</div>
+                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-[#2F5F43]">Starting Price</div>
+                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-[#2F5F43]">Cancellation Cut</div>
+                    <div className="bg-stone-100 px-5 py-4 text-xs font-black uppercase tracking-[0.25em] text-[#2F5F43]">Use Case</div>
                   </div>
 
                   {section.table.map((row) => (
                     <div key={row.type} className="grid grid-cols-1 gap-px border-t border-stone-200 bg-stone-200 md:grid-cols-5">
-                      <div className="bg-white px-5 py-5">
+                      <div className="bg-[#FBFBF6] px-5 py-5">
                         <div className="flex items-center gap-2 text-base font-bold text-slate-900">
-                          <IndianRupee size={16} className="text-[#f4b400]" />
+                          <IndianRupee size={16} className="text-[#F2D34F]" />
                           {row.type}
                         </div>
                       </div>
-                      <div className="bg-white px-5 py-5 text-sm text-slate-600">{row.capacity}</div>
-                      <div className="bg-white px-5 py-5 text-sm font-bold text-slate-900">{row.price}</div>
-                      <div className="bg-white px-5 py-5 text-sm font-bold text-slate-900">{row.cancellationCut}</div>
-                      <div className="bg-white px-5 py-5 text-sm text-slate-600">{row.note}</div>
+                      <div className="bg-[#FBFBF6] px-5 py-5 text-sm text-slate-700">{row.capacity}</div>
+                      <div className="bg-[#FBFBF6] px-5 py-5 text-sm font-bold text-slate-900">{row.price}</div>
+                      <div className="bg-[#FBFBF6] px-5 py-5 text-sm font-bold text-slate-900">{row.cancellationCut}</div>
+                      <div className="bg-[#FBFBF6] px-5 py-5 text-sm text-slate-700">{row.note}</div>
                     </div>
                   ))}
                 </div>

@@ -7,6 +7,7 @@ import { Banner } from '../models/Banner.js';
 import { Notification } from '../models/Notification.js';
 import { PromoCode } from '../models/PromoCode.js';
 import { uploadDataUrlToCloudinary } from '../../../../../utils/cloudinaryUpload.js';
+import { mediaService } from '../../../../../services/media.service.js';
 import { sendPushNotificationToAudience } from '../../../services/pushNotificationService.js';
 
 const nextId = () => new mongoose.Types.ObjectId().toString();
@@ -345,15 +346,10 @@ const normalizeNotificationPayload = async (payload, existing = null) => {
   // If image is a data URL (base64), upload it to Cloudinary
   if (image.startsWith('data:')) {
     try {
-      const uploaded = await uploadDataUrlToCloudinary({
-        dataUrl: image,
-        publicIdPrefix: 'notification',
-      });
-      image = uploaded.secureUrl;
+      const uploaded = await mediaService.uploadMedia(image, 'documents');
+      image = uploaded.url;
     } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      // We don't throw here to allow sending notification even if image upload fails?
-      // Actually, it's better to throw so the user knows why it failed.
+      console.error('Local upload error:', error);
       throw new ApiError(500, `Failed to upload notification image: ${error.message}`);
     }
   }
@@ -387,13 +383,11 @@ const normalizeBannerPayload = async (payload, existing = null) => {
   // If image is a data URL (base64), upload it to Cloudinary
   if (image.startsWith('data:')) {
     try {
-      const uploaded = await uploadDataUrlToCloudinary({
-        dataUrl: image,
-        publicIdPrefix: 'banner',
-      });
-      image = uploaded.secureUrl;
+      // Banners are ads/promotions, save in advertisements category
+      const uploaded = await mediaService.uploadMedia(image, 'advertisements');
+      image = uploaded; // Save the full metadata object as image field (Banner.image supports getters!)
     } catch (error) {
-      console.error('Cloudinary upload error:', error);
+      console.error('Local upload error:', error);
       throw new ApiError(500, `Failed to upload banner image: ${error.message}`);
     }
   }

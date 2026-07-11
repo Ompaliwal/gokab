@@ -15,10 +15,10 @@ const ActivityCard = ({ type, title, address, date, time, status, statusTone, pr
       type="button"
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition-colors hover:border-slate-300 active:translate-y-0 sm:p-4"
+      className="w-full cursor-pointer rounded-2xl border border-[#E8F3E9] bg-white p-3.5 text-left shadow-[0_2px_12px_rgba(47,95,67,0.06)] transition-all hover:border-[#CFE8C9] hover:shadow-[0_6px_24px_rgba(47,95,67,0.10)] active:translate-y-0 sm:p-4"
     >
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className="relative h-[64px] w-[64px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 sm:h-[72px] sm:w-[72px]">
+        <div className="relative h-[64px] w-[64px] shrink-0 overflow-hidden rounded-2xl border border-[#E8F3E9] bg-[#F5FBF6] sm:h-[72px] sm:w-[72px]">
           <img
             src={resolvedVehicleImage}
             alt={vehicleAlt}
@@ -46,7 +46,7 @@ const ActivityCard = ({ type, title, address, date, time, status, statusTone, pr
               </p>
               <p className="mt-2 line-clamp-2 text-[12px] text-slate-600">{address}</p>
             </div>
-            <span className="shrink-0 whitespace-nowrap pl-1 text-[13px] font-semibold text-slate-900 sm:text-[14px]">Rs {price}</span>
+            <span className="shrink-0 whitespace-nowrap pl-1 text-[13px] font-bold text-[#2F5F43] sm:text-[14px]">Rs {price}</span>
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
@@ -72,7 +72,7 @@ const ActivityCard = ({ type, title, address, date, time, status, statusTone, pr
           </div>
         </div>
 
-        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-300">
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E8F3E9] bg-[#EFF8F0] text-[#6FBF7A]">
           <ChevronRight size={16} strokeWidth={2.4} />
         </div>
       </div>

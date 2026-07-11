@@ -267,7 +267,7 @@ const PhoneRegistration = () => {
     };
 
     return (
-        <div className="min-h-screen relative bg-[#F8FAFC] select-none overflow-x-hidden font-['Outfit']">
+        <div className="min-h-screen relative bg-[#F8FAFC] select-none overflow-x-hidden font-['Poppins']">
             {/* Bright Background */}
             <div className="fixed inset-0 z-0">
                 <motion.img 

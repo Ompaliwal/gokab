@@ -1,9 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
 
+* {
+  font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
 :root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -57,17 +61,17 @@ body {
 }
 
 @theme {
-  --color-primary: #20A354;
-  --color-secondary: #258cc4;
-  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --color-primary: #6FBF7A;
+  --color-secondary: #CFE8C9;
+  --font-sans: 'Poppins', system-ui, sans-serif;
+  --font-display: 'Poppins', sans-serif;
   
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 2rem;
   
-  --shadow-premium: 0 10px 40px -10px rgba(0,0,0,0.1);
-  --shadow-soft: 0 4px 20px -2px rgba(0,0,0,0.05);
+  --shadow-premium: 0 10px 40px -10px rgba(47,95,67,0.12);
+  --shadow-soft: 0 4px 20px -2px rgba(47,95,67,0.06);
 }
 
 /* Global scrollbar hiding for a cleaner mobile experience */
@@ -102,7 +106,7 @@ body {
     
     background-color: var(--driver-bg-soft);
     color: #0F172A;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Localize Tailwind's color mapping for the driver module */
@@ -185,6 +189,221 @@ body {
 }
 
 /* ==========================================================================
+   GOKAB USER APP — PREMIUM THEME SCOPE
+   All GoKab-specific design tokens scoped to the user module wrapper.
+   Admin and Driver modules are NOT affected by these variables.
+   ========================================================================== */
+
+.gokab-user-root {
+  /* GoKab Brand Colors */
+  --gk-primary: #6FBF7A;
+  --gk-primary-dark: #4da65a;
+  --gk-accent: #F2D34F;
+  --gk-bg: #FBFBF6;
+  --gk-dark: #2F5F43;
+  --gk-light: #CFE8C9;
+  --gk-text: #1F2937;
+  --gk-muted: #6B7280;
+  --gk-border: #E8F3E9;
+
+  /* GoKab Shadows */
+  --gk-shadow-card: 0 2px 16px -4px rgba(47,95,67,0.08), 0 1px 4px -1px rgba(0,0,0,0.04);
+  --gk-shadow-card-hover: 0 8px 32px -8px rgba(111,191,122,0.22), 0 2px 8px -2px rgba(0,0,0,0.06);
+  --gk-shadow-btn: 0 4px 16px -4px rgba(111,191,122,0.40);
+  --gk-shadow-accent: 0 4px 16px -4px rgba(242,211,79,0.35);
+
+  background-color: var(--gk-bg);
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  color: var(--gk-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* GoKab Premium Card */
+.gk-card {
+  background: #ffffff;
+  border: 1px solid var(--gk-border, #E8F3E9);
+  border-radius: 20px;
+  box-shadow: var(--gk-shadow-card, 0 2px 16px -4px rgba(47,95,67,0.08));
+  transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.18s ease;
+}
+.gk-card:hover {
+  box-shadow: var(--gk-shadow-card-hover, 0 8px 32px -8px rgba(111,191,122,0.22));
+  border-color: #CFE8C9;
+  transform: translateY(-1px);
+}
+.gk-card:active {
+  transform: translateY(0px);
+  box-shadow: var(--gk-shadow-card, 0 2px 16px -4px rgba(47,95,67,0.08));
+}
+
+/* GoKab Primary Button */
+.gk-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--gk-primary, #6FBF7A);
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  padding: 0.875rem 1.75rem;
+  border: none;
+  box-shadow: var(--gk-shadow-btn, 0 4px 16px -4px rgba(111,191,122,0.40));
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+  cursor: pointer;
+}
+.gk-btn-primary:hover {
+  background-color: var(--gk-primary-dark, #4da65a);
+  box-shadow: 0 6px 22px -4px rgba(111,191,122,0.50);
+}
+.gk-btn-primary:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px -2px rgba(111,191,122,0.30);
+}
+
+/* GoKab Accent Button */
+.gk-btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--gk-accent, #F2D34F);
+  color: var(--gk-dark, #2F5F43);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  border-radius: 999px;
+  padding: 0.875rem 1.75rem;
+  border: none;
+  box-shadow: var(--gk-shadow-accent, 0 4px 16px -4px rgba(242,211,79,0.35));
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+  cursor: pointer;
+}
+.gk-btn-accent:hover {
+  background-color: #e8c93a;
+  box-shadow: 0 6px 22px -4px rgba(242,211,79,0.50);
+}
+.gk-btn-accent:active {
+  transform: scale(0.98);
+}
+
+/* GoKab Secondary Button */
+.gk-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #EFF8F0;
+  color: var(--gk-dark, #2F5F43);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid var(--gk-light, #CFE8C9);
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+.gk-btn-secondary:hover {
+  background-color: #D6F0DA;
+  border-color: var(--gk-primary, #6FBF7A);
+}
+
+/* GoKab Premium Input */
+.gk-input {
+  width: 100%;
+  background: #ffffff;
+  border: 1.5px solid #E8F3E9;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1F2937;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.gk-input::placeholder {
+  color: #9CA3AF;
+  font-weight: 400;
+}
+.gk-input:focus {
+  border-color: var(--gk-primary, #6FBF7A);
+  box-shadow: 0 0 0 3px rgba(111,191,122,0.15);
+}
+
+/* GoKab Status Badges */
+.gk-badge-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #EFF8F0;
+  color: #2F5F43;
+  border: 1px solid #CFE8C9;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.gk-badge-warning {
+  background: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.gk-badge-danger {
+  background: #FFF1F2;
+  color: #9F1239;
+  border: 1px solid #FECDD3;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* GoKab Section Label */
+.gk-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--gk-muted, #6B7280);
+}
+
+/* GoKab Heading */
+.gk-heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--gk-dark, #2F5F43);
+}
+
+/* Smooth page-level fade in */
+.gokab-user-root > * {
+  animation: gk-fade-in 0.3s ease both;
+}
+@keyframes gk-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
    REDIGO CENTRALIZED ADMIN THEME & TYPOGRAPHY
    This layer unifies typography, alignment, form fields, cards, and tables
    specifically inside the Admin Panel, scoped under .redigo-admin-root.
@@ -193,7 +412,7 @@ body {
 /* 1. Global Font and Typography Unification */
 .redigo-admin-root,
 .redigo-admin-root * {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif !important;
 }
 
 /* Normalise oversized headers and weight discrepancies */

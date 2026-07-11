@@ -45,7 +45,7 @@ const LanguageSelect = () => {
                     </div>
                 )}
                 <div className="space-y-1">
-                    <h1 className="font-['Outfit'] text-[32px] font-black leading-[1.1] tracking-[-0.04em] text-slate-900">
+                    <h1 className="font-['Poppins'] text-[32px] font-black leading-[1.1] tracking-[-0.04em] text-slate-900">
                         Select <span className="text-slate-400">Language</span>
                     </h1>
                     <p className="text-[14px] font-bold text-slate-500 opacity-80 max-w-[32ch] mx-auto leading-relaxed">Choose your preferred communication language to get started.</p>

@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed:vehicles": "node scripts/seedVehicleTypes.js"
   },
   "dependencies": {
     "@phonepe-pg/pg-sdk-node": "^2.0.6",
@@ -19,9 +20,11 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1",
     "morgan": "^1.10.0",
+    "multer": "^2.2.0",
     "nodemailer": "^8.0.6",
     "qrcode": "^1.5.4",
     "razorpay": "^2.9.6",
+    "sharp": "^0.35.3",
     "simplify-js": "^1.2.4",
     "socket.io": "^4.8.3"
   },

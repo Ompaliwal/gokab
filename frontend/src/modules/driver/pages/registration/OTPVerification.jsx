@@ -231,7 +231,7 @@ const OTPVerification = () => {
     };
 
     return (
-        <div className="min-h-screen relative bg-white select-none overflow-x-hidden font-['Outfit']">
+        <div className="min-h-screen relative bg-white select-none overflow-x-hidden font-['Poppins']">
             {/* Background */}
             <div className="fixed inset-0 z-0">
                 <motion.img 

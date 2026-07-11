@@ -5,6 +5,7 @@ import { PoolingSeatReservation } from '../models/PoolingSeatReservation.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
 import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
+import { mediaService } from '../../../../services/media.service.js';
 
 const ok = (res, data, message) => res.status(200).json({ success: true, data, message });
 const created = (res, data, message) => res.status(201).json({ success: true, data, message });
@@ -120,10 +121,7 @@ export const uploadImage = asyncHandler(async (req, res) => {
   const { image } = req.body;
   if (!image) throw new ApiError(400, 'Image data is required');
 
-  const result = await uploadDataUrlToCloudinary({
-    dataUrl: image,
-    publicIdPrefix: 'pooling-vehicle',
-  });
+  const result = await mediaService.uploadMedia(image, 'vehicles', '', req);
 
-  return ok(res, { url: result.secureUrl }, 'Image uploaded successfully');
+  return ok(res, { url: result.url }, 'Image uploaded successfully');
 });

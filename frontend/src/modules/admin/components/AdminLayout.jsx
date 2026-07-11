@@ -680,7 +680,7 @@ const AdminLayout = () => {
   const isOwnerBookingsRoute = pathMatches(location.pathname, '/admin/owners/bookings');
   const mode = isOwnerRoute ? OWNER_MODE : ADMIN_MODE;
 
-  const appName = settings.general?.app_name || 'App';
+  const appName = settings.general?.app_name || 'GoKab';
   useEffect(() => {
     const syncAdminProfile = () => setAdminProfile(readAdminProfile());
     window.addEventListener('storage', syncAdminProfile);
@@ -833,6 +833,7 @@ const AdminLayout = () => {
             subItems: [
               { label: 'Promo Code', path: '/admin/promotions/promo-codes', permission: 'promotions.view' },
               { label: 'Push Notifications', path: '/admin/promotions/send-notification', permission: 'promotions.view' },
+              { label: 'Advertisements', path: '/admin/promotions/advertisements', permission: 'promotions.view' },
               //{ label: 'Banner Image', path: '/admin/promotions/banner-image', permission: 'promotions.view' },
             ],
           },
@@ -869,15 +870,15 @@ const AdminLayout = () => {
               { label: 'Package Pricing', path: '/admin/pricing/package-pricing', permission: 'rental.view' },
             ],
           },
-          {
-            icon: Bus,
-            label: 'Bus Service',
-            subItems: [
-              { label: 'Fleet Manager', path: '/admin/bus-service', permission: 'bus_service.view' },
-              { label: 'Bus Commission', path: '/admin/bus-service/commission', permission: 'bus_service.view' },
-              { label: 'Bus Bookings', path: '/admin/bus-service/bookings', permission: 'bus_service.view' },
-            ],
-          },
+          // {
+          //   icon: Bus,
+          //   label: 'Bus Service',
+          //   subItems: [
+          //     { label: 'Fleet Manager', path: '/admin/bus-service', permission: 'bus_service.view' },
+          //     { label: 'Bus Commission', path: '/admin/bus-service/commission', permission: 'bus_service.view' },
+          //     { label: 'Bus Bookings', path: '/admin/bus-service/bookings', permission: 'bus_service.view' },
+          //   ],
+          // },
           {
             icon: Share2,
             label: 'Car Pooling',

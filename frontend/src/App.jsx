@@ -217,6 +217,7 @@ const AdminUserReferralRedemptions = lazy(() => import('./modules/admin/pages/re
 const AdminPromoCodes = lazy(() => import('./modules/admin/pages/promotions/PromoCodes'));
 const AdminSendNotification = lazy(() => import('./modules/admin/pages/promotions/SendNotification'));
 const AdminBannerImage = lazy(() => import('./modules/admin/pages/promotions/BannerImage'));
+const AdminAdvertisements = lazy(() => import('./modules/admin/pages/promotions/Advertisements'));
 
 // Price Management
 const AdminServiceLocation = lazy(() => import('./modules/admin/pages/price-management/ServiceLocation'));
@@ -374,6 +375,9 @@ const MainLayout = ({ children }) => {
     location.pathname.startsWith('/user-import') ||
     location.pathname.startsWith('/driver-import') ||
     location.pathname.startsWith('/owner');
+  const isDriverPath =
+    location.pathname.startsWith('/taxi/driver') ||
+    location.pathname.startsWith('/taxi/owner');
 
   if (isAdminPath) {
     return <div className="redigo-admin-root h-screen bg-gray-50 overflow-hidden">{children}</div>;
@@ -387,9 +391,21 @@ const MainLayout = ({ children }) => {
     );
   }
 
+  // Driver paths use driver-theme applied at component level
+  if (isDriverPath) {
+    return (
+      <div className="redigo-app min-h-screen bg-gray-50/50">
+        <main className="max-w-lg mx-auto shadow-2xl bg-white min-h-screen relative overflow-x-hidden">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
+  // User app paths — apply GoKab theme scope
   return (
-    <div className="redigo-app min-h-screen bg-gray-50/50">
-      <main className="max-w-lg mx-auto shadow-2xl bg-white min-h-screen relative overflow-x-hidden">
+    <div className="gokab-user-root min-h-screen" style={{ backgroundColor: '#FBFBF6' }}>
+      <main className="max-w-lg mx-auto shadow-[0_0_60px_rgba(47,95,67,0.08)] bg-[#FBFBF6] min-h-screen relative overflow-x-hidden">
         {children}
       </main>
     </div>
@@ -1239,6 +1255,14 @@ function App() {
                 <Route
                   path="promotions/banner-image/create"
                   element={<AdminBannerImage />}
+                />
+                <Route
+                  path="promotions/advertisements"
+                  element={<AdminAdvertisements />}
+                />
+                <Route
+                  path="promotions/advertisements/create"
+                  element={<AdminAdvertisements />}
                 />
 
                 {/* Admin Management */}

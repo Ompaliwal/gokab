@@ -7,23 +7,23 @@ const LinksPage = () => {
   const links = [
     {
       id: 'user',
-      title: 'Redigo - User app',
-      subtitle: 'Book rides, send parcels, and more.',
-      description: 'Get where you need to go with ease. Request a ride or send packages across the city in minutes.',
-      url: 'https://play.google.com/store/apps/details?id=com.Redigo.user',
+      title: 'Gokab - User app',
+      subtitle: 'Book rides and more.',
+      description: 'Get where you need to go with ease. Request a ride in minutes.',
+      url: 'https://play.google.com/store/apps/details?id=com.gokab.user',
       type: 'Customer App',
       icon: <Zap className="link-icon" />,
-      color: '#FFB300'
+      color: '#F2D34F'
     },
     {
       id: 'driver',
-      title: 'Redigo Driver',
-      subtitle: 'Drive and earn with Redigo.',
+      title: 'Gokab Driver',
+      subtitle: 'Drive and earn with Gokab.',
       description: 'Join our fleet of professional drivers. Flexible hours, great earnings, and a supportive community.',
-      url: 'https://play.google.com/store/apps/details?id=com.Redigo.driver',
+      url: 'https://play.google.com/store/apps/details?id=com.gokab.driver',
       type: 'Partner App',
       icon: <Shield className="link-icon" />,
-      color: '#2563EB'
+      color: '#6FBF7A'
     }
   ];
   return (
@@ -31,20 +31,20 @@ const LinksPage = () => {
       <nav className="links-nav">
         <div className="nav-container">
           <a href="/" className="nav-logo">
-            <span className="logo-Redigo">Redigo</span><span className="logo-24">24</span>
+            <span className="logo-Gokab">Gokab</span><span className="logo-24">24</span>
           </a>
           <a href="/" className="back-home">Back to Home</a>
         </div>
       </nav>
 
       <div className="links-banner">
-        <img src={bannerImg} alt="Redigo Banner" className="banner-image" />
+        <img src={bannerImg} alt="Gokab Banner" className="banner-image" />
         <div className="banner-gradient"></div>
       </div>
 
       <div className="links-content-wrapper">
         <header className="links-header">
-          <h1 className="links-title">Download <span className="highlight">Redigo</span></h1>
+          <h1 className="links-title">Download <span className="highlight">Gokab</span></h1>
           <p className="links-tagline">Choose the app that's right for you and start your journey today.</p>
         </header>
 
@@ -86,9 +86,9 @@ const LinksPage = () => {
         </div>
 
         <footer className="links-footer">
-          <p>© 2026 Redigo. All rights reserved.</p>
+          <p>© 2026 Gokab. All rights reserved.</p>
           <div className="footer-links">
-            <a href="https://Redigo.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+            <a href="https://gokab.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
             <span className="dot"></span>
             <a href="/support">Support</a>
           </div>

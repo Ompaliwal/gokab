@@ -46,7 +46,7 @@ const PromoCard = ({ icon: Icon, iconClass, title, description, actionClass, pat
   <motion.div
     whileTap={{ scale: 0.98 }}
     onClick={() => onNavigate(path)}
-    className="relative min-h-[140px] overflow-hidden rounded-2xl border border-white/80 bg-white/88 p-3.5 shadow-[0_12px_28px_rgba(15,23,42,0.07)]"
+    className="relative min-h-[140px] overflow-hidden rounded-2xl border border-[#E8F3E9] bg-white p-3.5 shadow-[0_4px_20px_rgba(47,95,67,0.08)] hover:shadow-[0_8px_28px_rgba(47,95,67,0.12)] transition-shadow"
   >
     <div className={`flex items-center gap-2 ${iconClass}`}>
       <Icon size={11} strokeWidth={2.5} />
@@ -66,7 +66,7 @@ const PromoBanners = () => {
   return (
     <div className="px-5 space-y-4">
       <div className="mb-1 ml-1">
-        <h2 className="text-[19.5px] font-extrabold text-primary tracking-tight">Recommended for you</h2>
+        <h2 className="text-[19.5px] font-extrabold text-[#2F5F43] tracking-tight">Recommended for you</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -79,10 +79,10 @@ const PromoBanners = () => {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
-        className="relative overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-slate-900 to-slate-800 p-4 shadow-[0_18px_44px_rgba(15,23,42,0.12)]"
+        className="relative overflow-hidden rounded-2xl border border-[#2F5F43]/20 bg-gradient-to-br from-[#2F5F43] to-[#1a3d2a] p-4 shadow-[0_18px_44px_rgba(47,95,67,0.20)]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(240px_160px_at_20%_25%,rgba(56,189,248,0.16),transparent_60%)]" aria-hidden="true" />
-        <div className="absolute inset-0 bg-[radial-gradient(260px_180px_at_85%_85%,rgba(251,191,36,0.10),transparent_62%)]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(240px_160px_at_20%_25%,rgba(111,191,122,0.20),transparent_60%)]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(260px_180px_at_85%_85%,rgba(242,211,79,0.15),transparent_62%)]" aria-hidden="true" />
 
         <div className="relative z-10 flex min-h-[168px] items-end justify-between gap-4">
           <div className="max-w-[62%]">

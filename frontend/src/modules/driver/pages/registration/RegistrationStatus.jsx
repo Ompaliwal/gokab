@@ -293,7 +293,7 @@ const getStatusColor = (status) => {
                 <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 opacity-60">
                     {pendingReverificationDocs.length > 0 ? "Submission received" : isVehicleReapproval ? "Update in review" : "Live Audit Status"}
                 </p>
-                <h1 className="font-['Outfit'] text-[42px] font-black leading-[1] tracking-[-0.04em] text-slate-900">
+                <h1 className="font-['Poppins'] text-[42px] font-black leading-[1] tracking-[-0.04em] text-slate-900">
                     {rejectedDocs.length > 0 ? (
                         <>Action <span className="text-slate-400">Required</span></>
                     ) : pendingReverificationDocs.length > 0 ? (

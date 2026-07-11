@@ -1913,7 +1913,7 @@ const SelectVehicle = () => {
   };
 
   return (
-    <div className="h-[100dvh] bg-slate-50 max-w-lg mx-auto relative font-['Plus_Jakarta_Sans'] overflow-hidden">
+    <div className="h-[100dvh] bg-slate-50 max-w-lg mx-auto relative font-['Poppins'] overflow-hidden">
       <div className="absolute inset-0 w-full bg-gray-200">
         <VehicleMapPreview
           center={pickupPosition}

@@ -1,7 +1,7 @@
 .links-page-container {
   min-height: 100vh;
   background-color: #f8fafc;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1e293b;
   display: flex;
   flex-direction: column;
@@ -34,8 +34,8 @@
   font-weight: 800;
 }
 
-.logo-Redigo {
-  color: #FFB300;
+.logo-Gokab {
+  color: #6FBF7A;
 }
 
 .logo-24 {

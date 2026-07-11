@@ -611,6 +611,41 @@ const rideSchema = new mongoose.Schema(
         default: null,
       },
     },
+    bookingPreferences: {
+      tripType: {
+        type: String,
+        enum: ['ONE_WAY', 'ROUND_TRIP'],
+        default: 'ONE_WAY',
+      },
+      pickupDate: {
+        type: String,
+        default: '',
+      },
+      pickupTime: {
+        type: String,
+        default: '',
+      },
+      passengers: {
+        type: Number,
+        default: 1,
+      },
+      luggage: {
+        type: Boolean,
+        default: false,
+      },
+      pooling: {
+        type: Boolean,
+        default: false,
+      },
+      preferredLanguages: {
+        type: [String],
+        default: [],
+      },
+      driverPreferences: {
+        type: [String],
+        default: [],
+      },
+    },
   },
   { timestamps: true },
 );
