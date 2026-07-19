@@ -120,7 +120,7 @@ const SupportTickets = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-1.5 text-xs text-gray-400">
           <span>Support Management</span>
@@ -155,7 +155,7 @@ const SupportTickets = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+      <div className="grid gap-4 md:gap-6 xl:grid-cols-[1fr_420px]">
         <div className="rounded-xl border border-gray-200 bg-white">
           <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 p-4">
             <div className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500">
@@ -263,7 +263,7 @@ const SupportTickets = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => updateTicket({ assignToMe: true })}

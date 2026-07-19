@@ -49,12 +49,12 @@ const InputField = ({ label, name, value, onChange, placeholder, type = "text", 
 );
 
 const PreviewBox = ({ label }) => (
-  <div className="w-full h-full flex items-center justify-center p-6 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 group overflow-hidden relative">
+  <div className="w-full h-full flex items-center justify-center p-4 md:p-6 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 group overflow-hidden relative">
      <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
         <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{label} Preview</span>
      </div>
-     <div className="w-[280px] bg-white rounded-[40px] shadow-2xl p-6 border-8 border-slate-900 aspect-[9/16] relative transition-transform group-hover:scale-[1.02] duration-500">
+     <div className="w-[280px] bg-white rounded-[40px] shadow-2xl p-4 md:p-6 border-8 border-slate-900 aspect-[9/16] relative transition-transform group-hover:scale-[1.02] duration-500">
         <div className="w-20 h-1.5 bg-slate-100 rounded-full mx-auto mb-10"></div>
         
         <div className="mb-6">
@@ -155,8 +155,8 @@ const BidRideSettings = () => {
         </div>
 
         {/* Driver Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 flex flex-col justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 mb-12">
+           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-8 flex flex-col justify-between">
               <div>
                  <SectionHeader title="Driver" />
                  <div className="space-y-6 mt-6">
@@ -203,8 +203,8 @@ const BidRideSettings = () => {
         </div>
 
         {/* User Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 flex flex-col justify-between">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
+           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-8 flex flex-col justify-between">
               <div>
                  <SectionHeader title="User" />
                  <div className="space-y-6 mt-6">

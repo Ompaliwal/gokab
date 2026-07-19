@@ -43,6 +43,7 @@ import {
   Users,
   Wallet,
   Zap,
+  Menu,
 } from 'lucide-react';
 
 const ADMIN_MODE = 'admin';
@@ -633,7 +634,7 @@ const AdminLayout = () => {
   const { settings } = useSettings();
   const adminThemeColor = normalizeHexColor(settings.customization?.admin_theme_color, '#405189');
   const sidebarTextColor = normalizeHexColor(settings.customization?.sidebar_text_color, '#CBD5E1');
-  const [isSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -1177,6 +1178,7 @@ const AdminLayout = () => {
     setIsSearchOpen(false);
     setSearchTerm('');
     setIsNotificationsOpen(false);
+    setIsSidebarOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -1448,8 +1450,14 @@ const AdminLayout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA] font-sans text-gray-900">
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden animate-in fade-in duration-200"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
       <aside
-        className={`relative z-50 flex h-screen flex-col overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${isCollapsed ? 'w-20' : 'w-72'
+        className={`fixed lg:relative z-50 flex h-screen flex-col overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${isCollapsed ? 'w-20' : 'w-72'
           } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
         style={{ backgroundColor: adminThemeColor }}
       >
@@ -1540,11 +1548,19 @@ const AdminLayout = () => {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#f0f4f8]">
-        <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-slate-200/60 bg-white/80 backdrop-blur-md px-8 shadow-sm">
-          <div className="flex items-center gap-6">
+        <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-slate-200/60 bg-white/80 backdrop-blur-md px-4 md:px-8 shadow-sm">
+          <div className="flex items-center gap-4 md:gap-6">
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(true)}
+              className="inline-flex items-center justify-center rounded-xl p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+              aria-label="Open sidebar"
+            >
+              <Menu size={20} strokeWidth={2.5} />
+            </button>
             <div className="flex items-center gap-3">
               <div className="h-4 w-1 rounded-full bg-slate-900" />
-              <h2 className="text-[17px] font-bold tracking-tight text-slate-900">{pageTitle}</h2>
+              <h2 className="text-[15px] sm:text-[17px] font-bold tracking-tight text-slate-900 truncate max-w-[120px] sm:max-w-none">{pageTitle}</h2>
             </div>
           </div>
 
@@ -1573,7 +1589,7 @@ const AdminLayout = () => {
                 </button>
 
                 <div
-                  className={`absolute right-0 top-full z-50 mt-4 w-[380px] overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl transition-all duration-300 ${isNotificationsOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
+                  className={`absolute right-0 top-full z-50 mt-4 w-[calc(100vw-2rem)] sm:w-[380px] overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl transition-all duration-300 ${isNotificationsOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
                     }`}
                 >
                   <div className="border-b border-slate-50 px-6 py-6 bg-slate-50/50">

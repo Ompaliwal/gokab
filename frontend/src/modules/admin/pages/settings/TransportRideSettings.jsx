@@ -96,7 +96,7 @@ const TransportRideSettings = () => {
            </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 pb-12">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 md:p-8 pb-12">
            <div className="mb-8 rounded-2xl border border-indigo-100 bg-indigo-50/70 px-5 py-4">
              <p className="text-sm font-semibold text-slate-700">Regular ride search behavior is controlled from this page.</p>
              <p className="mt-1 text-xs text-slate-500">

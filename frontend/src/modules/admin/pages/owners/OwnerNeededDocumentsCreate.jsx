@@ -110,7 +110,7 @@ const OwnerNeededDocumentsCreate = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-950">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader
           module="Owner Management"
           page="Owner Needed Documents"
@@ -122,7 +122,7 @@ const OwnerNeededDocumentsCreate = () => {
           <div className="rounded border border-gray-200 bg-white shadow-sm">
             <div className="border-b border-gray-100 px-8 py-6" />
 
-            <form onSubmit={handleSubmit} className="p-8">
+            <form onSubmit={handleSubmit} className="p-4 md:p-8">
             <div className="grid grid-cols-1 gap-x-10 gap-y-7 md:grid-cols-2">
               <div>
                 <label className={labelClass}>

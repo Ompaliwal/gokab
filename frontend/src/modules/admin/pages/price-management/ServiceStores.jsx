@@ -260,7 +260,7 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-[#F8F9FA] p-4 md:p-6 lg:p-8 font-sans">
       <AnimatePresence mode="wait">
         {view === 'list' ? (
           <motion.div key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="mx-auto max-w-7xl space-y-8">
@@ -275,16 +275,16 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
                 <Plus size={18} /> Add New Store
               </button>
             </div>
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-4 md:gap-6 md:grid-cols-3">
               {[{ label: 'Total Registry', val: stores.length, icon: Building2 }, { label: 'Zones', val: new Set(stores.map(s => s.zone_id?._id || s.zone_id)).size, icon: MapPin }, { label: 'Active', val: stores.filter(s => s.status === 'active').length, icon: ShieldCheck }].map((s, i) => (
-                <div key={i} className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+                <div key={i} className="rounded-[2rem] border border-slate-200 bg-white p-4 md:p-8 shadow-sm">
                   <div className="flex justify-between mb-4"><p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{s.label}</p><s.icon size={16} className="text-slate-300" /></div>
                   <p className="text-4xl font-black text-slate-900">{s.val}</p>
                 </div>
               ))}
             </div>
             <div className="overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 bg-slate-50/50 p-6">
+              <div className="border-b border-slate-100 bg-slate-50/50 p-4 md:p-6">
                 <div className="relative max-w-md"><Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" /><input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search registry..." className="w-full rounded-2xl border border-slate-200 py-3.5 pl-12 pr-5 text-[13px] font-bold text-slate-900 outline-none focus:border-slate-900 focus:ring-8 focus:ring-slate-900/5" /></div>
               </div>
               <div className="overflow-x-auto no-scrollbar">
@@ -311,14 +311,14 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
         ) : (
           <motion.div key="form" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="mx-auto max-w-7xl space-y-8">
             <div className="flex items-center justify-between"><div><h1 className="text-2xl font-black text-slate-900 tracking-tight">{selectedStoreId ? 'Configure Hub' : 'Initialize Hub'}</h1></div><button onClick={() => navigate('/admin/pricing/service-stores')} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-[13px] font-bold text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-all"><ArrowLeft size={16} /> Return</button></div>
-            <div className="grid gap-8 xl:grid-cols-[400px_minmax(0,1fr)]">
+            <div className="grid gap-4 md:gap-8 xl:grid-cols-[400px_minmax(0,1fr)]">
               <div className="space-y-6">
-                <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm space-y-6">
+                <div className="rounded-[2.5rem] border border-slate-200 bg-white p-4 md:p-8 shadow-sm space-y-6">
                   <div className="flex items-center gap-4 mb-4"><div className="h-12 w-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white"><Building2 size={20} /></div><div><h3 className="font-bold text-slate-900">Identity Details</h3><p className="text-[11px] text-slate-400 uppercase tracking-widest font-black">Core Metadata</p></div></div>
                   <div><label className={labelClass}>Store Name</label><input type="text" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} className={inputClass} placeholder="Hub Name" /></div>
                   <div><label className={labelClass}>Zone Association</label><select value={formData.zone_id} onChange={e => handleZoneChange(e.target.value)} className={inputClass}><option value="">Select Zone</option>{zones.map(z => <option key={z._id || z.id} value={z._id || z.id}>{z.name}</option>)}</select></div>
                   <div><label className={labelClass}>Physical Address</label><textarea value={formData.address} onChange={e => setFormData(p => ({ ...p, address: e.target.value }))} className={`${inputClass} min-h-[100px] resize-none leading-relaxed`} placeholder="Street address" /></div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label className={labelClass}>Status</label><select value={formData.status} onChange={e => setFormData(p => ({ ...p, status: e.target.value }))} className={inputClass}><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
                     <div><label className={labelClass}>Owner Contact</label><input type="text" value={formData.owner_phone} onChange={e => setFormData(p => ({ ...p, owner_phone: e.target.value }))} className={inputClass} placeholder="Phone" /></div>
                   </div>
@@ -328,13 +328,13 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
               <div className="space-y-8">
                 <div className="rounded-[3rem] border border-slate-200 bg-white p-2 shadow-xl shadow-slate-200/40"><div className="relative h-[440px] w-full overflow-hidden rounded-[2.5rem]">{isLoaded ? <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={mapCenter} zoom={14} onLoad={m => mapRef.current = m} options={{ disableDefaultUI: true }}>{(formData.latitude || formData.longitude) && <MarkerF position={{ lat: Number(formData.latitude || mapCenter.lat), lng: Number(formData.longitude || mapCenter.lng) }} draggable onDragEnd={e => updatePinnedLocation(e.latLng.lat(), e.latLng.lng())} />}{zoneBoundary.length > 0 && <Polygon paths={zoneBoundary} options={{ fillColor: '#0F172A', fillOpacity: 0.05, strokeColor: '#0F172A', strokeOpacity: 0.4, strokeWeight: 2 }} />}<div className="absolute left-6 top-6 w-[320px]"><Autocomplete onLoad={setAutocomplete} onPlaceChanged={handlePlaceChanged}><div className="relative"><Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" /><input type="text" placeholder="Search & Pin Location..." className="w-full rounded-2xl border-none bg-white/95 py-4 pl-12 pr-5 text-[13px] font-bold text-slate-900 shadow-2xl backdrop-blur-xl outline-none focus:ring-4 focus:ring-slate-900/10" /></div></Autocomplete></div></GoogleMap> : <div className="h-full bg-slate-50 flex items-center justify-center"><Loader2 className="animate-spin text-slate-300" /></div>}</div></div>
                 {selectedStoreId && (
-                  <div className="grid lg:grid-cols-2 gap-8">
-                    <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
+                  <div className="grid lg:grid-cols-2 gap-4 md:gap-8">
+                    <div className="rounded-[2.5rem] border border-slate-200 bg-white p-4 md:p-8 shadow-sm">
                       <div className="flex items-center justify-between mb-8"><div className="flex gap-4 items-center"><div className="h-12 w-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900"><Users size={20} /></div><div><h3 className="font-bold text-slate-900">Personnel</h3><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Team Management</p></div></div><button onClick={() => setAddingStaff(!addingStaff)} className="h-8 w-8 bg-slate-900 text-white rounded-lg flex items-center justify-center transition-all hover:scale-110">{addingStaff ? <AlertCircle size={16} /> : <Plus size={16} />}</button></div>
                       <AnimatePresence>{addingStaff && <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden mb-8"><div className="p-5 bg-slate-50 rounded-2xl space-y-4"><div><label className={labelClass}>Name</label><input type="text" value={staffFormData.name} onChange={e => setStaffFormData(p => ({ ...p, name: e.target.value }))} className={inputClass} placeholder="Staff Name" /></div><div><label className={labelClass}>Phone</label><input type="text" value={staffFormData.phone} onChange={e => setStaffFormData(p => ({ ...p, phone: e.target.value }))} className={inputClass} placeholder="10-digit number" /></div><button onClick={handleAddStaff} className="w-full py-3 bg-slate-900 text-white rounded-xl font-black text-xs transition-all hover:bg-slate-800">AUTHENTICATE & ADD</button></div></motion.div>}</AnimatePresence>
                       <div className="space-y-3">{selectedStoreStaff.length === 0 ? <div className="py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl text-[11px] text-slate-400 font-bold italic">No Personnel Registered</div> : selectedStoreStaff.map((s, i) => <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl hover:border-slate-200 transition-all"><div className="flex gap-3 items-center"><div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center text-[11px] font-black text-slate-400 border border-slate-100">{s.name?.[0]}</div><div><p className="text-[13px] font-bold text-slate-900">{s.name}</p><p className="text-[11px] text-slate-400 font-medium">{s.phone}</p></div></div><div className="flex items-center gap-2"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /><span className="text-[10px] font-black text-slate-300 uppercase">Live</span></div></div>)}</div>
                     </div>
-                    <div className="rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm">
+                    <div className="rounded-[2.5rem] border border-slate-200 bg-white p-4 md:p-8 shadow-sm">
                       <div className="flex gap-4 items-center mb-8"><div className="h-12 w-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900"><Car size={20} /></div><div><h3 className="font-bold text-slate-900">Active Fleet</h3><p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Assigned Vehicles</p></div></div>
                       <div className="space-y-3">{selectedStoreVehicles.length === 0 ? <div className="py-8 text-center border-2 border-dashed border-slate-100 rounded-2xl text-[11px] text-slate-400 font-bold italic">No Assets Assigned</div> : selectedStoreVehicles.map((v, i) => <div key={i} className="flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl transition-all"><div className="flex gap-4 items-center"><div className="h-10 w-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg shadow-slate-900/10"><Car size={16} /></div><div><p className="text-[13px] font-bold text-slate-900">{v.name}</p><p className="text-[11px] text-slate-400 font-medium">{v.vehicleCategory} · {v.capacity} Seats</p></div></div><ChevronRight size={14} className="text-slate-300" /></div>)}</div>
                       <div className="mt-6 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] text-slate-400 font-medium italic leading-relaxed text-center uppercase tracking-widest">Update assets via Vehicle Types registry</div>

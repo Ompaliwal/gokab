@@ -226,7 +226,7 @@ const PendingDrivers = () => {
   const showingTo = totalEntries === 0 ? 0 : Math.min(startIndex + pendingDrivers.length, totalEntries);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans text-gray-900">
       {error && (
         <div className="mb-4 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-600">
           {error}
@@ -396,8 +396,8 @@ const PendingDrivers = () => {
       {/* PASSWORD MODAL */}
       <AnimatePresence>
         {passwordModal.isOpen && (
-          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
-             <div className="bg-white rounded-[32px] w-full max-w-sm shadow-2xl overflow-hidden border border-gray-100 p-8 space-y-6">
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-6 bg-black/50 backdrop-blur-sm">
+             <div className="bg-white rounded-[32px] w-full max-w-sm shadow-2xl overflow-hidden border border-gray-100 p-4 md:p-8 space-y-6">
                 <div className="flex items-center justify-between">
                    <div>
                      <h3 className="text-xl font-black text-gray-950 uppercase tracking-tight">Security Update</h3>

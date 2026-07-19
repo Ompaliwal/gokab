@@ -87,7 +87,7 @@ const WithdrawalRequestOwnerDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader
           module="Owner Wallet"
           page="Withdrawal Requests"
@@ -96,7 +96,7 @@ const WithdrawalRequestOwnerDetail = () => {
         />
 
         <div className="mt-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-4">
           <div className={adminCardClass}>
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
@@ -117,7 +117,7 @@ const WithdrawalRequestOwnerDetail = () => {
                 <span className="text-sm font-semibold text-gray-900">{owner?.wallet_balance ?? '0.00'}</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
                   <p className="text-xs font-semibold text-gray-500">Total Earned</p>
                   <p className="mt-1 text-sm font-semibold text-gray-900">{`\u20B9${owner?.total_earned ?? '0'}`}</p>
@@ -141,7 +141,7 @@ const WithdrawalRequestOwnerDetail = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
                 <p className="text-xs font-semibold text-gray-500">Total Requests</p>
                 <p className="mt-1 text-sm font-semibold text-gray-900">{filteredHistory.length}</p>

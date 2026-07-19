@@ -80,7 +80,7 @@ const DriverSubscriptionCreate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {/* HEADER */}
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
@@ -101,9 +101,9 @@ const DriverSubscriptionCreate = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
               <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                 <Zap size={18} />
@@ -228,7 +228,7 @@ const DriverSubscriptionCreate = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3 sticky top-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 space-y-3 sticky top-6">
             <button 
               onClick={handleSave}
               disabled={saving}

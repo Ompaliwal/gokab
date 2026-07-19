@@ -86,8 +86,8 @@ const UserSubscriptionCreate = () => {
         </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="rounded-[28px] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-100">
           <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
               <Ticket size={18} />
@@ -147,7 +147,7 @@ const UserSubscriptionCreate = () => {
           </div>
         </div>
 
-        <div className="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <div className="rounded-[28px] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-100">
           <h2 className="text-sm font-black text-slate-900">Publish Plan</h2>
           <p className="mt-2 text-xs font-medium text-slate-400">Customers will be able to buy this plan from their profile using wallet balance.</p>
           <button

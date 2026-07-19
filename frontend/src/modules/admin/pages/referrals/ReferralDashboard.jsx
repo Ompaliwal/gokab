@@ -17,7 +17,7 @@ import toast from 'react-hot-toast';
 import { useSettings } from '../../../../shared/context/SettingsContext';
 
 const StatCard = ({ title, value, change, icon: Icon, color }) => (
-  <div className="bg-white rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-full group hover:shadow-md transition-shadow">
+  <div className="bg-white rounded-lg p-4 md:p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-full group hover:shadow-md transition-shadow">
     <div className="flex items-start justify-between">
       <div className="flex flex-col">
         <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1">{title}</p>
@@ -43,7 +43,7 @@ const ChartContainer = ({ title, children, fullWidth }) => (
         {title}
       </h3>
     </div>
-    <div className="p-8 flex-1 min-h-[300px]">
+    <div className="p-4 md:p-8 flex-1 min-h-[300px]">
       {children}
     </div>
   </div>
@@ -68,7 +68,7 @@ const PieChartMock = ({ color1, color2, label1, label2, val1, val2 }) => {
             <p className="text-2xl font-black text-gray-900 mt-1">{val1 || 0}</p>
          </div>
       </div>
-      <div className="mt-8 flex items-center gap-6">
+      <div className="mt-8 flex items-center gap-4 md:gap-6">
          <div className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded-full`} style={{ backgroundColor: color1 }}></div>
             <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{label1}</span>
@@ -170,7 +170,7 @@ const ReferralDashboard = () => {
       </div>
 
       {/* TOP CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard 
           title="TOTAL DRIVERS" 
           value={data?.total_drivers || "0"} 
@@ -202,7 +202,7 @@ const ReferralDashboard = () => {
          <div className="bg-white border border-gray-100 px-6 py-4 rounded-lg shadow-sm">
             <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-widest">User Referrals Overview</h2>
          </div>
-         <div className="grid grid-cols-12 gap-6">
+         <div className="grid grid-cols-12 gap-4 md:gap-6">
             <ChartContainer title="User Referrals Overview">
                <PieChartMock 
                  color1="#2563EB" 
@@ -227,7 +227,7 @@ const ReferralDashboard = () => {
          <div className="bg-white border border-gray-100 px-6 py-4 rounded-lg shadow-sm">
             <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-widest">Driver Referrals Overview</h2>
          </div>
-         <div className="grid grid-cols-12 gap-6">
+         <div className="grid grid-cols-12 gap-4 md:gap-6">
             <ChartContainer title="Driver Referrals Overview">
                <PieChartMock 
                  color1="#7C3AED" 

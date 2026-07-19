@@ -84,8 +84,8 @@ const BusServiceDetails = () => {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-3xl bg-slate-900 p-8 text-white shadow-xl shadow-slate-200">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <section className="rounded-3xl bg-slate-900 p-4 md:p-8 text-white shadow-xl shadow-slate-200">
+        <div className="flex flex-col gap-4 md:gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-300">
               <Bus size={14} />
@@ -118,10 +118,10 @@ const BusServiceDetails = () => {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+      <section className="grid gap-4 md:gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <div className="space-y-6">
           {(bus.coverImage || (bus.galleryImages || []).length > 0) ? (
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Bus Media</p>
               {bus.coverImage ? (
                 <div className="mt-5 overflow-hidden rounded-[24px] bg-slate-50">
@@ -141,7 +141,7 @@ const BusServiceDetails = () => {
             </div>
           ) : null}
 
-          <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+          <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Route Overview</p>
             <h2 className="mt-3 text-2xl font-black text-slate-900">
               {bus.route?.originCity || 'Origin'} to {bus.route?.destinationCity || 'Destination'}
@@ -186,7 +186,7 @@ const BusServiceDetails = () => {
             </div>
 
             {bus.returnRouteEnabled ? (
-              <div className="mt-8 rounded-[28px] border border-emerald-100 bg-emerald-50/70 p-6">
+              <div className="mt-8 rounded-[28px] border border-emerald-100 bg-emerald-50/70 p-4 md:p-6">
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-600">Return Route</p>
                 <h3 className="mt-3 text-xl font-black text-slate-900">
                   {bus.returnRoute?.originCity || 'Destination'} to {bus.returnRoute?.destinationCity || 'Origin'}
@@ -213,8 +213,8 @@ const BusServiceDetails = () => {
             ) : null}
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm lg:col-span-2">
+          <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm lg:col-span-2">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Stops & DP Points</p>
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
@@ -286,7 +286,7 @@ const BusServiceDetails = () => {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Policies</p>
               <div className="mt-5 space-y-5">
                 <div>
@@ -304,7 +304,7 @@ const BusServiceDetails = () => {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Amenities</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {(bus.amenities || []).length > 0 ? (
@@ -322,7 +322,7 @@ const BusServiceDetails = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[32px] border border-slate-200 bg-slate-900 p-8 text-white shadow-sm">
+          <div className="rounded-[32px] border border-slate-200 bg-slate-900 p-4 md:p-8 text-white shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Coach Summary</p>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-1">
               <div className="rounded-2xl bg-white/10 p-4">
@@ -344,7 +344,7 @@ const BusServiceDetails = () => {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+          <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Driver Assignment</p>
             <div className="mt-5 space-y-3">
               <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
@@ -358,7 +358,7 @@ const BusServiceDetails = () => {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+          <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <div className="flex items-center gap-2">
               <CalendarDays size={16} className="text-slate-400" />
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Schedules</p>
@@ -384,7 +384,7 @@ const BusServiceDetails = () => {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+          <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Cancellation Slabs</p>
             <div className="mt-5 space-y-3">
               {(bus.cancellationRules || []).length > 0 ? (

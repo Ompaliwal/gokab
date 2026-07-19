@@ -86,7 +86,7 @@ const Admins = () => {
   };
 
   return (
-    <div className="min-h-screen animate-in fade-in duration-500 bg-[#F8F9FA] p-6 lg:p-8 font-sans">
+    <div className="min-h-screen animate-in fade-in duration-500 bg-[#F8F9FA] p-4 md:p-6 lg:p-8 font-sans">
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -113,14 +113,14 @@ const Admins = () => {
         </div>
 
         {/* Executive Stats */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: 'Cloud Registry', value: stats.total, icon: Users, color: 'text-slate-900', bg: 'bg-white' },
             { label: 'Master Access', value: stats.superadmins, icon: Crown, color: 'text-amber-500', bg: 'bg-white' },
             { label: 'Security Force', value: stats.subadmins, icon: ShieldCheck, color: 'text-sky-500', bg: 'bg-white' },
             { label: 'Active Signals', value: stats.activeAdmins, icon: UserCheck, color: 'text-emerald-500', bg: 'bg-white' },
           ].map((stat, i) => (
-            <div key={i} className={`rounded-[2rem] border border-slate-200 ${stat.bg} p-6 shadow-sm`}>
+            <div key={i} className={`rounded-[2rem] border border-slate-200 ${stat.bg} p-4 md:p-6 shadow-sm`}>
                <div className="flex items-center justify-between mb-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{stat.label}</p>
                   <div className={`p-2 rounded-xl bg-slate-50 ${stat.color}`}>
@@ -134,8 +134,8 @@ const Admins = () => {
 
         {/* Data Table Container */}
         <div className="overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/40">
-          <div className="border-b border-slate-100 bg-slate-50/50 p-6">
-             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="border-b border-slate-100 bg-slate-50/50 p-4 md:p-6">
+             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                 <div className="relative w-full max-w-md">
                   <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input

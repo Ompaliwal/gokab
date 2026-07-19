@@ -36,7 +36,7 @@ const getLucideIcon = (iconId, size = 18) => {
 
 // ─── Modal shell ───────────────────────────────────────────────────────────────
 const Modal = ({ title, subtitle, onClose, children, footer }) => (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center p-6">
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4 md:p-6">
     <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden">
       <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-gray-50">
         <div>
@@ -266,7 +266,7 @@ const ServiceConfig = () => {
       </div>
 
       {/* ── STAT ROW ── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Service Types', value: services.length, sub: `${activeServices} active`, accent: 'text-blue-600', bg: 'bg-blue-50' },
           { label: 'Active Zones',  value: activeLocs,      sub: `of ${locations.length} cities`, accent: 'text-emerald-600', bg: 'bg-emerald-50' },
@@ -375,7 +375,7 @@ const ServiceConfig = () => {
 
       {/* ══════════════════════════════ LOCATIONS TAB ══════════════════════════════ */}
       {tab === 'locations' && (
-        <div className="grid grid-cols-[280px,1fr] gap-6">
+        <div className="grid grid-cols-[280px,1fr] gap-4 md:gap-6">
 
           {/* LEFT — location list */}
           <div className="space-y-3">
@@ -475,7 +475,7 @@ const ServiceConfig = () => {
                   <button onClick={() => openModal('vehicle', { services: [] })} className="px-4 py-2 bg-gray-950 text-white rounded-xl text-[11px] font-black mt-1 hover:opacity-90">+ Add first vehicle</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 xl:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {selLoc.vehicles.map(v => (
                     <div
                       key={v.id}
@@ -532,7 +532,7 @@ const ServiceConfig = () => {
             </div>
           }
         >
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block">Emoji</label>
               <input
@@ -581,7 +581,7 @@ const ServiceConfig = () => {
             </div>
           }
         >
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block">Emoji</label>
               <input

@@ -119,7 +119,7 @@ const BlueprintMini = ({ blueprint }) => {
 };
 
 const StopEditor = ({ title, helper, items, stopType, onChange, onAdd, onRemove, errors = {} }) => (
-  <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm flex flex-col h-full">
+  <div className="rounded-[32px] border border-slate-200 bg-white p-4 md:p-6 shadow-sm flex flex-col h-full">
     <div className="mb-6 flex items-start justify-between gap-4">
       <div>
         <h3 className="text-lg font-black text-slate-900">{title}</h3>
@@ -594,7 +594,7 @@ const PoolingManager = ({ mode: propMode }) => {
 
   if (!isEditor) {
     return (
-      <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+      <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
             <span>Operations</span>
@@ -663,11 +663,11 @@ const PoolingManager = ({ mode: propMode }) => {
 
         <div className="grid gap-5 xl:grid-cols-2">
           {loading ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">
+            <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">
               Loading pooling routes...
             </div>
           ) : routes.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">
+            <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">
               No pooling routes configured yet.
             </div>
           ) : (
@@ -700,7 +700,7 @@ const PoolingManager = ({ mode: propMode }) => {
                   </span>
                 </div>
 
-                <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3 md:grid-cols-4">
                   <div className="rounded-2xl bg-slate-50 px-3 py-3">
                     <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Fare</p>
                     <p className="mt-1 text-sm font-black text-slate-900">Rs {item.farePerSeat || 0}</p>
@@ -767,7 +767,7 @@ const PoolingManager = ({ mode: propMode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         <button
           type="button"
@@ -804,7 +804,7 @@ const PoolingManager = ({ mode: propMode }) => {
             </div>
           ) : null}
 
-          <div className="grid gap-6 p-6 lg:grid-cols-2 lg:p-8">
+          <div className="grid gap-4 md:gap-6 p-4 md:p-6 lg:grid-cols-2 lg:p-8">
             <div className="lg:col-span-2 rounded-[24px] border border-slate-200 bg-slate-50/70 px-5 py-4">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-500">Section 1</p>
               <h2 className="mt-1 text-lg font-black text-slate-900">Route Identity</h2>
@@ -881,7 +881,7 @@ const PoolingManager = ({ mode: propMode }) => {
               </p>
             </div>
 
-            <div className="lg:col-span-2 grid gap-8 xl:grid-cols-2 2xl:grid-cols-3">
+            <div className="lg:col-span-2 grid gap-4 md:gap-8 xl:grid-cols-2 2xl:grid-cols-3">
               <StopEditor
                 title="Pickup Points"
                 helper="Add the pickup locations riders can select while booking this route."
@@ -936,7 +936,7 @@ const PoolingManager = ({ mode: propMode }) => {
 
             <div className="lg:col-span-2 grid gap-4 xl:grid-cols-3">
               {vehicles.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-sm text-slate-500 xl:col-span-3">
+                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-4 md:p-8 text-sm text-slate-500 xl:col-span-3">
                   No pooling-enabled rental vehicles found. Turn on pooling in rental vehicles first.
                 </div>
               ) : (
@@ -977,7 +977,7 @@ const PoolingManager = ({ mode: propMode }) => {
                         </span>
                       </div>
 
-                      <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="rounded-2xl bg-white px-3 py-3">
                           <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Seats</p>
                           <p className="mt-1 text-sm font-black text-slate-900">
@@ -1199,7 +1199,7 @@ const PoolingManager = ({ mode: propMode }) => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
                       <div className="flex items-center gap-2 text-slate-500">
                         <IndianRupee size={15} />
@@ -1234,7 +1234,7 @@ const PoolingManager = ({ mode: propMode }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/50 p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/50 p-4 md:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="space-y-3">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-500">Section 5</p>

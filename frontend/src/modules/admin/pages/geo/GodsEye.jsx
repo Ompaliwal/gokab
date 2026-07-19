@@ -101,7 +101,7 @@ const GodsEye = () => {
   }, [zones]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans animate-in fade-in duration-500">
       
       {/* Header Block */}
       <div className="mb-6">
@@ -135,8 +135,8 @@ const GodsEye = () => {
               {loading && <RefreshCw size={16} className="text-indigo-400 animate-spin" />}
            </div>
            
-           <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+           <div className="p-4 md:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                  {/* Driver Select */}
                  <div className="space-y-2">
                     <label className={labelClass}>Drivers</label>
@@ -242,20 +242,20 @@ const GodsEye = () => {
         </div>
 
         {/* Status Deck */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-12">
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 pb-12">
+           <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm"><Activity size={22} /></div>
               <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fleet Connectivity</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">98.2% Active</p></div>
            </div>
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+           <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm"><Navigation size={22} /></div>
               <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Active Pockets</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">{zones.length} Localities</p></div>
            </div>
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+           <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm"><MousePointer2 size={22} /></div>
               <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Incoming Feed</p><p className="text-xl font-black text-amber-600 tracking-tight leading-none">Live Syncing</p></div>
            </div>
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4 border-l-4 border-l-indigo-500">
+           <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4 border-l-4 border-l-indigo-500">
               <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-100"><Search size={22} /></div>
               <div><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Precision</p><p className="text-xl font-black text-gray-900 tracking-tight leading-none">0.8s Latency</p></div>
            </div>

@@ -42,7 +42,7 @@ const GlobalSettings = () => {
         </button>
       </div>
 
-      <div className="flex gap-8 mt-10">
+      <div className="flex gap-4 md:gap-8 mt-10">
          {/* Left Sidebar Menu */}
          <div className="w-64 shrink-0 space-y-2">
             {tabs.map((tab) => (
@@ -70,7 +70,7 @@ const GlobalSettings = () => {
          </div>
 
          {/* Right Settings Content */}
-         <div className="flex-1 bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm">
+         <div className="flex-1 bg-white rounded-[32px] border border-gray-100 p-4 md:p-8 shadow-sm">
             
             {activeTab === 'Payment Gateways' && (
                <div className="space-y-8 animate-in fade-in duration-500">
@@ -83,7 +83,7 @@ const GlobalSettings = () => {
                   </div>
 
                   {/* Razorpay Setup */}
-                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 relative overflow-hidden">
+                  <div className="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-100 relative overflow-hidden">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl"></div>
                      <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
@@ -110,7 +110,7 @@ const GlobalSettings = () => {
                   </div>
 
                   {/* Stripe Setup */}
-                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                  <div className="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-100 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
                      <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                            <div className="w-10 h-10 bg-white shadow-sm rounded-lg flex items-center justify-center font-black text-[#635BFF] border border-gray-200">ST</div>

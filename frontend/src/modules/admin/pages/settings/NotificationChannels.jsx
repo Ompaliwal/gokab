@@ -69,7 +69,7 @@ const NotificationChannels = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       
       {/* Header Block */}
       <div className="mb-8">
@@ -109,7 +109,7 @@ const NotificationChannels = () => {
         {/* Channels Card */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
            {/* Section Info */}
-           <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+           <div className="p-4 md:p-6 border-b border-gray-100 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                  <Bell size={20} />
               </div>
@@ -190,7 +190,7 @@ const NotificationChannels = () => {
            </div>
 
            {/* Card Footer */}
-           <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+           <div className="p-4 md:p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2 text-[10px] text-gray-400 font-semibold uppercase tracking-widest px-2">
                  <ShieldCheck size={12} className="text-gray-300" />
                  Ready State

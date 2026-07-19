@@ -155,14 +155,14 @@ const RentalPackageTypes = ({ mode: propMode }) => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 lg:p-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10">
           <motion.div 
             key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             className="max-w-7xl mx-auto"
           >
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[500px]">
               {/* Toolbar */}
-              <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="p-4 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                 <div className="flex items-center gap-3 text-[13px] text-gray-400 font-medium">
                   <span>show</span>
                   <select 
@@ -279,13 +279,13 @@ const RentalPackageTypes = ({ mode: propMode }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 lg:p-10 shrink-0">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 shrink-0">
         <motion.div 
           key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
           className="max-w-[1400px] mx-auto bg-white rounded shadow-sm border border-gray-100 mb-20 relative"
         >
           {/* Main Content Area */}
-          <div className="p-8 lg:px-12 lg:py-10 border-b border-gray-100 border-dashed">
+          <div className="p-4 md:p-8 lg:px-12 lg:py-10 border-b border-gray-100 border-dashed">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
               <div className="space-y-1.5 font-sans">
                 <label className={labelClass}>Transport Type *</label>
@@ -320,7 +320,7 @@ const RentalPackageTypes = ({ mode: propMode }) => {
             </div>
           </div>
 
-          <div className="p-8 flex justify-end items-center gap-4">
+          <div className="p-4 md:p-8 flex justify-end items-center gap-4">
              <button 
                 onClick={() => navigate('/admin/pricing/rental-packages')}
                 className="px-6 py-2.5 bg-gray-50 text-gray-500 rounded text-sm font-semibold hover:bg-gray-100 transition-all active:scale-95 border border-gray-200"

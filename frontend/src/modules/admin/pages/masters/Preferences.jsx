@@ -82,7 +82,7 @@ const Preferences = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
         <span>Masters</span>
@@ -92,9 +92,9 @@ const Preferences = () => {
       <h1 className="text-xl font-semibold text-gray-900 mb-6">Preferences</h1>
 
       {/* Create Form */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 mb-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-4">Add New Preference</h3>
-        <div className="flex items-end gap-6 flex-wrap">
+        <div className="flex items-end gap-4 md:gap-6 flex-wrap">
           <div className="flex-1 min-w-[200px]">
             <label className="block text-xs font-medium text-gray-500 mb-1.5">Name <span className="text-red-500">*</span></label>
             <input

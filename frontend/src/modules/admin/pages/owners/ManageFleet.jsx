@@ -856,7 +856,7 @@ const ManageFleet = () => {
             </button>
 
             {/* Pagination */}
-            <div className="p-6 bg-gray-50/30 border-t border-gray-50 flex items-center justify-between">
+            <div className="p-4 md:p-6 bg-gray-50/30 border-t border-gray-50 flex items-center justify-between">
               <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest italic">
                 Showing {showingFrom} to {showingTo} of {totalEntries} entries
               </span>

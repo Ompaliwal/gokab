@@ -108,7 +108,7 @@ const AirportRequests = () => {
               <span>entries</span>
             </div>
 
-            <div className="flex flex-1 justify-center items-center gap-8 flex-wrap">
+            <div className="flex flex-1 justify-center items-center gap-4 md:gap-8 flex-wrap">
               {TAB_SET.map((tab) => (
                 <button
                   key={tab}

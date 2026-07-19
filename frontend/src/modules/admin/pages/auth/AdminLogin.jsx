@@ -64,7 +64,7 @@ const AdminLogin = () => {
          <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-slate-100 rounded-full blur-[140px] opacity-40" />
       </div>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -173,7 +173,7 @@ const AdminLogin = () => {
         </motion.div>
       </main>
 
-      <footer className="p-8 text-center relative z-10 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+      <footer className="p-4 md:p-8 text-center relative z-10 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
         <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">&copy; 2026 {appName} Security Ops</p>
       </footer>
     </div>

@@ -256,9 +256,9 @@ const UserDetails = () => {
       </div>
 
       {/* USER INFO CARD */}
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-4 md:p-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
+          <div className="flex items-center gap-4 md:gap-6">
             <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-black shadow-xl ring-4 ring-white uppercase">
               {user.profileImage ? (
                 <img src={user.profileImage} alt={user.name} className="h-full w-full rounded-full object-cover" />
@@ -328,17 +328,17 @@ const UserDetails = () => {
       </div>
 
       {/* TAB CONTENT */}
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 min-h-[500px]">
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-4 md:p-8 min-h-[500px]">
         {activeTab === 'Request List' && (
           <div className="space-y-8 animate-in fade-in duration-500">
             {/* STAT CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {[
                 { label: 'Completed Rides', val: user.stats.completed, icon: Car, color: 'emerald' },
                 { label: 'Cancelled Rides', val: user.stats.cancelled, icon: AlertCircle, color: 'rose' },
                 { label: 'Upcoming Rides', val: user.stats.upcoming, icon: Clock, color: 'indigo' }
               ].map((s, i) => (
-                <div key={i} className={`bg-gray-50/30 p-6 rounded-2xl border border-gray-100 flex items-center justify-between group hover:bg-white transition-all hover:shadow-md`}>
+                <div key={i} className={`bg-gray-50/30 p-4 md:p-6 rounded-2xl border border-gray-100 flex items-center justify-between group hover:bg-white transition-all hover:shadow-md`}>
                   <div>
                     <p className="text-[12px] font-bold text-gray-400 mb-2">{s.label}</p>
                     <p className="text-3xl font-black text-gray-900 leading-none">{s.val}</p>
@@ -428,13 +428,13 @@ const UserDetails = () => {
         {activeTab === 'User Payment History' && (
           <div className="space-y-8 animate-in fade-in duration-500">
             {/* PAYMENT SUMMARY */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {[
                 { label: 'Total Wallet Balance', val: user.wallet.total, icon: WalletIcon, color: 'blue' },
                 { label: 'Spend Amount', val: user.wallet.spend, icon: TrendingUp, color: 'rose' },
                 { label: 'Available Balance', val: user.wallet.balance, icon: WalletIcon, color: 'emerald' }
               ].map((s, i) => (
-                <div key={i} className="bg-gray-50/30 p-8 rounded-3xl border border-gray-100 relative overflow-hidden group">
+                <div key={i} className="bg-gray-50/30 p-4 md:p-8 rounded-3xl border border-gray-100 relative overflow-hidden group">
                   <div className={`absolute top-0 right-0 p-4 opacity-5 text-${s.color}-500 transform translate-x-2 -translate-y-2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform`}>
                     <s.icon size={80} strokeWidth={1} />
                   </div>
@@ -508,7 +508,7 @@ const UserDetails = () => {
              <div className="space-y-4">
                 {reviews.length > 0 ? (
                   reviews.map((rev, i) => (
-                    <div key={rev._id || i} className="bg-white rounded-3xl border border-gray-100 p-6 flex items-start gap-5 hover:border-gray-200 transition-all shadow-sm group">
+                    <div key={rev._id || i} className="bg-white rounded-3xl border border-gray-100 p-4 md:p-6 flex items-start gap-5 hover:border-gray-200 transition-all shadow-sm group">
                        <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100 flex-shrink-0 group-hover:scale-105 transition-transform">
                           <Star size={24} className="fill-amber-500" />
                        </div>
@@ -547,16 +547,16 @@ const UserDetails = () => {
 
         {activeTab === 'Subscriptions' && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gray-50/30 p-6 rounded-2xl border border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div className="bg-gray-50/30 p-4 md:p-6 rounded-2xl border border-gray-100">
                 <p className="text-[12px] font-bold text-gray-400 mb-2">Active Plans</p>
                 <p className="text-3xl font-black text-gray-900">{subscriptions.filter((item) => item.active && item.status === 'active').length}</p>
               </div>
-              <div className="bg-gray-50/30 p-6 rounded-2xl border border-gray-100">
+              <div className="bg-gray-50/30 p-4 md:p-6 rounded-2xl border border-gray-100">
                 <p className="text-[12px] font-bold text-gray-400 mb-2">Unlimited Plans</p>
                 <p className="text-3xl font-black text-gray-900">{subscriptions.filter((item) => item.benefit_type === 'unlimited' && item.active).length}</p>
               </div>
-              <div className="bg-gray-50/30 p-6 rounded-2xl border border-gray-100">
+              <div className="bg-gray-50/30 p-4 md:p-6 rounded-2xl border border-gray-100">
                 <p className="text-[12px] font-bold text-gray-400 mb-2">Limited Ride Credits</p>
                 <p className="text-3xl font-black text-gray-900">
                   {subscriptions
@@ -568,7 +568,7 @@ const UserDetails = () => {
 
             <div className="space-y-4">
               {subscriptions.length > 0 ? subscriptions.map((item) => (
-                <div key={item.id} className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div key={item.id} className="rounded-3xl border border-gray-100 bg-white p-4 md:p-6 shadow-sm">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-[15px] font-black text-gray-900">{item.name}</p>
@@ -600,9 +600,9 @@ const UserDetails = () => {
 
       {/* WALLET MODAL */}
       {isWalletModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-[32px] w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-             <div className="p-8 space-y-6">
+             <div className="p-4 md:p-8 space-y-6">
                 <div className="flex items-center justify-between">
                    <h3 className="text-xl font-black text-gray-950 uppercase tracking-tight">
                       {walletType === 'credit' ? 'Credit Balance' : 'Debit Balance'}

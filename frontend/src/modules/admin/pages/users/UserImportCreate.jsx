@@ -102,7 +102,7 @@ const UserImportCreate = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
           <span>Users</span>
@@ -124,8 +124,8 @@ const UserImportCreate = () => {
         </div>
       </div>
 
-      <form onSubmit={submitImport} className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <form onSubmit={submitImport} className="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
             <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
               <UploadCloud size={18} />
@@ -220,7 +220,7 @@ const UserImportCreate = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3 self-start">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 space-y-3 self-start">
           <button
             type="submit"
             className="w-full py-3 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:cursor-not-allowed disabled:bg-indigo-200"

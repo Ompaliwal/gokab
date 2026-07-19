@@ -149,7 +149,7 @@ const PaymentGateways = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       {/* Header Block */}
       <div className="mb-8">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
@@ -167,7 +167,7 @@ const PaymentGateways = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-8">
         {gatewayGroups.map((gw) => {
           const isEnabled = getSettingValue(gw.enableKey) === "1";
           const isSubmitting = Boolean(submitting[gw.slug]);
@@ -175,7 +175,7 @@ const PaymentGateways = () => {
           return (
             <div key={gw.slug} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full transform transition-all duration-200 hover:shadow-md">
               {/* Card Header */}
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
+              <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between bg-white">
                 <div className="flex items-center gap-4">
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center border border-gray-100 bg-white p-2`}>
                     <img src={gw.logo} alt={gw.name} className="w-full h-full object-contain" />
@@ -208,7 +208,7 @@ const PaymentGateways = () => {
               </div>
 
               {/* Card Body */}
-              <div className="p-6 flex-1">
+              <div className="p-4 md:p-6 flex-1">
                 <div className="mb-5 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">Runtime status</p>
                   <p className="mt-1 text-sm font-bold text-slate-900">

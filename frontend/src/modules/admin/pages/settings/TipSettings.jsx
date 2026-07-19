@@ -18,7 +18,7 @@ const SectionCard = ({ title, children, noPadding = false }) => (
         <h3 className="text-sm font-bold text-gray-700 uppercase tracking-tight">{title}</h3>
       </div>
     )}
-    <div className={`${noPadding ? '' : 'p-8'} flex-grow`}>
+    <div className={`${noPadding ? '' : 'p-4 md:p-8'} flex-grow`}>
       {children}
     </div>
   </div>
@@ -67,7 +67,7 @@ const TipSettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-10 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-10 font-sans">
       
       {/* Header Block */}
       <div className="mb-10 flex items-center justify-between">
@@ -94,7 +94,7 @@ const TipSettings = () => {
            </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 items-stretch pb-32">
            
            {/* Form Section */}
            <div className="h-full">
@@ -152,7 +152,7 @@ const TipSettings = () => {
                           {/* Dimmed Background Overlay */}
                           <div className="absolute inset-0 bg-black/30 z-10 p-4 flex flex-col justify-center">
                               {/* Tip Modal */}
-                              <div className="bg-white rounded-2xl shadow-2xl p-6 space-y-4 border border-gray-100 animate-in fade-in zoom-in duration-300">
+                              <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-6 space-y-4 border border-gray-100 animate-in fade-in zoom-in duration-300">
                                  <div className="text-center space-y-1">
                                     <h4 className="text-[11px] font-black text-gray-800 uppercase">Trip Fare $550</h4>
                                     <p className="text-[10px] text-gray-500">Show appreciation with a tip!</p>

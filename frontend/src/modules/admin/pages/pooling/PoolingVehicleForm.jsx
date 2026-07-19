@@ -184,7 +184,7 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-8">
@@ -225,15 +225,15 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-5">
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
           {/* Form Side */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
               <h3 className="mb-6 text-lg font-black text-slate-900">Basic Information</h3>
               <div className="space-y-4">
                 <div>
                   <label className={labelClass}>Vehicle Type</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {VEHICLE_TYPES.map(type => (
                       <button
                         key={type.id}
@@ -287,7 +287,7 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
                     readOnly={isViewMode}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Capacity</label>
                     <div className="flex h-11 items-center justify-center rounded-xl bg-slate-100 font-black text-slate-900">
@@ -339,7 +339,7 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-black text-slate-900">Vehicle Images</h3>
@@ -392,7 +392,7 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
                 )}
               </div>
               
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {formData.images.map((img, idx) => (
                   <div key={idx} className="group relative aspect-square overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 shadow-sm">
                     <img src={img} alt="" className="h-full w-full object-cover" />
@@ -419,7 +419,7 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
 
           {/* Blueprint Side */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
+            <div className="rounded-[32px] border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-black text-slate-900">Seat Layout Blueprint</h3>
@@ -443,9 +443,9 @@ const PoolingVehicleForm = ({ mode: propMode }) => {
                 <div className="mb-8 h-12 w-48 rounded-t-[60px] border-x-8 border-t-8 border-slate-300 bg-slate-200/50" />
                 
                 {/* Grid */}
-                <div className="relative p-6 rounded-[48px] bg-white shadow-2xl border-x-12 border-slate-300">
+                <div className="relative p-4 md:p-6 rounded-[48px] bg-white shadow-2xl border-x-12 border-slate-300">
                   <div 
-                    className="grid gap-6"
+                    className="grid gap-4 md:gap-6"
                     style={{ 
                       gridTemplateColumns: `repeat(${formData.blueprint.cols}, minmax(0, 1fr))`,
                       gridTemplateRows: `repeat(${formData.blueprint.rows}, minmax(0, 1fr))`

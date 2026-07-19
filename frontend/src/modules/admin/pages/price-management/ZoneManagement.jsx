@@ -39,7 +39,7 @@ import {
 
 const inputClass = "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors";
 const labelClass = "block text-xs font-semibold text-gray-500 mb-1.5";
-const cardClass = "bg-white rounded-xl border border-gray-200 p-6 shadow-sm";
+const cardClass = "bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm";
 const ADMIN_LANGUAGE_OPTIONS = ['English', 'Hindi', 'Arabic', 'French', 'Spanish'];
 
 const ZoneManagement = ({ mode: initialMode = "list" }) => {
@@ -440,7 +440,7 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
   }, [selectedCountry, view]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 animate-in fade-in duration-500">
       <AnimatePresence mode="wait">
         {view === 'list' ? (
           <motion.div 
@@ -467,7 +467,7 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-center justify-between shadow-sm">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 flex items-center justify-between shadow-sm">
                <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${enablePeakZoneGlobal ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-300'}`}>
                      <Zap size={20} className={enablePeakZoneGlobal ? 'animate-pulse' : ''} />
@@ -586,10 +586,10 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6">
               {/* Form Section */}
               <div className="xl:col-span-4 space-y-6">
-                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm">
                    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
                       <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                         <Tag size={18} />
@@ -654,7 +654,7 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
 
                       <div>
                         <label className={labelClass}>Boundary Shape</label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {[
                             { id: 'polygon', label: 'Polygon Boundary' },
                             { id: 'circle', label: 'Circle Radius' },
@@ -692,7 +692,7 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
                    </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3 shadow-sm">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 space-y-3 shadow-sm">
                    <button 
                      disabled={saving} onClick={handleSave}
                      className="w-full py-3 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
@@ -878,7 +878,7 @@ const ZoneManagement = ({ mode: initialMode = "list" }) => {
                    </p>
                 </div>
 
-                <div className="bg-indigo-900 rounded-xl p-6 text-white overflow-hidden relative shadow-md">
+                <div className="bg-indigo-900 rounded-xl p-4 md:p-6 text-white overflow-hidden relative shadow-md">
                     <Maximize2 className="absolute -right-4 -bottom-4 text-white/10" size={120} />
                     <h4 className="text-sm font-semibold mb-2">Instructions</h4>
                     <p className="text-xs text-indigo-100 leading-relaxed">

@@ -273,7 +273,7 @@ const DriverReferralSettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
           <span>Driver Referral Settings</span>
@@ -293,7 +293,7 @@ const DriverReferralSettings = () => {
 
       <div className="max-w-6xl space-y-6">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                 <Gift size={20} />
@@ -311,8 +311,8 @@ const DriverReferralSettings = () => {
             </button>
           </div>
 
-          <div className="p-8 space-y-8">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="p-4 md:p-8 space-y-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-5">
                 <div className="max-w-xl space-y-2">
                   <label className={labelClass}>
@@ -336,7 +336,7 @@ const DriverReferralSettings = () => {
                 </div>
 
                 {isConditional && (
-                  <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                  <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                     <label className={labelClass}>Required Ride Count</label>
                     <input
                       type="number"
@@ -349,7 +349,7 @@ const DriverReferralSettings = () => {
                   </div>
                 )}
 
-                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                   <label className={labelClass}>Earnings to Each Referral</label>
                   <input
                     type="number"
@@ -362,7 +362,7 @@ const DriverReferralSettings = () => {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-dashed border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6">
+              <div className="rounded-2xl border border-dashed border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-4 md:p-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-white text-indigo-600 border border-indigo-100 flex items-center justify-center shadow-sm">
                     <Share2 size={22} />
@@ -376,7 +376,7 @@ const DriverReferralSettings = () => {
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="rounded-xl bg-white border border-indigo-100 p-4">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Milestones</p>
                     <p className="mt-2 text-2xl font-black text-slate-900">{settings.milestone_programs.length}</p>
@@ -408,7 +408,7 @@ const DriverReferralSettings = () => {
                 </button>
               </div>
 
-              <div className="p-6 space-y-5">
+              <div className="p-4 md:p-6 space-y-5">
                 {settings.milestone_programs.map((item, index) => (
                   <div key={item.id} className="rounded-2xl border border-gray-200 p-5 bg-white space-y-4">
                     <div className="flex items-center justify-between gap-3">
@@ -525,7 +525,7 @@ const DriverReferralSettings = () => {
                 </div>
               </div>
 
-              <div className="p-6 grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <div className="p-4 md:p-6 grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {settings.reward_features.map((feature) => (
                   <div key={feature.key} className="rounded-2xl border border-gray-200 p-5 bg-white space-y-4">
                     <div className="flex items-start justify-between gap-4">
@@ -578,7 +578,7 @@ const DriverReferralSettings = () => {
             </div>
           </div>
 
-          <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-col gap-4">
+          <div className="p-4 md:p-6 bg-gray-50 border-t border-gray-100 flex flex-col gap-4">
             <button
               onClick={handleUpdate}
               disabled={saving}

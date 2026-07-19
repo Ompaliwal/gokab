@@ -42,7 +42,7 @@ const SectionCard = ({ title, children, id }) => (
         <h3 className="text-[13px] font-bold text-gray-700 uppercase tracking-tight">{title}</h3>
       </div>
     )}
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {children}
     </div>
   </div>
@@ -121,7 +121,7 @@ const ImageUploadBox = ({ title, size, preview, onUpload, onClear }) => {
        </div>
        <div className="aspect-[2/1] w-full rounded-xl border border-dashed border-gray-300 bg-gray-50/50 relative overflow-hidden group hover:border-indigo-300 transition-colors cursor-pointer flex items-center justify-center" onClick={() => fileInputRef.current?.click()}>
           {preview ? (
-            <img src={preview} alt={title} className="w-full h-full object-contain p-6" />
+            <img src={preview} alt={title} className="w-full h-full object-contain p-4 md:p-6" />
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 text-gray-400">
                 <p className="text-[11px] font-bold uppercase tracking-widest">Upload Image</p>
@@ -330,7 +330,7 @@ const GeneralSettings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-10 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-10 font-sans">
       
       {/* Header */}
       <div className="mb-10 flex items-center justify-between">

@@ -78,7 +78,7 @@ const MapSettings = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       
       {/* Header Block */}
       <div className="mb-8">
@@ -101,7 +101,7 @@ const MapSettings = () => {
         
         {/* Choose Map Type Section */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-           <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+           <div className="p-4 md:p-6 border-b border-gray-100 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
                  <Globe size={20} />
               </div>
@@ -111,14 +111,14 @@ const MapSettings = () => {
               </div>
            </div>
            
-           <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+           <div className="p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
               {mapTypes.map((map) => (
                 <div 
                    key={map.id} 
                    onClick={() => updateField('map_type', map.id)}
                    className={`relative border-2 rounded-xl transition-all p-2 group cursor-pointer ${settings.map_type === map.id ? 'border-indigo-600 bg-indigo-50/10' : 'border-gray-100 bg-white hover:border-gray-200'}`}
                 >
-                   <div className="aspect-video bg-gray-50 rounded-lg flex items-center justify-center p-6 overflow-hidden">
+                   <div className="aspect-video bg-gray-50 rounded-lg flex items-center justify-center p-4 md:p-6 overflow-hidden">
                       <img src={map.image} alt={map.name} className="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-500" />
                    </div>
                    <div className="p-4 flex items-center justify-between">
@@ -137,7 +137,7 @@ const MapSettings = () => {
 
         {/* Google Map Apis Section */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-           <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+           <div className="p-4 md:p-6 border-b border-gray-100 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                  <MapIcon size={20} />
               </div>
@@ -147,8 +147,8 @@ const MapSettings = () => {
               </div>
            </div>
 
-           <div className="p-8 space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+           <div className="p-4 md:p-8 space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                  <div>
                     <label className={labelClass}>
                        Google Map Key For Web Apps
@@ -178,7 +178,7 @@ const MapSettings = () => {
            </div>
 
            {/* Card Footer */}
-           <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+           <div className="p-4 md:p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2 text-[10px] text-gray-400 font-semibold uppercase tracking-widest px-2">
                  <ShieldCheck size={12} className="text-gray-300" />
                  Ready for Production

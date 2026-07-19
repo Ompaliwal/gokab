@@ -43,7 +43,7 @@ const DriverRatings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans text-gray-900">
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
           <span>Drivers</span>

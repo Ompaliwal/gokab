@@ -1151,7 +1151,7 @@ const BusServiceManager = ({
   return (
     <div className="space-y-5 sm:space-y-8">
       <section className="rounded-3xl bg-slate-900 p-5 text-white shadow-xl shadow-slate-200 sm:p-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 md:gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-3xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-300">
               <Bus size={14} />
@@ -1267,7 +1267,7 @@ const BusServiceManager = ({
                     {bus.status || 'draft'}
                   </span>
                 </div>
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
                     <p className="text-[9px] font-black uppercase tracking-wider text-slate-400">Route</p>
                     <p className="mt-1 text-xs font-bold text-slate-900">{bus.route?.originCity || 'Origin'} to {bus.route?.destinationCity || 'Destination'}</p>
@@ -1434,7 +1434,7 @@ const BusServiceManager = ({
             </div>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <div className="grid gap-4 md:gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="space-y-6">
               <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-5">
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Route Overview</p>
@@ -1474,7 +1474,7 @@ const BusServiceManager = ({
                 </div>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
                 <div className="rounded-[28px] border border-slate-200 bg-white p-5">
                   <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">Policies</p>
                   <div className="mt-4 space-y-4">
@@ -1610,7 +1610,7 @@ const BusServiceManager = ({
       {currentMode === 'edit' || currentMode === 'create' ? (
       <section className="grid gap-5 xl:grid-cols-[360px_minmax(0,1fr)] xl:gap-8">
         <div className="space-y-4">
-          <div className="hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="hidden rounded-3xl border border-slate-100 bg-white p-4 md:p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-slate-900">Bus Catalog</h2>
@@ -1756,7 +1756,7 @@ const BusServiceManager = ({
                     </span>
                   </div>
                   
-                  <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2">
                     <div className={`rounded-xl px-2 py-2 ${selectedBusId === bus.id ? 'bg-white/10' : 'bg-slate-50'}`}>
                       <p className={`text-[8px] font-bold uppercase tracking-wider ${selectedBusId === bus.id ? 'text-slate-400' : 'text-slate-400'}`}>Seats</p>
                       <p className="mt-0.5 text-xs font-bold">{countTotalSeats(bus.blueprint)}</p>
@@ -1775,7 +1775,7 @@ const BusServiceManager = ({
             </div>
           </div>
 
-          <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+          <div className="rounded-3xl border border-slate-100 bg-white p-4 md:p-6 shadow-sm">
             <h3 className="text-sm font-bold text-slate-900">Module Overview</h3>
             <div className="mt-4 space-y-4 text-xs font-medium text-slate-500">
               <div className="flex items-start gap-3">
@@ -1795,7 +1795,7 @@ const BusServiceManager = ({
         </div>
 
         <div className="space-y-8">
-          <section className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+          <section className="rounded-3xl border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Bus Specification</h2>
@@ -2184,7 +2184,7 @@ const BusServiceManager = ({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+          <section className="rounded-3xl border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Seat Blueprint</h2>
@@ -2234,7 +2234,7 @@ const BusServiceManager = ({
               />
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-2">
+            <div className="grid gap-4 md:gap-6 xl:grid-cols-2">
               <SeatDeckPreview title="Lower Deck" deckRows={draft.blueprint.lowerDeck} onToggleSeat={toggleSeatStatus} />
               <SeatDeckPreview title="Upper Deck" deckRows={draft.blueprint.upperDeck} onToggleSeat={toggleSeatStatus} />
             </div>
@@ -2255,7 +2255,7 @@ const BusServiceManager = ({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+          <section className="rounded-3xl border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Route Assignment</h2>
@@ -2300,7 +2300,7 @@ const BusServiceManager = ({
               </div>
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_420px]">
+            <div className="grid gap-4 md:gap-6 xl:grid-cols-[minmax(0,1.15fr)_420px]">
               <div>
                 <div className="grid gap-5 md:grid-cols-2">
                   <div>
@@ -2309,7 +2309,7 @@ const BusServiceManager = ({
                   </div>
                   <div>
                     <label className={labelClassName}>Distance / Duration</label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <input className={fieldClassName} value={draft.route.distanceKm} onChange={(event) => updateRouteField('distanceKm', event.target.value)} placeholder="195 km" />
                       <input className={fieldClassName} value={draft.route.durationHours} onChange={(event) => updateRouteField('durationHours', event.target.value)} placeholder="4h 45m" />
                     </div>
@@ -2441,7 +2441,7 @@ const BusServiceManager = ({
                   </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
                     <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Start</p>
                     <p className="mt-1 text-sm font-bold text-slate-900">{draft.route.originCity || 'Not set'}</p>
@@ -2520,7 +2520,7 @@ const BusServiceManager = ({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+          <section className="rounded-3xl border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
             <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-xl font-bold tracking-tight text-slate-900">Departure Schedules</h2>

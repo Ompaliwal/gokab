@@ -113,7 +113,7 @@ const SMSGateways = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       
       {/* Header Block */}
       <div className="mb-8">
@@ -135,7 +135,7 @@ const SMSGateways = () => {
       <div className="space-y-8">
         
         {/* Top Feature Toggle Card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-center justify-between shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 flex items-center justify-between shadow-sm">
            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                  <Smartphone size={20} />
@@ -157,14 +157,14 @@ const SMSGateways = () => {
         </div>
 
         {/* SMS Provider Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-8">
            {smsProviders.map((provider) => {
               const isEnabled = getSettingValue(provider.enableKey) === "1";
               
               return (
                  <div key={provider.slug} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full transform transition-all duration-200 hover:shadow-md">
                     {/* Card Header */}
-                    <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
+                    <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between bg-white">
                        <div className="flex items-center gap-4">
                           <div className="w-14 h-14 rounded-xl flex items-center justify-center border border-gray-100 bg-white p-2">
                              <img src={provider.logo} alt={provider.name} className="w-full h-full object-contain" />
@@ -196,7 +196,7 @@ const SMSGateways = () => {
                     </div>
 
                     {/* Card Body */}
-                    <div className="p-6 flex-1 space-y-5">
+                    <div className="p-4 md:p-6 flex-1 space-y-5">
                        {provider.fields.map((field) => (
                           <div key={field.key}>
                              <label className={labelClass}>{field.label}</label>

@@ -141,14 +141,14 @@ const OwnerBookings = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader module="Owner Management" page="Bookings" title="Owner Bookings" />
 
         <div className="mt-6">
           <AnimatePresence mode="wait">
             {view === 'list' ? (
               <MotionDiv key="list" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} className="space-y-6">
-            <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 md:p-6 shadow-sm md:flex-row md:items-center md:justify-between">
               <div>
                 <h1 className="text-2xl font-black tracking-tight text-slate-900">Owner Bookings</h1>
                 <p className="mt-1 text-sm font-medium text-slate-500">Manage bookings assigned to owners and fleets.</p>
@@ -180,7 +180,7 @@ const OwnerBookings = () => {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 md:p-6">
                 {loading ? (
                   <div className="flex min-h-[280px] items-center justify-center">
                     <Loader2 className="animate-spin text-slate-400" size={30} />
@@ -244,7 +244,7 @@ const OwnerBookings = () => {
               <h2 className="text-2xl font-black tracking-tight text-slate-900">{editingId ? 'Update Booking' : 'Create Booking'}</h2>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-4 md:p-6 shadow-sm">
               <form onSubmit={handleSave} className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-slate-600">Owner</label>

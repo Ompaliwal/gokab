@@ -17,7 +17,7 @@ import { motion } from 'framer-motion';
 import AdminPageHeader from '../../components/ui/AdminPageHeader';
 
 const StatCard = ({ icon: Icon, label, value, color, onViewAll }) => (
-  <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
+  <div className="bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
     <div className="flex items-center gap-4">
       <div className={`w-12 h-12 ${color.bg} ${color.text} rounded-lg flex items-center justify-center`}>
         <Icon size={24} />
@@ -113,12 +113,12 @@ const OwnerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader module="Owner Management" page="Owner Dashboard" title="Owner Dashboard" />
 
         {/* Stats Grid */}
         <div className="space-y-6 animate-in fade-in duration-500">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {stats.map((stat, i) => (
               <StatCard 
                 key={i} 
@@ -129,9 +129,9 @@ const OwnerDashboard = () => {
           </div>
 
           {/* Charts & Finance Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Today Trips Chart Placeholder */}
-            <div className="lg:col-span-1 bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col">
+            <div className="lg:col-span-1 bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col">
                <p className="text-[12px] font-bold text-gray-900 uppercase tracking-widest mb-10">Today Trips</p>
                <div className="flex-1 flex flex-col items-center justify-center relative min-h-[250px]">
                   <div className="w-48 h-48 border-[12px] border-gray-50 rounded-full flex flex-col items-center justify-center">
@@ -164,7 +164,7 @@ const OwnerDashboard = () => {
           </div>
 
           {/* Bottom row: Earnings Overview & Overall Summary */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
              {/* More Finance Grid */}
              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FinanceCard icon={TrendingUp} label="Overall Earnings" value={data?.overall_earnings || 0} color={{ bg: 'bg-red-50', text: 'text-red-500' }} />
@@ -176,7 +176,7 @@ const OwnerDashboard = () => {
              </div>
 
              {/* Chart Placeholder */}
-             <div className="lg:col-span-1 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+             <div className="lg:col-span-1 bg-white p-4 md:p-6 rounded-xl border border-gray-100 shadow-sm">
                 <p className="text-[12px] font-bold text-gray-900 uppercase tracking-widest mb-6">Overall Earnings</p>
                 <div className="h-48 flex items-end justify-between gap-2 px-2 relative border-b-2 border-gray-100">
                    <div className="flex-1 bg-emerald-500/10 h-0.5 rounded-t-sx transition-all"></div>

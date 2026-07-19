@@ -221,8 +221,8 @@ const SafetyCenter = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-140px)] gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="w-96 shrink-0 flex flex-col space-y-6 overflow-y-auto no-scrollbar pb-10">
+    <div className="flex h-[calc(100vh-140px)] gap-4 md:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="w-full max-w-sm shrink-0 flex flex-col space-y-6 overflow-y-auto no-scrollbar pb-10">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
              <div className="h-10 w-10 bg-rose-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-rose-100">
@@ -251,7 +251,7 @@ const SafetyCenter = () => {
           </div>
 
           {isLoading ? (
-            <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 md:p-8 text-center">
                <div className="w-6 h-6 border-2 border-slate-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-3" />
                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Syncing Encrypted Feed...</p>
             </div>
@@ -294,7 +294,7 @@ const SafetyCenter = () => {
       <div className="flex-1 flex flex-col space-y-6 overflow-y-auto no-scrollbar pr-2 pb-10">
         {selectedAlert ? (
           <>
-            <div className="bg-white border border-rose-100/80 rounded-3xl p-6 flex items-center justify-between gap-6 shadow-lg shadow-rose-50/50">
+            <div className="bg-white border border-rose-100/80 rounded-3xl p-4 md:p-6 flex items-center justify-between gap-4 md:gap-6 shadow-lg shadow-rose-50/50">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-rose-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-600/20 relative border border-rose-50/50 shrink-0">
                   <ShieldAlert size={26} strokeWidth={2.5} className="animate-bounce" />
@@ -337,11 +337,11 @@ const SafetyCenter = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 flex-1 min-h-0">
-              <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-0">
+              <div className="flex flex-col gap-4 md:gap-6">
                 <div className="bg-white h-[260px] rounded-3xl border border-slate-100 shadow-sm overflow-hidden relative group shrink-0">
                   {loadError ? (
-                    <div className="absolute inset-0 flex items-center justify-center p-8 text-center bg-slate-50">
+                    <div className="absolute inset-0 flex items-center justify-center p-4 md:p-8 text-center bg-slate-50">
                       <div>
                         <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 mx-auto mb-3 shrink-0">
                            <MapPin size={24} />
@@ -397,7 +397,7 @@ const SafetyCenter = () => {
                       ) : null}
                     </GoogleMap>
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center p-8 text-center bg-slate-50">
+                    <div className="absolute inset-0 flex items-center justify-center p-4 md:p-8 text-center bg-slate-50">
                       <div className="max-w-[280px]">
                         <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300 mx-auto mb-4 shrink-0">
                            <Globe size={24} />
@@ -418,10 +418,10 @@ const SafetyCenter = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-6 flex-1 overflow-y-auto no-scrollbar">
+                <div className="bg-white rounded-3xl border border-slate-100 p-4 md:p-6 shadow-sm space-y-6 flex-1 overflow-y-auto no-scrollbar">
                   <div>
                     <h4 className="text-[11px] font-semibold text-slate-400 tracking-wider uppercase mb-3">Distress Context</h4>
-                    <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                       <div className="bg-slate-50/60 p-3.5 rounded-xl border border-slate-100">
                         <p className="text-[10px] text-slate-400 font-medium mb-1">Subject</p>
                         <p className="font-semibold text-slate-900">{getParticipantTitle(selectedAlert)}</p>
@@ -441,7 +441,7 @@ const SafetyCenter = () => {
                     </div>
                   </div>
 
-                  <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-2 text-center text-xs">
                     <div>
                       <p className="text-[10px] text-slate-400 font-medium mb-0.5">Class</p>
                       <p className="font-semibold text-slate-700 uppercase">{selectedAlert.serviceType || 'Standard'}</p>
@@ -460,7 +460,7 @@ const SafetyCenter = () => {
                     <h4 className="text-[11px] font-semibold text-slate-900 tracking-wider uppercase mb-3 flex items-center gap-2">
                       <AlertCircle size={13} className="text-indigo-600" /> Mandatory Response Checklist
                     </h4>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {[
                         { id: 'pcall', label: `Contact ${selectedAlert.sourceApp === 'driver' ? 'Driver' : 'Rider'}` },
                         { id: 'dcall', label: `Contact ${selectedAlert.sourceApp === 'driver' ? 'Rider' : 'Driver'}` },
@@ -534,7 +534,7 @@ const SafetyCenter = () => {
                         targetPeerPhone={chatParams.peerPhone}
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center p-6 text-center text-slate-400">
+                      <div className="flex h-full items-center justify-center p-4 md:p-6 text-center text-slate-400">
                         <div>
                           <LifeBuoy className="w-10 h-10 text-slate-300 mx-auto mb-3 animate-spin duration-3000" />
                           <p className="text-xs font-semibold uppercase tracking-wider">Resolving Secure Tunnel...</p>
@@ -542,7 +542,7 @@ const SafetyCenter = () => {
                       </div>
                     )
                   ) : (
-                    <div className="flex flex-col h-full bg-slate-900 text-white p-6 justify-between">
+                    <div className="flex flex-col h-full bg-slate-900 text-white p-4 md:p-6 justify-between">
                       <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3 shrink-0">
                         <h4 className="text-[10px] font-semibold text-slate-400 tracking-widest uppercase flex items-center gap-2">
                           <History size={14} /> Incident Logs

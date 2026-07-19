@@ -209,14 +209,14 @@ const RentalTracking = () => {
   }, [items, searchTerm]);
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <AdminPageHeader
         module="Pricing"
         page="Rental Tracking"
         title="Track Vehicles"
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-5">
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-3 xl:grid-cols-5">
         <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">Total</p>
           <p className="mt-2 text-2xl font-black text-slate-900">{derivedStats.total}</p>
@@ -259,7 +259,7 @@ const RentalTracking = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {loading ? (
             <div className="flex min-h-[320px] items-center justify-center">
               <Loader2 size={30} className="animate-spin text-slate-400" />

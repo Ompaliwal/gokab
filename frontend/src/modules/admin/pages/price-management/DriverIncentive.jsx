@@ -71,7 +71,7 @@ const DriverIncentive = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FD] p-6 lg:p-10 font-sans">
+    <div className="min-h-screen bg-[#F8F9FD] p-4 md:p-6 lg:p-10 font-sans">
       
       {/* Header Block */}
       <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-10">
@@ -84,12 +84,12 @@ const DriverIncentive = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-         <div className="bg-white border-2 border-dashed border-indigo-100 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
+         <div className="bg-white border-2 border-dashed border-indigo-100 rounded-xl p-4 md:p-6 flex flex-col items-center justify-center text-center">
             <span className="text-[10px] font-black text-indigo-100 bg-indigo-50/50 px-3 py-1 rounded-full uppercase mb-2">Zone</span>
             <span className="text-sm font-bold text-gray-700">{details.zone_name}</span>
          </div>
-         <div className="bg-white border-2 border-dashed border-indigo-100 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+         <div className="bg-white border-2 border-dashed border-indigo-100 rounded-xl p-4 md:p-6 flex flex-col items-center justify-center text-center">
             <span className="text-[10px] font-black text-indigo-100 bg-indigo-50/50 px-3 py-1 rounded-full uppercase mb-2">Vehicle Type</span>
             <span className="text-sm font-bold text-gray-700">{details.vehicle_type}</span>
          </div>
@@ -114,7 +114,7 @@ const DriverIncentive = () => {
             </button>
          </div>
 
-         <div className="p-8 space-y-8 flex-grow">
+         <div className="p-4 md:p-8 space-y-8 flex-grow">
             <div className="flex justify-end">
                <button onClick={addRow} className="bg-[#405189] text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md hover:bg-[#344475] transition-all flex items-center gap-2">
                   <Plus size={14} /> Add
@@ -123,7 +123,7 @@ const DriverIncentive = () => {
 
             <div className="space-y-6">
                {incentives.map((row, idx) => (
-                  <div key={idx} className="flex flex-col md:flex-row items-end gap-6 animate-in slide-in-from-left-4 duration-300">
+                  <div key={idx} className="flex flex-col md:flex-row items-end gap-4 md:gap-6 animate-in slide-in-from-left-4 duration-300">
                      <div className="flex-1 space-y-2 w-full">
                         <label className="text-[10px] font-bold text-gray-400 uppercase">Minimum Ride Should Complete</label>
                         <input 
@@ -153,7 +153,7 @@ const DriverIncentive = () => {
             </div>
          </div>
 
-         <div className="p-8 border-t border-gray-50 flex justify-end">
+         <div className="p-4 md:p-8 border-t border-gray-50 flex justify-end">
             <button onClick={handleSubmit} className="bg-[#405189] text-white px-10 py-2.5 rounded-lg text-sm font-bold shadow-xl hover:bg-[#344475] transition-all active:scale-95">
                Submit
             </button>

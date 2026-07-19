@@ -57,8 +57,8 @@ const FareConfiguration = () => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-6xl mx-auto pb-20">
       {/* Header & City Selector */}
-      <div className="flex items-center justify-between bg-white p-6 rounded-[28px] border border-gray-50 shadow-sm">
-        <div className="flex items-center gap-6">
+      <div className="flex items-center justify-between bg-white p-4 md:p-6 rounded-[28px] border border-gray-50 shadow-sm">
+        <div className="flex items-center gap-4 md:gap-6">
            <div className="flex items-center gap-2 cursor-pointer group">
               <div className="p-2.5 bg-primary/10 rounded-xl text-primary"><MapPin size={20} /></div>
               <div>
@@ -91,11 +91,11 @@ const FareConfiguration = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
          {/* Left Side: Vehicle Type & Basic Configuration */}
          <div className="space-y-6">
             <h4 className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Select Vehicle Category</h4>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                {vehicleTypes.map((v, idx) => (
                   <VehiclePriceCard 
                     key={idx} 
@@ -106,7 +106,7 @@ const FareConfiguration = () => {
                ))}
             </div>
 
-            <div className="bg-orange-50 border border-orange-100 p-6 rounded-[24px] space-y-3">
+            <div className="bg-orange-50 border border-orange-100 p-4 md:p-6 rounded-[24px] space-y-3">
                <div className="flex items-center gap-2 text-orange-600">
                   <AlertTriangle size={18} />
                   <span className="text-[13px] font-black tracking-tight uppercase">Live Pricing Warning</span>
@@ -118,7 +118,7 @@ const FareConfiguration = () => {
          </div>
 
          {/* Right Side: Detailed Input Grid */}
-         <div className="col-span-2 space-y-6 bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm">
+         <div className="col-span-2 space-y-6 bg-white rounded-[32px] border border-gray-100 p-4 md:p-8 shadow-sm">
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary"><Settings size={20} /></div>
@@ -127,7 +127,7 @@ const FareConfiguration = () => {
                <span className="text-[10px] font-black text-green-500 bg-green-50 px-2 py-1 rounded tracking-widest uppercase">LATEST UPDATE: TODAY, 10:00 AM</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-8 gap-y-8 mt-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mt-10">
                {/* Base Fare Group */}
                <div className="space-y-4">
                   <div>
@@ -178,7 +178,7 @@ const FareConfiguration = () => {
                </div>
 
                {/* Surge Settings Visual */}
-               <div className="bg-gray-50 p-6 rounded-[24px] flex flex-col justify-between">
+               <div className="bg-gray-50 p-4 md:p-6 rounded-[24px] flex flex-col justify-between">
                   <div className="flex items-center justify-between">
                      <span className="text-[12px] font-black text-gray-900 tracking-tight uppercase">Automatic Surge Pricing</span>
                      <div className="w-10 h-5 bg-green-500 rounded-full relative p-1 cursor-pointer">
@@ -201,10 +201,10 @@ const FareConfiguration = () => {
             </div>
 
             {/* Bottom Special Charges Section */}
-            <div className="mt-10 border-t border-gray-50 pt-10 flex gap-8">
+            <div className="mt-10 border-t border-gray-50 pt-10 flex gap-4 md:gap-8">
                <div className="flex-1 space-y-4">
                   <h5 className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Night Operation Surcharge</h5>
-                  <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-4 md:gap-6">
                      <div className="flex items-center gap-3">
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-400"><Clock size={16} /></div>
                         <span className="text-[13px] font-bold text-gray-700">11:00 PM — 05:00 AM</span>

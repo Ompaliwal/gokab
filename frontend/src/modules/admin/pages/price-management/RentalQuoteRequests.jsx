@@ -95,7 +95,7 @@ const RentalQuoteRequests = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Rental Quote Requests</h1>
@@ -117,11 +117,11 @@ const RentalQuoteRequests = () => {
 
       <div className="space-y-5">
         {loading ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">
             Loading rental quote requests...
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">
             No rental quote requests found.
           </div>
         ) : (

@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 const StatCard = ({ title, value, change, icon: Icon, color }) => (
-  <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between h-full group">
+  <div className="bg-white rounded-[32px] p-4 md:p-8 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between h-full group">
     <div className="flex items-start justify-between">
       <div className={`p-4 rounded-2xl ${color} bg-opacity-10 group-hover:scale-110 transition-transform duration-500`}>
         <Icon size={24} className={`${color.replace('bg-', 'text-')}`} />
@@ -74,8 +74,8 @@ const ReferralDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50/30 p-8">
-        <div className="flex flex-col items-center gap-6">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50/30 p-4 md:p-8">
+        <div className="flex flex-col items-center gap-4 md:gap-6">
           <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
           <p className="text-[14px] font-black text-gray-400 uppercase tracking-widest animate-pulse">Syncing Viral Growth Metrics...</p>
         </div>
@@ -105,7 +105,7 @@ const ReferralDashboard = () => {
       </div>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard 
           title="Total Drivers" 
           value={data?.total_drivers || "0"} 
@@ -141,7 +141,7 @@ const ReferralDashboard = () => {
          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
             <h2 className="text-[15px] font-black uppercase tracking-[0.2em] text-gray-400">User Referrals Overview</h2>
          </div>
-         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[500px]">
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 h-[500px]">
            <div className="lg:col-span-4">
               <ChartSection title="User Distribution">
                  <div className="relative w-64 h-64 rounded-full border-[1.5em] border-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-100 transform hover:rotate-6 transition-transform duration-700">
@@ -197,7 +197,7 @@ const ReferralDashboard = () => {
          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
             <h2 className="text-[15px] font-black uppercase tracking-[0.2em] text-gray-400">Driver Referrals Overview</h2>
          </div>
-         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[500px]">
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 h-[500px]">
            <div className="lg:col-span-4">
               <ChartSection title="Driver Segmentation">
                  <div className="relative w-64 h-64 rounded-full border-[1.5em] border-indigo-950 flex items-center justify-center transform hover:-rotate-12 transition-transform duration-1000">

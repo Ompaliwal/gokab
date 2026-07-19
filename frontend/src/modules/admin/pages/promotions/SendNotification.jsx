@@ -59,7 +59,7 @@ const HeaderBlock = ({ isCreateRoute, onBack }) => (
 );
 
 const SectionCard = ({ icon: Icon, title, description, children }) => (
-  <div className="bg-white rounded-xl border border-gray-200 p-6">
+  <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
       <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
         <Icon size={18} />
@@ -255,7 +255,7 @@ const SendNotification = () => {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
                   <span className="font-medium text-gray-600">Push notifications management</span>
@@ -393,7 +393,7 @@ const SendNotification = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_280px]"
+            className="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-[minmax(0,1fr)_280px]"
           >
             <div className="space-y-6">
               <SectionCard
@@ -503,7 +503,7 @@ const SendNotification = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                 <button
                   type="submit"
                   disabled={saving}
@@ -521,7 +521,7 @@ const SendNotification = () => {
                 </button>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
                 <h3 className="text-sm font-semibold text-gray-900 mb-2">How It Works</h3>
                 <p className="text-xs leading-5 text-gray-500">
                   Service location, send-to audience, push title, message, aur optional notification banner ke saath admin se direct push fire hota hai.

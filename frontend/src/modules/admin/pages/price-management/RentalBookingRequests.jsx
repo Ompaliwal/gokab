@@ -172,7 +172,7 @@ const RentalBookingRequests = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Rental Requests</h1>
@@ -220,7 +220,7 @@ const RentalBookingRequests = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {loading ? (
             <div className="flex min-h-[280px] items-center justify-center">
               <Loader2 className="animate-spin text-slate-400" size={30} />
@@ -358,7 +358,7 @@ const RentalBookingRequests = () => {
             </div>
 
             <div className="max-h-[calc(92vh-88px)] overflow-y-auto px-6 py-6">
-              <div className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+              <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.4fr_0.8fr]">
                 <div className="space-y-6">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="rounded-2xl bg-slate-50 px-4 py-4">

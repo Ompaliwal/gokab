@@ -381,7 +381,7 @@ const EditDriver = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {/* Breadcrumb & Header */}
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
@@ -403,12 +403,12 @@ const EditDriver = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
         {/* LEFT: Form Fields */}
         <div className="xl:col-span-2 space-y-6">
 
           {/* Identity Section */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
               <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                 <User size={18} />
@@ -545,7 +545,7 @@ const EditDriver = () => {
           </div>
 
           {/* Vehicle Section */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
               <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
                 <Car size={18} />
@@ -696,7 +696,7 @@ const EditDriver = () => {
         {/* RIGHT: Sidebar */}
         <div className="space-y-6">
           {/* Photo Upload */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Profile Photo</h3>
             <div className="relative group cursor-pointer">
               <div className="w-full aspect-square rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-colors group-hover:border-indigo-300 group-hover:bg-indigo-50/30">
@@ -722,7 +722,7 @@ const EditDriver = () => {
           </div>
 
           {/* Actions */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
             <button 
               type="submit"
               disabled={isLoading || success}

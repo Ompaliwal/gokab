@@ -102,7 +102,7 @@ const FleetFinanceReport = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-[40px] border border-gray-100 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.05)] overflow-hidden"
       >
-        <div className="p-8 md:p-14">
+        <div className="p-4 md:p-8 md:p-14">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
             {/* Fleet Id (Service Locations) */}
             <div className="space-y-4">
@@ -244,8 +244,8 @@ const FleetFinanceReport = () => {
       </motion.div>
 
       {/* Fleet Stats Overview */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between group">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+        <div className="bg-white p-4 md:p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between group">
            <div>
               <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-500 group-hover:text-white transition-all">
                  <MapPin size={24} />
@@ -259,8 +259,8 @@ const FleetFinanceReport = () => {
            </div>
         </div>
 
-        <div className="bg-gray-950 p-8 rounded-[40px] shadow-2xl flex flex-col justify-between group relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-125 transition-transform duration-700">
+        <div className="bg-gray-950 p-4 md:p-8 rounded-[40px] shadow-2xl flex flex-col justify-between group relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 group-hover:scale-125 transition-transform duration-700">
               <TrendingUp size={120} className="text-white" />
            </div>
            <div>
@@ -276,7 +276,7 @@ const FleetFinanceReport = () => {
            </div>
         </div>
 
-        <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between group">
+        <div className="bg-white p-4 md:p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-between group">
            <div>
               <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-amber-500 group-hover:text-white transition-all">
                  <Clock size={24} />

@@ -114,7 +114,7 @@ const TicketTitle = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-1.5 text-xs text-gray-400">
           <span>Support Management</span>
@@ -132,8 +132,8 @@ const TicketTitle = () => {
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
-        <form onSubmit={submitForm} className="rounded-xl border border-gray-200 bg-white p-6">
+      <div className="grid gap-4 md:gap-6 xl:grid-cols-[380px_1fr]">
+        <form onSubmit={submitForm} className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">
           <div className="mb-6 flex items-center gap-3 border-b border-gray-100 pb-4">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
               <Plus size={18} />

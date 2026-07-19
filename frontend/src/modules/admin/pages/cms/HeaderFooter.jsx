@@ -38,10 +38,10 @@ const HeaderFooter = () => {
 
   const inputClass = "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors";
   const labelClass = "block text-xs font-semibold text-gray-500 mb-1.5";
-  const cardClass = "bg-white rounded-xl border border-gray-200 p-6";
+  const cardClass = "bg-white rounded-xl border border-gray-200 p-4 md:p-6";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans pb-20">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans pb-20">
       
       {/* Header Area */}
       <div className="mb-6">
@@ -131,14 +131,14 @@ const HeaderFooter = () => {
            </div>
 
            {/* Preview Mockup */}
-           <div className="mb-10 bg-gray-50 rounded-xl p-8 border border-gray-100 shadow-inner">
+           <div className="mb-10 bg-gray-50 rounded-xl p-4 md:p-8 border border-gray-100 shadow-inner">
               <div className="w-full bg-white rounded-lg p-5 border border-gray-200 shadow-sm flex items-center justify-between">
                  {appLogo ? (
                    <img src={appLogo} alt={`${appName} logo`} className="h-5 opacity-80" />
                  ) : (
                    <span className="text-sm font-black tracking-tight text-slate-900">{appName}</span>
                  )}
-                 <nav className="flex gap-8">
+                 <nav className="flex gap-4 md:gap-8">
                     <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest underline decoration-2 underline-offset-8 cursor-pointer">Home</span>
                     <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-600 transition-colors">About Us</span>
                     <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-600 transition-colors">Driver</span>

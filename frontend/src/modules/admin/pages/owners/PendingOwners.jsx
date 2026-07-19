@@ -261,7 +261,7 @@ const PendingOwners = () => {
   const labelClass = 'block text-xs font-semibold text-gray-500 mb-1.5';
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans text-gray-900">
       {error && (
         <div className="mb-4 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-600">
           {error}

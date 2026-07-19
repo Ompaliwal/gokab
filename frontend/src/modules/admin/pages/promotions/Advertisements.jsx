@@ -242,7 +242,7 @@ const Advertisements = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Header */}
@@ -275,10 +275,10 @@ const Advertisements = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
             >
               {/* Form Input Section */}
-              <div className="lg:col-span-2 bg-slate-900/60 backdrop-blur border border-slate-850 rounded-2xl p-6 space-y-6">
+              <div className="lg:col-span-2 bg-slate-900/60 backdrop-blur border border-slate-850 rounded-2xl p-4 md:p-6 space-y-6">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                   <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Layers className="w-5 h-5 text-emerald-400" />
@@ -464,12 +464,12 @@ const Advertisements = () => {
               </div>
 
               {/* Upload & Preview Sidebar */}
-              <div className="bg-slate-900/60 border border-slate-850 rounded-2xl p-6 space-y-6 flex flex-col justify-between">
+              <div className="bg-slate-900/60 border border-slate-850 rounded-2xl p-4 md:p-6 space-y-6 flex flex-col justify-between">
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">Media Upload</h3>
                   
                   {/* File Dropzone */}
-                  <div className="relative group border-2 border-dashed border-slate-800 hover:border-emerald-500/40 rounded-2xl p-6 text-center cursor-pointer transition bg-slate-950">
+                  <div className="relative group border-2 border-dashed border-slate-800 hover:border-emerald-500/40 rounded-2xl p-4 md:p-6 text-center cursor-pointer transition bg-slate-950">
                     <input
                       type="file"
                       onChange={handleFileChange}

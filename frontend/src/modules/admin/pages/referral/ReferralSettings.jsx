@@ -14,7 +14,7 @@ import {
 
 const FormSection = ({ title, subTitle, icon: Icon, children }) => (
   <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
-    <div className="px-10 py-8 border-b border-gray-50 flex items-center gap-6 bg-gray-50/30">
+    <div className="px-10 py-8 border-b border-gray-50 flex items-center gap-4 md:gap-6 bg-gray-50/30">
       <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-100">
         <Icon size={28} />
       </div>
@@ -154,7 +154,7 @@ const ReferralSettings = () => {
 
       {/* SUCCESS BANNER */}
       {success && (
-        <div className="bg-emerald-500 text-white p-6 rounded-[32px] flex items-center justify-between animate-in slide-in-from-top-4 duration-500 shadow-xl shadow-emerald-100">
+        <div className="bg-emerald-500 text-white p-4 md:p-6 rounded-[32px] flex items-center justify-between animate-in slide-in-from-top-4 duration-500 shadow-xl shadow-emerald-100">
            <div className="flex items-center gap-4">
               <CheckCircle2 size={24} />
               <p className="text-[12px] font-black uppercase tracking-widest">Configuration Comitted Successfully to Mainnet</p>
@@ -196,7 +196,7 @@ const ReferralSettings = () => {
                   <option value="milestone">Milestone Based</option>
                 </select>
               </InputWrapper>
-              <div className="p-8 bg-indigo-50/50 rounded-[32px] border border-indigo-50 space-y-4">
+              <div className="p-4 md:p-8 bg-indigo-50/50 rounded-[32px] border border-indigo-50 space-y-4">
                  <div className="flex items-center gap-3">
                     <ShieldCheck className="text-indigo-600" size={20} />
                     <span className="text-[12px] font-black uppercase text-indigo-950 tracking-widest">Global Constraints</span>

@@ -67,29 +67,29 @@ const Finance = () => {
       </div>
 
       {/* Financial Overview Cards */}
-      <div className="grid grid-cols-4 gap-6">
-         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+         <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Net Revenue</p>
             <p className="text-3xl font-black text-gray-900 mt-2 tracking-tight">₹12.4L</p>
             <div className="flex items-center gap-1 text-green-500 text-[11px] font-bold mt-2">
                <TrendingUp size={14} /> +12.4% <span className="text-gray-300">vs last month</span>
             </div>
          </div>
-         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+         <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Platform Commission</p>
             <p className="text-3xl font-black text-gray-900 mt-2 tracking-tight">₹2.8L</p>
             <div className="flex items-center gap-1 text-green-500 text-[11px] font-bold mt-2">
                <TrendingUp size={14} /> +5.2% <span className="text-gray-300">avg 15%</span>
             </div>
          </div>
-         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+         <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Driver Earnings</p>
             <p className="text-3xl font-black text-gray-900 mt-2 tracking-tight">₹9.6L</p>
             <div className="flex items-center gap-1 text-blue-500 text-[11px] font-bold mt-2 font-black">
                84.2% <span className="text-gray-300 font-bold ml-1">of GTV</span>
             </div>
          </div>
-         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+         <div className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pending Payouts</p>
             <p className="text-3xl font-black text-primary mt-2 tracking-tight">₹42.5k</p>
             <div className="flex items-center gap-1 text-orange-500 text-[11px] font-bold mt-2">
@@ -98,9 +98,9 @@ const Finance = () => {
          </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
          {/* Monthly Trend Chart Placeholder */}
-         <div className="col-span-2 bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+         <div className="col-span-2 bg-white rounded-2xl border border-gray-100 p-4 md:p-8 shadow-sm">
             <div className="flex items-center justify-between mb-8">
                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                   <BarChart4 size={20} className="text-primary" /> Revenue Trending
@@ -125,7 +125,7 @@ const Finance = () => {
          </div>
 
          {/* Payout Channels Breakdown */}
-         <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm flex flex-col justify-between">
+         <div className="bg-white rounded-2xl border border-gray-100 p-4 md:p-8 shadow-sm flex flex-col justify-between">
             <div>
                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                  <ShieldCheck size={20} className="text-green-500" /> Settlement Quality
@@ -156,7 +156,7 @@ const Finance = () => {
 
       {/* Recent Settlements Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-         <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+         <div className="p-4 md:p-6 border-b border-gray-50 flex items-center justify-between">
             <h3 className="text-lg font-bold text-gray-900">Recent Settlements</h3>
             <button className="text-[11px] font-black text-primary uppercase tracking-widest hover:underline">Full Statement</button>
          </div>

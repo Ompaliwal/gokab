@@ -26,7 +26,7 @@ import { DELHI_CENTER, useAppGoogleMapsLoader } from '../../utils/googleMaps';
 
 const inputClass = "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors";
 const labelClass = "block text-xs font-semibold text-gray-500 mb-1.5";
-const cardClass = "bg-white rounded-xl border border-gray-200 p-6";
+const cardClass = "bg-white rounded-xl border border-gray-200 p-4 md:p-6";
 const AIRPORT_STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
   { value: 'active', label: 'Active' },
@@ -264,7 +264,7 @@ const Airport = ({ mode: initialMode = "list" }) => {
   const clearFilters = () => setFilters({ service_location_id: '', status: '' });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 animate-in fade-in duration-500 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 animate-in fade-in duration-500 font-sans">
       <AnimatePresence mode="wait">
         {view === 'list' ? (
           <motion.div 
@@ -464,9 +464,9 @@ const Airport = ({ mode: initialMode = "list" }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6">
               <div className="xl:col-span-12 lg:xl:col-span-5 space-y-6">
-                <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm">
                    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
                       <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                         <Plane size={18} />
@@ -568,7 +568,7 @@ const Airport = ({ mode: initialMode = "list" }) => {
                    </div>
                 </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
+                <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                    <button 
                      onClick={handleSave} disabled={saving}
                      className="w-full py-3 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"

@@ -67,7 +67,7 @@ const SetPackagePrices = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FD] p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-[#F8F9FD] p-4 md:p-6 lg:p-8 font-sans">
       <div className="flex flex-col gap-4 border-b border-gray-100 pb-4 mb-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-sm font-bold text-[#1E293B] uppercase tracking-[0.15em]">PACKAGE PRICING</h1>

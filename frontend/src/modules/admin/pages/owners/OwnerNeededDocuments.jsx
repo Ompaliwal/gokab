@@ -76,7 +76,7 @@ const OwnerNeededDocuments = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-950">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader module="Owner Management" page="Owner Needed Documents" title="Owner Needed Documents" />
 
         <div className="mt-6">

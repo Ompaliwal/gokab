@@ -116,7 +116,7 @@ const UserReferralSettings = () => {
   const isConditional = settings.type?.includes('conditional');
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {/* HEADER BLOCK */}
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
@@ -139,7 +139,7 @@ const UserReferralSettings = () => {
         {/* FORM CARD */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           {/* Main Toggle Section */}
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="p-4 md:p-6 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                 <UserCheck size={20} />
@@ -157,7 +157,7 @@ const UserReferralSettings = () => {
             </button>
           </div>
 
-          <div className="p-8 space-y-8">
+          <div className="p-4 md:p-8 space-y-8">
             {/* Referral Type Selection */}
             <div className="max-w-xl space-y-2">
               <label className={labelClass}>
@@ -181,8 +181,8 @@ const UserReferralSettings = () => {
             </div>
 
             {/* Referral Info Card Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-              <div className="bg-white rounded-xl border border-dashed border-gray-200 p-6 flex items-center gap-5 transition-all hover:border-indigo-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4">
+              <div className="bg-white rounded-xl border border-dashed border-gray-200 p-4 md:p-6 flex items-center gap-5 transition-all hover:border-indigo-200">
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
                   <Share2 size={24} />
                 </div>
@@ -194,7 +194,7 @@ const UserReferralSettings = () => {
 
               <div className="space-y-4">
                 {isConditional && (
-                  <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                  <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                     <label className={labelClass}>Required Ride Count</label>
                     <div className="relative">
                       <input
@@ -209,7 +209,7 @@ const UserReferralSettings = () => {
                   </div>
                 )}
 
-                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                   <label className={labelClass}>Earnings to Each Referral</label>
                   <div className="relative">
                     <input
@@ -223,7 +223,7 @@ const UserReferralSettings = () => {
                   <p className="text-[11px] text-gray-400 font-medium">Enter the amount Users earn for each referral.</p>
                 </div>
 
-                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                   <label className={labelClass}>Minimum Redeem Amount</label>
                   <input
                     type="number"
@@ -235,7 +235,7 @@ const UserReferralSettings = () => {
                   <p className="text-[11px] text-gray-400 font-medium">Minimum referral wallet amount required before user can request redemption.</p>
                 </div>
 
-                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                   <label className={labelClass}>Referral Hold Days</label>
                   <input
                     type="number"
@@ -247,7 +247,7 @@ const UserReferralSettings = () => {
                   <p className="text-[11px] text-gray-400 font-medium">Optional hold period before referral rewards are eligible for redemption.</p>
                 </div>
 
-                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-6 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl border border-gray-200 p-4 md:p-6 space-y-3">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <label className={labelClass}>Admin Approval Required</label>
@@ -267,7 +267,7 @@ const UserReferralSettings = () => {
           </div>
 
           {/* Action Footer */}
-          <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-col gap-4">
+          <div className="p-4 md:p-6 bg-gray-50 border-t border-gray-100 flex flex-col gap-4">
             <button
               onClick={handleUpdate}
               disabled={saving}

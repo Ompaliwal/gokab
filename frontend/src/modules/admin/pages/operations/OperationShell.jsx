@@ -62,7 +62,7 @@ const OperationShell = ({
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
+      <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.55fr_0.95fr]">
         <section className="overflow-hidden rounded-[28px] border border-gray-100 bg-white shadow-sm">
           <div className="border-b border-gray-100 px-5 py-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

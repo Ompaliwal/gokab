@@ -457,7 +457,7 @@ const DriverDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans text-gray-900">
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
           <span>Drivers</span>
@@ -475,8 +475,8 @@ const DriverDetails = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-6 items-center">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-4 md:gap-6 items-center">
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
               {profileImage && !avatarFailed ? (
@@ -579,7 +579,7 @@ const DriverDetails = () => {
         <>
           {activeTab === 'Request List' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="border border-gray-100 rounded-lg p-4">
                     <p className="text-sm text-gray-500">Completed Rides</p>
@@ -643,7 +643,7 @@ const DriverDetails = () => {
 
           {activeTab === 'Payment History' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="border border-gray-100 rounded-lg p-4">
                     <p className="text-sm text-gray-500">Total Credited</p>
@@ -660,7 +660,7 @@ const DriverDetails = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
                 <h3 className="text-sm font-semibold text-gray-900 mb-4">Credit or Debit wallet</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -797,14 +797,14 @@ const DriverDetails = () => {
           )}
 
           {activeTab === 'Review History' && (
-            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-sm text-gray-500">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-8 text-center text-sm text-gray-500">
               No reviews found.
             </div>
           )}
 
           {activeTab === 'Documents' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-gray-900">Vehicle Onboarding Details</h3>
@@ -1071,14 +1071,14 @@ const DriverDetails = () => {
           )}
 
           {activeTab === 'Subscription' && (
-            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-sm text-gray-500">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-8 text-center text-sm text-gray-500">
               No subscription data available.
             </div>
           )}
         </>
       ) : (
         <>
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 mb-6">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Wallet Overview</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="border border-gray-100 rounded-lg p-4">
@@ -1106,8 +1106,8 @@ const DriverDetails = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"> 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6"> 
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h3 className="text-base font-semibold text-gray-900 mb-4">Driver Location</h3>
               <div className="h-80 rounded-xl overflow-hidden border border-gray-100">
                 {loadError ? (
@@ -1145,7 +1145,7 @@ const DriverDetails = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
               <h3 className="text-base font-semibold text-gray-900 mb-4">Earnings</h3>
               <div className="h-52 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
                 <div className="relative h-full">
@@ -1159,13 +1159,13 @@ const DriverDetails = () => {
                     />
                   </svg>
                 </div>
-                <div className="mt-3 grid grid-cols-4 text-xs text-gray-400">
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 text-xs text-gray-400">
                   {(chart.months || []).map((m) => (
                     <span key={m} className="text-center">{m}</span>
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                 <div className="border border-gray-100 rounded-lg p-3">
                   <p className="text-xs text-gray-500">Today Earnings</p>
                   <p className="text-lg font-semibold">₹ {earnings.today_earnings || 0}</p>
@@ -1194,7 +1194,7 @@ const DriverDetails = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Trips</h3>
             <div className="h-52 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4">
               <div className="relative h-full">
@@ -1214,7 +1214,7 @@ const DriverDetails = () => {
                   />
                 </svg>
               </div>
-              <div className="mt-3 grid grid-cols-4 text-xs text-gray-400">
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 text-xs text-gray-400">
                 {(chart.months || []).map((m) => (
                   <span key={m} className="text-center">{m}</span>
                 ))}
@@ -1230,7 +1230,7 @@ const DriverDetails = () => {
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div className="border border-gray-100 rounded-lg p-3">
                 <p className="text-xs text-gray-500">Completed Trips</p>
                 <p className="text-lg font-semibold">{stats.completed_trips || 0}</p>

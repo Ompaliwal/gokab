@@ -243,7 +243,7 @@ const BannerImage = () => {
             className="space-y-6"
           >
             <div className="bg-white rounded-[22px] border border-gray-200 shadow-sm overflow-hidden">
-              <div className="p-6 flex items-center justify-between border-b border-gray-100">
+              <div className="p-4 md:p-6 flex items-center justify-between border-b border-gray-100">
                 <div className="flex items-center gap-3 text-sm text-gray-500">
                   <span>show</span>
                   <select className="bg-white border border-gray-200 rounded-md px-2 py-1 text-[13px] font-medium outline-none">
@@ -333,7 +333,7 @@ const BannerImage = () => {
                 </table>
               </div>
 
-              <div className="p-6 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+              <div className="p-4 md:p-6 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
                 <span>
                   Showing {rows.length > 0 ? 1 : 0} to {rows.length} of {rows.length} entries
                 </span>
@@ -356,7 +356,7 @@ const BannerImage = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-white rounded-[22px] border border-gray-200 shadow-sm p-8"
+            className="bg-white rounded-[22px] border border-gray-200 shadow-sm p-4 md:p-8"
           >
             <div className="space-y-6 max-w-3xl">
               <div>

@@ -41,7 +41,7 @@ const DispatcherAddons = () => {
         </div>
       </div>
 
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         
         {/* Main Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-10 min-h-[300px]">
@@ -57,7 +57,7 @@ const DispatcherAddons = () => {
            </div>
 
            <form onSubmit={handleVerify} className="max-w-4xl">
-              <div className="flex flex-col md:flex-row items-end gap-6">
+              <div className="flex flex-col md:flex-row items-end gap-4 md:gap-6">
                  <div className="flex-1 space-y-2">
                     <label className="block text-[11px] font-black text-gray-700 uppercase tracking-tight">
                        Purchase Code <span className="text-orange-500">*</span>

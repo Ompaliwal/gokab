@@ -158,10 +158,10 @@ const DriverAudit = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-12 gap-4 md:gap-8 items-start">
         <div className="col-span-12 lg:col-span-3 space-y-6">
-          <div className="bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm text-center relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-5 grayscale -rotate-12 translate-x-4">
+          <div className="bg-white rounded-[32px] border border-gray-100 p-4 md:p-8 shadow-sm text-center relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 md:p-6 opacity-5 grayscale -rotate-12 translate-x-4">
               <Car size={100} />
             </div>
             <div className="relative w-28 h-28 mx-auto mb-6 ring-4 ring-gray-50 rounded-full shadow-2xl overflow-hidden group-hover:scale-105 transition-transform bg-gray-50 flex items-center justify-center">
@@ -193,7 +193,7 @@ const DriverAudit = () => {
             </div>
           </div>
 
-          <div className="bg-gray-950 rounded-[32px] p-8 text-white space-y-6 shadow-2xl">
+          <div className="bg-gray-950 rounded-[32px] p-4 md:p-8 text-white space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-500">Compliance Check</h4>
               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -215,7 +215,7 @@ const DriverAudit = () => {
 
         <div className="col-span-12 lg:col-span-9 space-y-4">
           <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+            <div className="p-4 md:p-6 border-b border-gray-50 flex items-center justify-between">
               <h3 className="text-[14px] font-black text-gray-900 uppercase tracking-widest">Document Audit Checklist</h3>
               <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-black uppercase text-gray-400">
                 Total Items: {mappedDocs.length}
@@ -287,7 +287,7 @@ const DriverAudit = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50/50 border border-dashed border-gray-200 rounded-[32px] p-8 flex items-center justify-between">
+          <div className="bg-gray-50/50 border border-dashed border-gray-200 rounded-[32px] p-4 md:p-8 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center text-indigo-500">
                 <AlertCircle size={24} />

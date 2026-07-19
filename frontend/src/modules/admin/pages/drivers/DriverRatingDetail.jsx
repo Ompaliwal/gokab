@@ -61,7 +61,7 @@ const DriverRatingDetail = () => {
   const reviews = detail.reviews || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans text-gray-900">
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
           <span>Drivers</span>
@@ -79,8 +79,8 @@ const DriverRatingDetail = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_260px] gap-6 items-center">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr_260px] gap-4 md:gap-6 items-center">
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
               <img src={driver.image} alt={driver.name} className="w-full h-full object-cover" />
@@ -124,7 +124,7 @@ const DriverRatingDetail = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6">
         <div className="flex items-center gap-4 mb-4">
           <div className="w-14 h-14 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-semibold">
             DRIVER RATING

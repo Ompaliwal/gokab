@@ -100,7 +100,7 @@ const BusCommissionManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>

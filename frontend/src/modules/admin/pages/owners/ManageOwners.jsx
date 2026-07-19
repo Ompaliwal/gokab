@@ -227,7 +227,7 @@ const ManageOwners = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AnimatePresence mode="wait">
           {view === 'list' ? (
             <MotionDiv

@@ -118,8 +118,8 @@ const DriverDeleteRequests = () => {
         </div>
       ) : null}
 
-      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-4 md:p-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
           <div className="flex items-center gap-3 text-[13px] font-black uppercase tracking-widest text-gray-400">
             Total Requests: {drivers.length}
           </div>
@@ -206,7 +206,7 @@ const DriverDeleteRequests = () => {
           </table>
         </div>
 
-        <div className="p-8 bg-gray-50/20 border-t border-gray-50 flex items-center justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest">
+        <div className="p-4 md:p-8 bg-gray-50/20 border-t border-gray-50 flex items-center justify-between text-[11px] font-black text-gray-400 uppercase tracking-widest">
           <p>Pending Queue: {filteredDrivers.length} requests</p>
           <button
             type="button"
@@ -218,8 +218,8 @@ const DriverDeleteRequests = () => {
         </div>
       </div>
 
-      <div className="bg-rose-950 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 p-8 opacity-10 -rotate-12 translate-x-4">
+      <div className="bg-rose-950 rounded-[40px] p-4 md:p-8 text-white relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10 -rotate-12 translate-x-4">
           <AlertCircle size={100} strokeWidth={1} />
         </div>
         <div className="relative z-10 max-w-2xl">

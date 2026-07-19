@@ -163,7 +163,7 @@ const GlobalDocuments = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-1.5 text-xs text-gray-400">
           <span>Masters</span>
@@ -198,7 +198,7 @@ const GlobalDocuments = () => {
         </div>
       </div>
 
-      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 md:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3 text-sm text-gray-500">
             <span>Show</span>

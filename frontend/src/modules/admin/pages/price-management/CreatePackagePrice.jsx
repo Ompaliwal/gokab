@@ -218,7 +218,7 @@ const CreatePackagePrice = ({ mode = 'create' }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FD] p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-[#F8F9FD] p-4 md:p-6 lg:p-8 font-sans">
       <div className="flex flex-col gap-4 border-b border-gray-100 pb-4 mb-8 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-sm font-bold text-[#1E293B] uppercase tracking-[0.15em]">{isEdit ? 'EDIT PACKAGE PRICING' : 'CREATE PACKAGE PRICING'}</h1>
@@ -253,7 +253,7 @@ const CreatePackagePrice = ({ mode = 'create' }) => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 border-b border-dashed border-gray-200 pb-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:gap-6 border-b border-dashed border-gray-200 pb-8 md:grid-cols-2">
             <div>
               <label className={labelClass}>Package Type <span className="text-rose-500">*</span></label>
               <div className={selectWrapClass}>
@@ -327,7 +327,7 @@ const CreatePackagePrice = ({ mode = 'create' }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2">
               <div>
                 <label className={labelClass}>Availability</label>
                 <div className={selectWrapClass}>

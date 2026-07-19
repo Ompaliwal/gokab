@@ -36,7 +36,7 @@ const CMSBuilder = () => {
         </div>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex gap-4 md:gap-8">
          {/* Left Side: Navigation Tabs */}
          <div className="w-64 shrink-0 space-y-2">
             {[
@@ -88,7 +88,7 @@ const CMSBuilder = () => {
                      </button>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                      {/* Banner Card 1 */}
                      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm group">
                         <div className="h-32 bg-gray-900 relative">
@@ -152,7 +152,7 @@ const CMSBuilder = () => {
             {activeTab === 'FAQ' && (
                <div className="space-y-6 animate-in fade-in duration-500">
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                     <div className="p-6 border-b border-gray-50 flex items-center justify-between">
+                     <div className="p-4 md:p-6 border-b border-gray-50 flex items-center justify-between">
                         <h3 className="text-lg font-black text-gray-900 tracking-tight">Frequently Asked Questions</h3>
                         <button className="text-[12px] font-black text-primary uppercase flex items-center gap-1 hover:underline">
                            <Plus size={14} strokeWidth={3} /> Add Question
@@ -164,7 +164,7 @@ const CMSBuilder = () => {
                           { q: 'When are payouts processed?', target: 'Driver App' },
                           { q: 'How to report a lost item?', target: 'Global' }
                         ].map((faq, idx) => (
-                           <div key={idx} className="p-6 hover:bg-gray-50/50 transition-all group">
+                           <div key={idx} className="p-4 md:p-6 hover:bg-gray-50/50 transition-all group">
                               <div className="flex justify-between items-start">
                                  <div>
                                     <h4 className="text-[14px] font-bold text-gray-900 mb-2">{faq.q}</h4>

@@ -113,7 +113,7 @@ const Trips = () => {
               <span>entries</span>
             </div>
 
-            <div className="flex flex-1 justify-center items-center gap-8 flex-wrap">
+            <div className="flex flex-1 justify-center items-center gap-4 md:gap-8 flex-wrap">
               {TAB_SET.map((tab) => (
                 <button
                   key={tab}
@@ -252,7 +252,7 @@ const Trips = () => {
               </div>
 
               {/* Body */}
-              <div className="flex-1 p-6 space-y-8">
+              <div className="flex-1 p-4 md:p-6 space-y-8">
                 {/* Routing & Locations */}
                 <div className="space-y-4">
                   <h3 className="text-[12px] font-black uppercase tracking-[0.15em] text-slate-400">Route & Locations</h3>
@@ -286,7 +286,7 @@ const Trips = () => {
                 {/* Ride Info Grid */}
                 <div className="space-y-4">
                   <h3 className="text-[12px] font-black uppercase tracking-[0.15em] text-slate-400">Ride Information</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-start gap-3">
                       <Calendar size={18} className="text-[#6FBF7A] mt-0.5" />
                       <div>
@@ -365,7 +365,7 @@ const Trips = () => {
                 </div>
 
                 {/* User & Driver Details */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">User Details</p>
                     <p className="text-[14px] font-bold text-slate-800 mt-1">{selectedRow.userName}</p>

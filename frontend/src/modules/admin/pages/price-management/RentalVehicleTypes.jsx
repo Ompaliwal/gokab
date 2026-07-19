@@ -663,7 +663,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
 
   if (!isEditor && !isView) {
     return (
-      <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+      <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
             <span>Pricing</span>
@@ -729,9 +729,9 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
         ) : null}
 
         {loading ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">Loading rental vehicles...</div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">Loading rental vehicles...</div>
         ) : items.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">No rental vehicles configured yet.</div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">No rental vehicles configured yet.</div>
         ) : (
           <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
             <div className="grid grid-cols-[minmax(0,1.6fr)_110px_110px_120px_180px] gap-4 border-b border-slate-100 px-6 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
@@ -801,7 +801,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
 
   if (isView) {
     return (
-      <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+      <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
@@ -837,12 +837,12 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
         </div>
 
         {loading ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">Loading rental vehicle details...</div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">Loading rental vehicle details...</div>
         ) : !selectedItem ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-400">Rental vehicle not found.</div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 md:p-8 text-sm text-slate-400">Rental vehicle not found.</div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="grid gap-4 md:gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-4 md:p-6 shadow-sm">
               <div className="flex h-52 items-center justify-center rounded-[24px] bg-slate-50">
                 {getCoverImage(selectedItem) ? (
                   <img src={getCoverImage(selectedItem)} alt={selectedItem.name} className="max-h-44 w-full object-contain p-4" />
@@ -851,7 +851,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
                 )}
               </div>
               {getGalleryImages(selectedItem).length ? (
-                <div className="mt-4 grid grid-cols-3 gap-2">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2">
                   {getGalleryImages(selectedItem).slice(0, 6).map((image, index) => (
                     <div key={`${selectedItem.id || selectedItem._id}-gallery-${index}`} className="overflow-hidden rounded-2xl bg-slate-50">
                       <img src={image} alt={`${selectedItem.name} gallery ${index + 1}`} className="h-20 w-full object-cover" />
@@ -863,7 +863,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
                 <p className="text-xl font-bold text-slate-900">{selectedItem.name}</p>
                 <p className="mt-1 text-sm text-slate-500">{selectedItem.short_description || 'No short description added.'}</p>
               </div>
-              <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-slate-50 px-4 py-3">
                   <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Seats</p>
                   <p className="mt-1 text-lg font-bold text-slate-900">{selectedItem.capacity || 0}</p>
@@ -884,7 +884,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-[28px] border border-slate-200 bg-white p-4 md:p-6 shadow-sm">
                 <h2 className="text-lg font-bold text-slate-900">Overview</h2>
                 <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div>
@@ -916,7 +916,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-[28px] border border-slate-200 bg-white p-4 md:p-6 shadow-sm">
                 <h2 className="text-lg font-bold text-slate-900">Pricing Packages</h2>
                 <div className="mt-4 space-y-3">
                   {(selectedItem.pricing || []).length ? (
@@ -948,7 +948,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
@@ -978,7 +978,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
       ) : null}
 
       <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-        <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-2 lg:p-8">
+        <div className="grid grid-cols-1 gap-4 md:gap-8 p-4 md:p-6 lg:grid-cols-2 lg:p-8">
           <div className="lg:col-span-2 rounded-[24px] border border-slate-200 bg-slate-50/70 px-5 py-4">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-500">Section 1</p>
             <h2 className="mt-1 text-lg font-black text-slate-900">Vehicle Identity</h2>
@@ -1166,7 +1166,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
               </div>
 
               {formData.galleryImages.length ? (
-                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 sm:grid-cols-3">
                   {formData.galleryImages.map((image, index) => (
                     <div key={`gallery-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-2">
                       <div className="overflow-hidden rounded-xl bg-white">
@@ -1222,7 +1222,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
                   <div className="flex items-center gap-2 text-slate-500">
                     <Armchair size={15} />
@@ -1489,7 +1489,7 @@ const RentalVehicleTypes = ({ mode: propMode }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/50 p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/50 p-4 md:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="space-y-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-indigo-500">Section 4</p>

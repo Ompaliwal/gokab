@@ -168,7 +168,7 @@ const ServiceLocation = ({ mode }) => {
 
   if (isList) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 lg:p-8 animate-in fade-in duration-500 font-sans">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 animate-in fade-in duration-500 font-sans">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div>
@@ -192,13 +192,13 @@ const ServiceLocation = ({ mode }) => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {[
               { label: 'Market Jurisdictions', value: Array.isArray(locations) ? [...new Set(locations.map(l => typeof l.country === 'object' ? l.country?.name : l.country))].filter(Boolean).length : 0, icon: Globe, color: 'indigo' },
               { label: 'Operational Hubs', value: Array.isArray(locations) ? locations.length : 0, icon: MapPin, color: 'emerald' },
               { label: 'Active Currencies', value: Array.isArray(locations) ? [...new Set(locations.map(l => l.currency_code))].filter(Boolean).length : 0, icon: DollarSign, color: 'blue' }
             ].map((stat, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-indigo-100 transition-colors">
+              <div key={i} className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 group hover:border-indigo-100 transition-colors">
                 <div className={`w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100 shadow-sm group-hover:scale-110 transition-transform`}>
                   <stat.icon size={24} />
                 </div>
@@ -288,7 +288,7 @@ const ServiceLocation = ({ mode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 animate-in fade-in duration-500 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 animate-in fade-in duration-500 font-sans">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header - Matching Image */}
         <div className="flex items-center justify-between mb-4">
@@ -303,7 +303,7 @@ const ServiceLocation = ({ mode }) => {
         {/* Form Card - Matching Image */}
         <div className="bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 overflow-hidden p-10">
            {/* Language Tabs */}
-           <div className="flex items-center gap-8 border-b border-gray-100 mb-10">
+           <div className="flex items-center gap-4 md:gap-8 border-b border-gray-100 mb-10">
               {ADMIN_LANGUAGE_OPTIONS.map(lang => (
                 <button 
                   key={lang}

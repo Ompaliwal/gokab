@@ -155,7 +155,7 @@ const FleetNeededDocuments = () => {
         </div>
       ) : (
         <div className="mb-8 flex items-center justify-between px-1">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 md:gap-6">
             <button
               onClick={() => { setView('list'); resetForm(); }}
               className="p-4 bg-white border border-gray-100 rounded-[20px] hover:bg-gray-50 text-gray-400 hover:text-gray-950 transition-all shadow-sm active:scale-95"

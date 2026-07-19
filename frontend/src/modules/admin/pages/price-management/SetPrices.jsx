@@ -284,7 +284,7 @@ const SetPrices = ({ mode }) => {
         {view === 'list' ? (
           <motion.div 
             key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="p-6 lg:p-8 space-y-4"
+            className="p-4 md:p-6 lg:p-8 space-y-4"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-6">
@@ -394,7 +394,7 @@ const SetPrices = ({ mode }) => {
         ) : (
           <motion.div 
             key="create" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="p-6 lg:p-8 space-y-6"
+            className="p-4 md:p-6 lg:p-8 space-y-6"
           >
             {/* Form Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-8">

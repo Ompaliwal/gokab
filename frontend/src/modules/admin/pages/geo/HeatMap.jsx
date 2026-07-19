@@ -84,7 +84,7 @@ const HeatMap = () => {
   }, [zones]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       
       {/* 1. Header Block (Design System Compliant) */}
       <div className="mb-6">
@@ -107,7 +107,7 @@ const HeatMap = () => {
       <div className="space-y-8">
         
         {/* 2. Map Canvas Card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm overflow-hidden p-2">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm overflow-hidden p-2">
            <div className="rounded-lg overflow-hidden relative">
               {loadError ? (
                  <div className="h-[400px] flex items-center justify-center bg-gray-50 text-rose-500 font-semibold">Map Error</div>
@@ -159,7 +159,7 @@ const HeatMap = () => {
               </div>
            </div>
            
-           <div className="p-8 space-y-10">
+           <div className="p-4 md:p-8 space-y-10">
               <div className="max-w-md">
                  <label className={labelClass}>
                     <Settings2 size={12} className="inline mr-1 text-indigo-500" />
@@ -201,8 +201,8 @@ const HeatMap = () => {
         </div>
 
         {/* 4. Secondary Features (Sidebar Style Cards in Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center gap-5 shadow-sm group hover:border-indigo-100 transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+           <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 flex items-center gap-5 shadow-sm group hover:border-indigo-100 transition-colors">
               <div className="w-12 h-12 bg-gray-50 flex items-center justify-center rounded-xl text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">
                  <Navigation size={22} />
               </div>
@@ -212,7 +212,7 @@ const HeatMap = () => {
               </div>
            </div>
 
-           <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center gap-5 shadow-sm group hover:border-emerald-100 transition-colors">
+           <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 flex items-center gap-5 shadow-sm group hover:border-emerald-100 transition-colors">
               <div className="w-12 h-12 bg-gray-50 flex items-center justify-center rounded-xl text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all">
                  <Activity size={22} />
               </div>
@@ -222,7 +222,7 @@ const HeatMap = () => {
               </div>
            </div>
 
-           <div className="bg-white rounded-2xl border border-gray-200 p-6 flex items-center gap-5 shadow-sm group hover:border-amber-100 transition-colors">
+           <div className="bg-white rounded-2xl border border-gray-200 p-4 md:p-6 flex items-center gap-5 shadow-sm group hover:border-amber-100 transition-colors">
               <div className="w-12 h-12 bg-gray-50 flex items-center justify-center rounded-xl text-gray-400 group-hover:bg-amber-50 group-hover:text-amber-600 transition-all">
                  <Zap size={22} />
               </div>

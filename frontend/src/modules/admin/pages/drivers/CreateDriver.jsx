@@ -22,7 +22,7 @@ const VEHICLE_NUMBER_REGEX = /^[A-Z]{2}\d{1,2}[A-Z]{1,3}\d{4}$/;
 const inputClass =
   'w-full rounded-[1.4rem] border-2 border-slate-100 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-slate-900/10 focus:bg-white focus:ring-0';
 const selectClass = `${inputClass} appearance-none`;
-const cardClass = 'rounded-[2rem] border border-slate-100 bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)]';
+const cardClass = 'rounded-[2rem] border border-slate-100 bg-white p-4 md:p-6 shadow-[0_10px_40px_rgba(0,0,0,0.04)]';
 
 const defaultVehicleFieldConfigs = [
   { field_key: 'locationId', name: 'Operating City', account_type: 'both', is_required: true, active: true, sort_order: 10, placeholder: '' },
@@ -749,7 +749,7 @@ const CreateDriver = () => {
               </div>
               <div>
                 <label className="mb-2 block text-[11px] font-black uppercase tracking-widest text-slate-400">Gender</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {['male', 'female', 'other'].map((gender) => (
                     <button
                       key={gender}
@@ -1125,7 +1125,7 @@ const CreateDriver = () => {
                               )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <label className="relative flex h-11 cursor-pointer items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white text-[11px] font-black uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-50">
                                 <ImagePlus size={15} />
                                 Gallery

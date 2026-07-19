@@ -31,7 +31,7 @@ const currency = (value) => Number(value || 0).toLocaleString('en-IN', { minimum
 const DASHBOARD_REFRESH_INTERVAL_MS = 30000;
 
 const MetricCard = ({ label, value, icon: Icon, color, isLoading, subtitle }) => (
-  <div className="group relative overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white p-8 shadow-sm transition-all hover:border-slate-900 hover:shadow-2xl hover:shadow-slate-200/50">
+  <div className="group relative overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white p-4 md:p-8 shadow-sm transition-all hover:border-slate-900 hover:shadow-2xl hover:shadow-slate-200/50">
      <div className="flex items-start justify-between">
         <div>
            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">{label}</p>
@@ -102,7 +102,7 @@ const MainDashboard = () => {
   const todayTrips = dashboard?.todayTrips || {};
 
   return (
-    <div className="min-h-screen animate-in fade-in duration-500 bg-[#F8F9FA] p-6 lg:p-10 font-sans">
+    <div className="min-h-screen animate-in fade-in duration-500 bg-[#F8F9FA] p-4 md:p-6 lg:p-10 font-sans">
       <div className="max-w-7xl mx-auto space-y-10">
         {/* Executive Header */}
         <div className="flex items-end justify-between">
@@ -125,7 +125,7 @@ const MainDashboard = () => {
         </div>
 
         {dashboardError && (
-          <div className="rounded-3xl bg-rose-50 border border-rose-100 p-6 flex items-center gap-5">
+          <div className="rounded-3xl bg-rose-50 border border-rose-100 p-4 md:p-6 flex items-center gap-5">
             <div className="h-12 w-12 bg-white rounded-2xl flex items-center justify-center text-rose-500 shadow-sm"><CircleAlert size={24} /></div>
             <div>
                <p className="text-[14px] font-black text-rose-900">Communication Error</p>
@@ -135,7 +135,7 @@ const MainDashboard = () => {
         )}
 
         {/* Primary KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
           <MetricCard 
              label="Fleet Inventory" 
              value={dashboard?.totalDrivers?.total || 0} 
@@ -171,7 +171,7 @@ const MainDashboard = () => {
         </div>
 
         {/* Intelligence Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8">
            {/* Revenue Intel */}
            <div className="lg:col-span-8 rounded-[3rem] border border-slate-200 bg-white p-10 shadow-sm">
               <div className="flex items-center justify-between mb-10">
@@ -185,7 +185,7 @@ const MainDashboard = () => {
                  </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                  <RevenueGrid label="Cash Flows" value={todayEarnings.by_cash} icon={Wallet} color="text-emerald-500" isLoading={isLoading} />
                  <RevenueGrid label="Digital Assets" value={todayEarnings.by_wallet} icon={Zap} color="text-sky-500" isLoading={isLoading} />
                  <RevenueGrid label="Electronic" value={todayEarnings.by_card} icon={CreditCard} color="text-indigo-500" isLoading={isLoading} />
@@ -270,14 +270,14 @@ const MainDashboard = () => {
               <button onClick={() => navigate('/admin/trips')} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">View Deep Analytics</button>
            </div>
            
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 { label: 'Cumulative Volume', val: overallEarnings.total, icon: IndianRupee, color: 'text-slate-900' },
                 { label: 'Platform Sovereignty', val: overallEarnings.admin_commission, icon: ShieldCheck, color: 'text-amber-500' },
                 { label: 'Fleet Disbursement', val: overallEarnings.driver_earnings, icon: UserCheck, color: 'text-sky-500' },
                 { label: 'Completed Missions', val: todayTrips.completed || 0, icon: History, color: 'text-emerald-500', isCurrency: false },
               ].map((item, i) => (
-                <div key={i} className="group p-6 rounded-[2rem] bg-slate-50/50 border border-slate-100 transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-200/40">
+                <div key={i} className="group p-4 md:p-6 rounded-[2rem] bg-slate-50/50 border border-slate-100 transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-200/40">
                    <div className="flex items-center justify-between mb-4">
                       <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
                       <item.icon size={14} className={item.color} strokeWidth={2.5} />

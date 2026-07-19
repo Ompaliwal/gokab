@@ -156,12 +156,12 @@ const OwnerDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-950">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader module="Owner Management" page="Owner Details" title="Owner Details" backTo="/admin/owners" />
 
         <div className="mt-6">
           <div className="rounded border border-gray-200 bg-white shadow-sm">
-        <div className="grid gap-6 px-4 py-6 md:grid-cols-[1fr_1px_1fr] md:px-5">
+        <div className="grid gap-4 md:gap-6 px-4 py-6 md:grid-cols-[1fr_1px_1fr] md:px-5">
           <div className="flex items-center gap-4">
             <div className="flex h-[102px] w-[102px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-pink-200 via-violet-100 to-fuchsia-300 text-3xl font-bold text-indigo-950">
               {profileImage && !avatarFailed ? (

@@ -115,7 +115,7 @@ const WalletPayment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-1.5 text-xs text-gray-400">
           <span>Wallet</span>
@@ -132,9 +132,9 @@ const WalletPayment = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-5">
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">
             <div className="mb-6 flex items-center gap-3 border-b border-gray-100 pb-4">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
                 <Search size={18} />
@@ -150,7 +150,7 @@ const WalletPayment = () => {
             <div className="space-y-5">
               <div>
                 <label className={labelClass}>Select Role</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {roleOptions.map((roleOption) => (
                     <button
                       key={roleOption.id}
@@ -235,7 +235,7 @@ const WalletPayment = () => {
 
               {selectedEntity && (
                 <form onSubmit={handleSubmit} className="space-y-4 border-t border-gray-100 pt-5">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelClass}>Amount (INR)</label>
                       <input
@@ -288,7 +288,7 @@ const WalletPayment = () => {
 
         <div className="space-y-6 lg:col-span-7">
           {selectedEntity && (
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -319,7 +319,7 @@ const WalletPayment = () => {
             </div>
           )}
 
-          <div className="min-h-[420px] rounded-xl border border-gray-200 bg-white p-6">
+          <div className="min-h-[420px] rounded-xl border border-gray-200 bg-white p-4 md:p-6">
             <div className="mb-5 flex items-center justify-between border-b border-gray-100 pb-4">
               <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                 <Clock size={16} className="text-gray-400" /> Transaction History

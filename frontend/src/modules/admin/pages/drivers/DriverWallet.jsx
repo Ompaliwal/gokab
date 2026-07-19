@@ -41,7 +41,7 @@ const DriverWallet = () => {
   return (
     <div className="space-y-10 p-1 animate-in fade-in duration-700 font-sans text-gray-950">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-6">
          <div>
             <h1 className="text-4xl font-black tracking-tight text-gray-900 mb-2 leading-none">Fleet Ledger</h1>
             <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
@@ -61,9 +61,9 @@ const DriverWallet = () => {
       </div>
 
       {/* WALLET SUMMARY */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-         <div className="bg-gray-950 p-8 rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-20 scale-[2.5] -rotate-12 translate-x-4"><Wallet size={80} strokeWidth={1} /></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+         <div className="bg-gray-950 p-4 md:p-8 rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 md:p-6 opacity-20 scale-[2.5] -rotate-12 translate-x-4"><Wallet size={80} strokeWidth={1} /></div>
             <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 relative z-10">Total Balance Pool</p>
             <div className="relative z-10 mb-8">
                <p className="text-4xl font-black tracking-tighter leading-none mb-2">{walletStats.totalBalance}</p>
@@ -73,8 +73,8 @@ const DriverWallet = () => {
             </div>
          </div>
 
-         <div className="bg-white p-8 rounded-[40px] border border-gray-50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-5 scale-[2] -rotate-12 translate-x-4"><Clock size={80} strokeWidth={1} /></div>
+         <div className="bg-white p-4 md:p-8 rounded-[40px] border border-gray-50 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 md:p-6 opacity-5 scale-[2] -rotate-12 translate-x-4"><Clock size={80} strokeWidth={1} /></div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Pending Payouts</p>
             <div className="relative z-10">
                <p className="text-3xl font-black text-gray-950 tracking-tight leading-none mb-2">{walletStats.pendingPayouts}</p>
@@ -84,8 +84,8 @@ const DriverWallet = () => {
             </div>
          </div>
 
-         <div className="bg-white p-8 rounded-[40px] border border-gray-50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-5 scale-[2] -rotate-12 translate-x-4 group-hover:scale-[2.4] transition-transform duration-1000"><CheckCircle2 size={80} strokeWidth={1} /></div>
+         <div className="bg-white p-4 md:p-8 rounded-[40px] border border-gray-50 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 md:p-6 opacity-5 scale-[2] -rotate-12 translate-x-4 group-hover:scale-[2.4] transition-transform duration-1000"><CheckCircle2 size={80} strokeWidth={1} /></div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Processed Today</p>
             <div className="relative z-10">
                <p className="text-3xl font-black text-gray-950 tracking-tight leading-none mb-2">{walletStats.processedToday}</p>
@@ -95,8 +95,8 @@ const DriverWallet = () => {
             </div>
          </div>
 
-         <div className="bg-white p-8 rounded-[40px] border border-rose-50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-10 text-rose-500 scale-[2] -rotate-12 translate-x-4"><AlertCircle size={80} strokeWidth={1} /></div>
+         <div className="bg-white p-4 md:p-8 rounded-[40px] border border-rose-50 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 md:p-6 opacity-10 text-rose-500 scale-[2] -rotate-12 translate-x-4"><AlertCircle size={80} strokeWidth={1} /></div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Verification Failures</p>
             <div className="relative z-10">
                <p className="text-3xl font-black text-rose-500 tracking-tight leading-none mb-2">{walletStats.failedTransactions}</p>
@@ -177,8 +177,8 @@ const DriverWallet = () => {
       </div>
 
       {/* FOOTER STATS */}
-      <div className="p-8 bg-white border border-gray-50 rounded-[40px] shadow-sm flex items-center justify-between">
-         <div className="flex items-center gap-8">
+      <div className="p-4 md:p-8 bg-white border border-gray-50 rounded-[40px] shadow-sm flex items-center justify-between">
+         <div className="flex items-center gap-4 md:gap-8">
             <div className="flex items-center gap-3">
                <div className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl border border-emerald-100"><TrendingUp size={24} /></div>
                <div>

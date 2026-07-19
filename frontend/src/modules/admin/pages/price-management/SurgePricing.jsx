@@ -79,7 +79,7 @@ const SurgePricing = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       
       {/* Header Block from Design System */}
       <div className="mb-8">
@@ -99,11 +99,11 @@ const SurgePricing = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
         
         {/* Summary Info (Left Sidebar style) */}
         <div className="lg:col-span-1 space-y-4">
-           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+           <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-50">
                  <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                     <Settings size={18} />
@@ -142,7 +142,7 @@ const SurgePricing = () => {
                  ))}
               </div>
 
-              <div className="p-8 flex-grow">
+              <div className="p-4 md:p-8 flex-grow">
                  <div className="flex justify-between items-center mb-8">
                     <h2 className="text-sm font-black text-gray-800 uppercase tracking-widest flex items-center gap-2">
                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
@@ -163,7 +163,7 @@ const SurgePricing = () => {
                  ) : (
                     <div className="space-y-6">
                        {surges.map((row, idx) => (
-                          <div key={idx} className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-6 items-end relative overflow-hidden group">
+                          <div key={idx} className="bg-gray-50/50 p-4 md:p-6 rounded-xl border border-gray-100 grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 items-end relative overflow-hidden group">
                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-200 group-hover:bg-indigo-500 transition-colors"></div>
                              
                              <div>
@@ -211,7 +211,7 @@ const SurgePricing = () => {
                  )}
               </div>
 
-              <div className="p-8 border-t border-gray-100 flex justify-end bg-gray-50/20">
+              <div className="p-4 md:p-8 border-t border-gray-100 flex justify-end bg-gray-50/20">
                  <button onClick={handleUpdate} className="bg-indigo-600 text-white px-12 py-3 rounded-xl text-sm font-black uppercase tracking-widest shadow-xl hover:bg-indigo-700 transition-all hover:translate-y-[-2px] active:translate-y-[0px] shadow-indigo-200">
                     Update Surge
                  </button>

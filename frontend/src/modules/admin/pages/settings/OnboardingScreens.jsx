@@ -155,7 +155,7 @@ const OnboardingScreens = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8 font-sans">
       <div className="mb-8">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
           <span>Settings</span>
@@ -185,7 +185,7 @@ const OnboardingScreens = () => {
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {['user', 'driver', 'owner'].map((role) => (
             <div key={role} className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${role === 'user' ? 'bg-indigo-50 text-indigo-600' : role === 'driver' ? 'bg-amber-50 text-amber-600' : 'bg-green-50 text-green-600'}`}>
@@ -293,7 +293,7 @@ const OnboardingScreens = () => {
             </table>
           </div>
 
-          <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+          <div className="p-4 md:p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
             <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
               Showing {visibleScreens.length ? 1 : 0} to {visibleScreens.length} of {filteredScreens.length} Registry Items
             </div>

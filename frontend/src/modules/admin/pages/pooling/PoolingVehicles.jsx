@@ -84,7 +84,7 @@ const PoolingVehicles = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
           <span>Car Pooling</span>
@@ -177,7 +177,7 @@ const PoolingVehicles = () => {
 
           {filteredVehicles.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-12 text-center">
-              <div className="mb-4 rounded-full bg-slate-50 p-6 text-slate-300">
+              <div className="mb-4 rounded-full bg-slate-50 p-4 md:p-6 text-slate-300">
                 <Car size={48} strokeWidth={1} />
               </div>
               <h3 className="text-lg font-black uppercase tracking-tight text-slate-900">No vehicles found</h3>

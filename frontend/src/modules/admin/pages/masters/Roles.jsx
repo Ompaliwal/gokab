@@ -57,7 +57,7 @@ const Roles = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
         <span>Masters</span>
@@ -67,7 +67,7 @@ const Roles = () => {
       <h1 className="text-xl font-semibold text-gray-900 mb-6">Roles</h1>
 
       {/* Create Form */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 mb-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-4">Create New Role</h3>
         <form onSubmit={handleCreateRole} className="flex items-end gap-5 flex-wrap">
           <div className="flex-1 min-w-[200px]">

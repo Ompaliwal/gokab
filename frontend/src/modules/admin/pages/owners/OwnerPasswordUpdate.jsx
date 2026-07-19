@@ -57,7 +57,7 @@ const OwnerPasswordUpdate = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-950">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <AdminPageHeader module="Owner Management" page="Owners" title="Update Owner Password" backTo="/admin/owners" />
 
         <div className="mt-6">
@@ -65,7 +65,7 @@ const OwnerPasswordUpdate = () => {
             onSubmit={handleSubmit}
             className="rounded border border-gray-200 bg-white px-4 py-9 shadow-sm md:px-5"
           >
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm font-semibold text-gray-950">
                 Password <span className="text-red-500">*</span>

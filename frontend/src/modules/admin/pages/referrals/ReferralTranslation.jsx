@@ -286,7 +286,7 @@ const HtmlEditor = ({ label, value, onChange, plainText = false, appName = 'App'
 };
 
 const PreviewCard = ({ title, code, bannerText, blocks }) => (
-  <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+  <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-6 shadow-sm">
     <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
       <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
         <Smartphone size={18} />
@@ -330,7 +330,7 @@ const PreviewCard = ({ title, code, bannerText, blocks }) => (
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
           <button type="button" className="rounded-xl bg-gray-900 text-white py-2.5 text-[10px] font-bold uppercase tracking-widest">
             Refer
           </button>
@@ -486,7 +486,7 @@ const ReferralTranslation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {/* HEADER BLOCK */}
       <div className="mb-6">
         <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
@@ -515,7 +515,7 @@ const ReferralTranslation = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 mb-8">
         <PreviewCard
           title="User App Preview"
           code="RedigoUSER"
@@ -554,7 +554,7 @@ const ReferralTranslation = () => {
           ))}
         </div>
 
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <div className="space-y-12">
             {error && (
               <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600 animate-in fade-in">
@@ -584,7 +584,7 @@ const ReferralTranslation = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                 {USER_REFERRAL_TRANSLATION_FIELDS.map((field) => (
                   <HtmlEditor
                     key={field.key}
@@ -610,7 +610,7 @@ const ReferralTranslation = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                 {DRIVER_REFERRAL_TRANSLATION_FIELDS.map((field) => (
                   <HtmlEditor
                     key={field.key}

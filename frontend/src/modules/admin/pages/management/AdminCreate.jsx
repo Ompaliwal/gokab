@@ -224,7 +224,7 @@ const AdminCreate = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,_#EFF6FF_0%,_#F8FAFC_32%)] p-6 lg:p-8">
+    <div className="min-h-screen bg-[linear-gradient(180deg,_#EFF6FF_0%,_#F8FAFC_32%)] p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -251,9 +251,9 @@ const AdminCreate = () => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-12">
           <div className="space-y-6 xl:col-span-4">
-            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
+            <div className="rounded-[30px] border border-slate-200 bg-white p-4 md:p-6 shadow-lg shadow-slate-200/50">
               <div className="mb-6 flex items-center gap-3">
                 <div className="rounded-2xl bg-blue-50 p-3 text-blue-700">
                   <UserRound size={18} />
@@ -267,7 +267,7 @@ const AdminCreate = () => {
               <div className="space-y-5">
                 <div>
                   <label className={labelClass}>Admin Type</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {[
                       { key: 'superadmin', label: 'Superadmin' },
                       { key: 'subadmin', label: 'Subadmin' },
@@ -324,7 +324,7 @@ const AdminCreate = () => {
               </div>
             </div>
 
-            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
+            <div className="rounded-[30px] border border-slate-200 bg-white p-4 md:p-6 shadow-lg shadow-slate-200/50">
               <div className="mb-6 flex items-center gap-3">
                 <div className="rounded-2xl bg-slate-100 p-3 text-slate-700">
                   <LockKeyhole size={18} />
@@ -361,7 +361,7 @@ const AdminCreate = () => {
           </div>
 
           <div className="space-y-6 xl:col-span-8">
-            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
+            <div className="rounded-[30px] border border-slate-200 bg-white p-4 md:p-6 shadow-lg shadow-slate-200/50">
               <div className="mb-6 flex items-center gap-3">
                 <div className="rounded-2xl bg-violet-50 p-3 text-violet-700">
                   <Shield size={18} />
@@ -397,7 +397,7 @@ const AdminCreate = () => {
               )}
             </div>
 
-            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50">
+            <div className="rounded-[30px] border border-slate-200 bg-white p-4 md:p-6 shadow-lg shadow-slate-200/50">
               <div className="mb-6 flex items-center gap-3">
                 <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700">
                   <MapPinned size={18} />
@@ -457,7 +457,7 @@ const AdminCreate = () => {
               )}
             </div>
 
-            <div className="flex flex-col gap-3 rounded-[30px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50 sm:flex-row sm:justify-end">
+            <div className="flex flex-col gap-3 rounded-[30px] border border-slate-200 bg-white p-4 md:p-6 shadow-lg shadow-slate-200/50 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => navigate('/admin/management/admins')}

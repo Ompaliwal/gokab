@@ -288,8 +288,8 @@ const GeoFencing = () => {
   const renderMapCanvas = () => {
     if (loadError) {
       return (
-        <div className="h-full w-full flex items-center justify-center bg-gray-50 p-8">
-          <div className="max-w-md rounded-3xl border border-rose-100 bg-white p-8 shadow-sm">
+        <div className="h-full w-full flex items-center justify-center bg-gray-50 p-4 md:p-8">
+          <div className="max-w-md rounded-3xl border border-rose-100 bg-white p-4 md:p-8 shadow-sm">
             <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
               <AlertTriangle size={24} />
             </div>
@@ -368,7 +368,7 @@ const GeoFencing = () => {
 
     return (
       <div className="h-full w-full bg-[radial-gradient(circle_at_top,#dbeafe,transparent_35%),linear-gradient(135deg,#eff6ff_0%,#f8fafc_55%,#eef2ff_100%)] flex items-center justify-center p-10">
-        <div className="max-w-xl bg-white/95 border border-gray-100 rounded-[32px] p-8 shadow-xl">
+        <div className="max-w-xl bg-white/95 border border-gray-100 rounded-[32px] p-4 md:p-8 shadow-xl">
           <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5">
             <MapIcon size={28} />
           </div>
@@ -400,7 +400,7 @@ const GeoFencing = () => {
 
   if (currentView === 'gods-eye') {
     return (
-      <div className="grid grid-cols-1 xl:grid-cols-[320px,minmax(0,1fr),300px] gap-6 min-h-[calc(100vh-120px)] animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="grid grid-cols-1 xl:grid-cols-[320px,minmax(0,1fr),300px] gap-4 md:gap-6 min-h-[calc(100vh-120px)] animate-in fade-in slide-in-from-bottom-4 duration-500">
         <aside className="rounded-[32px] border border-cyan-100 bg-[linear-gradient(180deg,#ecfeff_0%,#ffffff_100%)] shadow-sm p-5 flex flex-col overflow-hidden">
           <div className="space-y-1 mb-5">
             <p className="text-[11px] font-black text-cyan-700 uppercase tracking-[0.25em]">Geo Deck</p>
@@ -408,7 +408,7 @@ const GeoFencing = () => {
             <p className="text-[12px] font-bold text-slate-500">Dedicated live map for zone intelligence and fleet spread.</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
             <div className="bg-white rounded-2xl border border-cyan-100 p-4 shadow-sm">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Online Fleet</p>
               <div className="flex items-center gap-2">
@@ -453,7 +453,7 @@ const GeoFencing = () => {
 
           <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 pr-1">
             {loading ? (
-              <div className="bg-white border border-cyan-100 rounded-2xl p-6 text-center text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+              <div className="bg-white border border-cyan-100 rounded-2xl p-4 md:p-6 text-center text-[12px] font-bold text-gray-400 uppercase tracking-widest">
                 Syncing map data...
               </div>
             ) : filteredZones.length > 0 ? (
@@ -467,7 +467,7 @@ const GeoFencing = () => {
                 />
               ))
             ) : (
-              <div className="bg-white border border-cyan-100 rounded-2xl p-6 text-center">
+              <div className="bg-white border border-cyan-100 rounded-2xl p-4 md:p-6 text-center">
                 <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">No zones available</p>
               </div>
             )}
@@ -477,7 +477,7 @@ const GeoFencing = () => {
         <section className="rounded-[36px] overflow-hidden border border-slate-200 bg-[#082f49] shadow-[0_30px_80px_rgba(8,47,73,0.12)] relative min-h-[calc(100vh-120px)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.25),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.18),transparent_28%)] pointer-events-none z-0" />
 
-          <div className="absolute top-0 left-0 right-0 z-10 p-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="absolute top-0 left-0 right-0 z-10 p-4 md:p-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-cyan-100 border border-white/10 backdrop-blur-md">
                 <Crosshair size={14} />
@@ -589,7 +589,7 @@ const GeoFencing = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-120px)] gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="flex h-[calc(100vh-120px)] gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="w-80 shrink-0 flex flex-col space-y-5 overflow-y-auto no-scrollbar pb-10">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">Geo Operations</h1>
@@ -599,7 +599,7 @@ const GeoFencing = () => {
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 p-2 shadow-sm">
-          <div className="grid grid-cols-3 gap-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
             {GEO_NAV_ITEMS.map((item) => {
               const isActive = location.pathname === item.path;
               return (
@@ -617,7 +617,7 @@ const GeoFencing = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Online Fleet</p>
             <div className="flex items-center gap-2">
@@ -668,7 +668,7 @@ const GeoFencing = () => {
           </div>
 
           {loading ? (
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 text-center text-[12px] font-bold text-gray-400 uppercase tracking-widest">
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 md:p-6 text-center text-[12px] font-bold text-gray-400 uppercase tracking-widest">
               Syncing map data...
             </div>
           ) : filteredZones.length > 0 ? (
@@ -681,7 +681,7 @@ const GeoFencing = () => {
               />
             ))
           ) : (
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 text-center">
+            <div className="bg-white border border-gray-100 rounded-2xl p-4 md:p-6 text-center">
               <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">No zones match your search</p>
             </div>
           )}

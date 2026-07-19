@@ -234,7 +234,7 @@ const WithdrawalRequestDetail = () => {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-12 gap-4 md:gap-8 items-start">
         <div className="col-span-12 lg:col-span-4 space-y-6">
           <div className="bg-indigo-950 rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-10 opacity-10 scale-[2] -rotate-12 translate-x-4">
@@ -256,7 +256,7 @@ const WithdrawalRequestDetail = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm space-y-6">
+          <div className="bg-white rounded-[40px] border border-gray-100 p-4 md:p-8 shadow-sm space-y-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
                 <User size={20} />
@@ -310,7 +310,7 @@ const WithdrawalRequestDetail = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm">
+          <div className="bg-white rounded-[40px] border border-gray-100 p-4 md:p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
                 <Building size={20} />
@@ -320,7 +320,7 @@ const WithdrawalRequestDetail = () => {
               </h4>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-3xl border border-gray-100 bg-gray-50/70 px-4 py-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pending Count</p>
                 <p className="mt-2 text-2xl font-black text-gray-950">{pendingCount}</p>
@@ -343,7 +343,7 @@ const WithdrawalRequestDetail = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-[40px] border border-gray-100 p-8 shadow-sm space-y-6">
+          <div className="bg-white rounded-[40px] border border-gray-100 p-4 md:p-8 shadow-sm space-y-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-sky-50 text-sky-600 rounded-2xl">
                 <Building size={20} />
@@ -396,7 +396,7 @@ const WithdrawalRequestDetail = () => {
 
         <div className="col-span-12 lg:col-span-8 space-y-6">
           <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden min-h-[400px]">
-            <div className="p-8 border-b border-gray-50 flex items-center justify-between">
+            <div className="p-4 md:p-8 border-b border-gray-50 flex items-center justify-between">
               <h3 className="text-[14px] font-black text-gray-900 uppercase tracking-widest leading-none">
                 Withdrawal Request History
               </h3>
@@ -405,7 +405,7 @@ const WithdrawalRequestDetail = () => {
               </span>
             </div>
 
-            <div className="p-6 bg-gray-50/10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-50">
+            <div className="p-4 md:p-6 bg-gray-50/10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-gray-50">
               <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-widest text-gray-400">
                 show
                 <select
@@ -521,7 +521,7 @@ const WithdrawalRequestDetail = () => {
               </table>
             </div>
 
-            <div className="p-8 border-t border-gray-50 bg-gray-50/20 text-center">
+            <div className="p-4 md:p-8 border-t border-gray-50 bg-gray-50/20 text-center">
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
                 Showing 1 to {filteredHistory.length} of {history.length} entries
               </p>

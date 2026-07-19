@@ -222,14 +222,14 @@ const AppModules = ({ mode: propMode }) => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-8 lg:p-10">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10">
           <motion.div 
             key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             className="max-w-7xl mx-auto"
           >
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[500px]">
               {/* Table Toolbar matches Image 1 */}
-              <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="p-4 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                 <div className="flex items-center gap-3 text-[13px] text-gray-400 font-medium">
                   <span>show</span>
                   <select 
@@ -463,10 +463,10 @@ const AppModules = ({ mode: propMode }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 lg:p-10 shrink-0">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 shrink-0">
         <motion.div 
           key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-          className="max-w-[1400px] mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-8 lg:p-12 mb-20"
+          className="max-w-[1400px] mx-auto bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8 lg:p-12 mb-20"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
             <div className="space-y-1.5">
@@ -539,7 +539,7 @@ const AppModules = ({ mode: propMode }) => {
               className="mt-2 w-full max-w-[400px] h-[300px] border-2 border-dashed border-gray-100 rounded-xl flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-indigo-400 transition-all cursor-pointer group group relative overflow-hidden shadow-inner"
             >
               { (imagePreview || formData.mobile_menu_icon) ? (
-                  <div className="relative w-full h-full p-8 flex items-center justify-center">
+                  <div className="relative w-full h-full p-4 md:p-8 flex items-center justify-center">
                     <img src={imagePreview || formData.mobile_menu_icon} className="max-w-full max-h-full object-contain" alt="Preview" />
                     {imageUploading && <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-sm"><Loader2 className="animate-spin text-indigo-600" /></div>}
                   </div>

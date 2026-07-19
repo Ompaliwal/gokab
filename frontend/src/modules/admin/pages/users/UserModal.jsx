@@ -70,7 +70,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, editingUser = null, isLoading = 
         className="bg-white rounded-[32px] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-8 space-y-8">
+        <div className="p-4 md:p-8 space-y-8">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-2xl font-black text-gray-950 uppercase tracking-tighter">
@@ -89,7 +89,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, editingUser = null, isLoading = 
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Full Name</label>
                 <div className="relative group">

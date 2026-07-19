@@ -300,7 +300,7 @@ const GoodsTypes = ({ mode }) => {
 
   if (!isEditor) {
     return (
-      <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+      <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
             <span>Pricing</span>
@@ -410,7 +410,7 @@ const GoodsTypes = ({ mode }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="mb-2 flex items-center gap-1.5 text-xs text-slate-400">
@@ -439,7 +439,7 @@ const GoodsTypes = ({ mode }) => {
       ) : null}
 
       <form onSubmit={handleSave} className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-        <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-2 lg:p-8">
+        <div className="grid grid-cols-1 gap-4 md:gap-8 p-4 md:p-6 lg:grid-cols-2 lg:p-8">
           <div>
             <label className={labelClass}>Goods Type Name *</label>
             <input
@@ -539,7 +539,7 @@ const GoodsTypes = ({ mode }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/50 p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/50 p-4 md:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="flex items-start gap-3 rounded-2xl bg-amber-50 px-4 py-3">
             <Info size={16} className="mt-0.5 shrink-0 text-amber-600" />
             <p className="text-sm text-amber-800">

@@ -95,7 +95,7 @@ const Deliveries = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-5 xl:flex-nowrap">
-              <div className="flex flex-wrap items-center gap-8 border-b border-gray-200 xl:min-w-[840px]">
+              <div className="flex flex-wrap items-center gap-4 md:gap-8 border-b border-gray-200 xl:min-w-[840px]">
                 {TABS.map((tab) => {
                   const isActive = activeTab === tab;
                   return (

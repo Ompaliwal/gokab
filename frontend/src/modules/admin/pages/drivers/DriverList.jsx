@@ -207,7 +207,7 @@ const DriverList = ({ mode = 'approved' }) => {
   const showingTo = totalEntries === 0 ? 0 : Math.min(startIndex + drivers.length, totalEntries);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
       {error && (
         <div className="mb-4 rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600">
           {error}
@@ -463,9 +463,9 @@ const DriverList = ({ mode = 'approved' }) => {
 
       {/* Password Modal */}
       {passwordModal.isOpen && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 md:p-6 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-xl w-full max-w-sm shadow-xl border border-gray-200">
-            <div className="p-6 space-y-5">
+            <div className="p-4 md:p-6 space-y-5">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-semibold text-gray-900">Update Password</h3>

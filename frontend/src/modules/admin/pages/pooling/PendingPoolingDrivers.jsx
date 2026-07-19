@@ -78,7 +78,7 @@ const PendingPoolingDrivers = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-50/50 p-4 md:p-6 lg:p-8">
       <div className="mb-8">
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
           <span>Car Pooling</span>

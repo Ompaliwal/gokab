@@ -191,7 +191,7 @@ const RentalTrackingDetail = () => {
     : '';
 
   return (
-    <div className="min-h-screen bg-[#f6f7fb] p-6 lg:p-8">
+    <div className="min-h-screen bg-[#f6f7fb] p-4 md:p-6 lg:p-8">
       <AdminPageHeader
         module="Pricing"
         page="Rental Tracking"
@@ -208,7 +208,7 @@ const RentalTrackingDetail = () => {
           <h2 className="text-xl font-black text-slate-900">Tracking item not found</h2>
         </div>
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
+        <div className="grid gap-4 md:gap-6 xl:grid-cols-[1.3fr_0.9fr]">
           <div className="space-y-6">
             <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
